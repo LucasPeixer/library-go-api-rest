@@ -17,6 +17,7 @@ func main() {
 	if(err != nil){
 		panic(err)
 	}
+	//Camada Repository
 	bookRepository := repository.NewBookRepository(dbConnection)
 	//Camada UseCase
 	bookUseCase := usecase.NewBookUseCase(bookRepository)
@@ -24,12 +25,6 @@ func main() {
 	bookController := controller.NewBookController(bookUseCase)
 	
 	server := gin.Default()
-
-	server.GET("/ping", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-				"message": "pong",
-		})
-	})
 
 	server.GET("/book", bookController.GetBooks)
 
