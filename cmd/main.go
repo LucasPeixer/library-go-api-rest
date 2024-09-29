@@ -19,14 +19,18 @@ func main() {
 	}
 	//Camada Repository
 	bookRepository := repository.NewBookRepository(dbConnection)
+	genreRepository := repository.NewGenreRepository(dbConnection)
 	//Camada UseCase
 	bookUseCase := usecase.NewBookUseCase(bookRepository)
+	genreUseCase := usecase.NewGenreUseCase(genreRepository)
 	//Camada de Controllers
 	bookController := controller.NewBookController(bookUseCase)
+	genreController := controller.NewGenreController(genreUseCase)
 	
 	server := gin.Default()
 
-	server.GET("/book", bookController.GetBooks)
+	server.GET("/books", bookController.GetBooks)
+	server.GET("/genres", genreController.GetGenres)
 
 	server.Run(":8000")
 }
