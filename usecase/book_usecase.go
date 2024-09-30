@@ -19,6 +19,11 @@ func (bu *BookUsecase) GetBooks() ([]model.Book,error){
 	return bu.repository.GetBooks()
 }
 
-func (bc *BookUsecase) CreateBook(book model.Book) (string,error){
-	return bc.repository.CreateBook(book)
+func (bu *BookUsecase) CreateBook(book model.Book) (string,error){
+	lastInsertID, err := bu.repository.CreateBook(book)
+	if(err != nil){
+		return "", err
+	}
+
+	return lastInsertID, nil
 }
