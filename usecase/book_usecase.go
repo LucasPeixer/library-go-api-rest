@@ -18,3 +18,7 @@ func NewBookUseCase(repo repository.BookRepository) BookUsecase {
 func (bu *BookUsecase) GetBooks() ([]model.Book,error){
 	return bu.repository.GetBooks()
 }
+
+func (bc *BookUsecase) CreateBook(book model.Book) (string,error){
+	return bc.repository.CreateBook(book)
+}
