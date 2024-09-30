@@ -1,41 +1,41 @@
 -- Active: 1727140703105@@vividly-climbing-mallard.data-1.use1.tembo.io@5432@armazem_DB@public
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-INSERT INTO books (title, synopsis, price, amount) VALUES ('Lucas', 'Venda muito', 5.90, 4);
-INSERT INTO authors (name,nationality) VALUES ('Paulo Freire', 'Brasileiro'),('Roberto Marinho','Portugues');
-INSERT INTO genres (name) VALUES ('Drama');
-UPDATE books SET amount = amount - 4 WHERE id = 'daeab76d';
+INSERT INTO book (title, synopsis, price, amount) VALUES ('Lucas', 'Venda muito', 5.90, 4);
+INSERT INTO author (name,nationality) VALUES ('Paulo Freire', 'Brasileiro'),('Roberto Marinho','Portugues');
+INSERT INTO genre (name) VALUES ('Drama');
+UPDATE book SET amount = amount - 4 WHERE id = 'daeab76d';
 
-SELECT * FROM books;
+SELECT * FROM book;
 SELECT * FROM inventory_logs;
-SELECT * FROM authors;
-UPDATE books SET author_id = 2 WHERE id = 'c7a0972e';
+SELECT * FROM author;
+UPDATE book SET author_id = 2 WHERE id = 'c7a0972e';
 
-ALTER TABLE books ALTER COLUMN author_id SET ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE book ALTER COLUMN author_id SET ON DELETE RESTRICT ON UPDATE CASCADE;
 
-CREATE TABLE books(  
+CREATE TABLE book(  
     id CHAR(8) PRIMARY KEY DEFAULT substring(md5(random()::text) FROM 1 FOR 8),
     title VARCHAR(200) NOT NULL,
     synopsis VARCHAR(500) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     amount INT DEFAULT 0,
-    author_id INT REFERENCES authors (id) ON DELETE RESTRICT/NO ACTION
+    author_id INT REFERENCES author (id) ON DELETE RESTRICT/NO ACTION
 );
 
-CREATE TABLE authors(
+CREATE TABLE author(
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   nationality VARCHAR(100)
 );
 
-CREATE TABLE genres(
+CREATE TABLE genre(
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE genre_book (
-  fk_book_id CHAR(8) REFERENCES books(id),
-  fk_genre_id INT REFERENCES genres(id),
+  fk_book_id CHAR(8) REFERENCES book(id),
+  fk_genre_id INT REFERENCES genre(id),
   PRIMARY KEY (fk_book_id,fk_genre_id)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE inventory_logs (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   quantity INT,
   update_type VARCHAR(10),
-  book_id CHAR(8) REFERENCES books(id) 
+  book_id CHAR(8) REFERENCES book(id) 
 );
 
 -- Procedure para atualizar os logs
@@ -71,7 +71,7 @@ $$ LANGUAGE plpgsql;
 
  
 CREATE TRIGGER track_inventory_changes
-AFTER INSERT OR UPDATE ON books
+AFTER INSERT OR UPDATE ON book
 FOR EACH ROW
 EXECUTE FUNCTION log_inventory_changes();
 

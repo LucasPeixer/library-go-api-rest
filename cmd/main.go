@@ -28,10 +28,9 @@ func main() {
 	genreController := controller.NewGenreController(genreUseCase)
 	
 	server := gin.Default()
-	//Camada de GET
+	
 	server.GET("/livros", bookController.GetBooks)
 	server.GET("/generos", genreController.GetGenres)
-	//Camada de POST
 	server.POST("/livros/registro", bookController.CreateBook)
 
 	server.Run(":8000")

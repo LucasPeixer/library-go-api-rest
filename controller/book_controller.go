@@ -26,16 +26,16 @@ func (b *bookController) GetBooks(ctx *gin.Context){
 	ctx.JSON(http.StatusOK, books)
 }
 
-func (bc *bookController) CreateBook(ctx *gin.Context) {
+func (b *bookController) CreateBook(ctx *gin.Context) {
 	var newBook model.Book
 
-	// Binda o JSON da requisição para o Model (Direciona corretamente os dados para os campos do Model)
-	if err := ctx.ShouldBindJSON(&newBook); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
+	err := ctx.BindJSON(&newBook)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	lastInsertID, err := bc.bookUseCase.CreateBook(newBook)
+	lastInsertID, err := b.bookUseCase.CreateBook(newBook)
 	if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao registrar o livro"})
 			return

@@ -52,7 +52,7 @@ func (pr *BookRepository) GetBooks() ([]model.Book, error){
 func (pr *BookRepository) CreateBook(book model.Book) (string, error){
 	query, err := pr.connection.Prepare("INSERT INTO books" +
 							"(title, synopsis, price, amount, author_id)" +
-							"VALUES (1$, 2$, 3$ , 4$, 5$) RETURNING id")
+							"VALUES ($1, $2, $3 , $4, $5) RETURNING id")
 
 	if err != nil {
 			fmt.Println(err)
