@@ -33,7 +33,8 @@ func (pr *BookRepository) GetBooks() ([]model.Book, error){
 			&bookObj.Title,
 			&bookObj.Synopsis,
 			&bookObj.Price,
-			&bookObj.Amount)
+			&bookObj.Amount,
+			&bookObj.Author_id)
 		if(err != nil){
 			fmt.Println(err)
 		return []model.Book{}, err
