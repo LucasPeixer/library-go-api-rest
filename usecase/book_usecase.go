@@ -3,6 +3,8 @@ package usecase
 import (
 	"go-api/model"
 	"go-api/repository"
+
+	"github.com/gin-gonic/gin"
 )
 
 type BookUsecase struct {
@@ -15,8 +17,17 @@ func NewBookUseCase(repo repository.BookRepository) BookUsecase {
 	}
 }
 
-func (bu *BookUsecase) GetBooks() ([]model.Book,error){
-	return bu.repository.GetBooks()
+func (bu *BookUsecase) GetAllBooks() ([]model.Book,error){
+	return bu.repository.GetAllBooks()
+}
+
+func (bu *BookUsecase) GetBooks(ctx *gin.Context) ([]model.Book, error){
+	books, err := bu.repository.GetBooks(ctx)
+
+	if err != nil {
+		return nil, err
+	}	
+	return books, nil
 }
 
 func (bu *BookUsecase) CreateBook(book model.Book) (string,error){

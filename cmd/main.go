@@ -28,8 +28,9 @@ func main() {
 	genreController := controller.NewGenreController(genreUseCase)
 	
 	server := gin.Default()
-	
-	server.GET("/livros", bookController.GetBooks)
+
+	server.GET("/livros", bookController.GetAllBooks)
+	server.GET("/livro", bookController.GetBooks)
 	server.GET("/generos", genreController.GetGenres)
 	server.POST("/livros/registro", bookController.CreateBook)
 

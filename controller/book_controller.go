@@ -18,11 +18,22 @@ func NewBookController(usecase usecase.BookUsecase) bookController {
 	}
 }
 
+func (b *bookController) GetAllBooks(ctx *gin.Context){
+	books, err := b.bookUseCase.GetAllBooks()
+	if(err != nil){
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, books)
+}
+
 func (b *bookController) GetBooks(ctx *gin.Context){
-	books, err := b.bookUseCase.GetBooks()
+	books, err := b.bookUseCase.GetBooks(ctx)
+
 	if(err != nil){
 		ctx.JSON(http.StatusInternalServerError, err)
 	}
+
 	ctx.JSON(http.StatusOK, books)
 }
 
