@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"go-api/model"
 	"go-api/repository"
 )
@@ -17,4 +18,14 @@ func NewGenreUseCase(repo repository.GenreRepository) GenreUsecase {
 
 func (gu *GenreUsecase) GetGenres() ([]model.Genre,error){
 	return gu.repository.GetGenres()
+}
+
+func (gu *GenreUsecase) CreateGenre(genre model.Genre) (string, error){
+	lastGenreCreated, err := gu.repository.CreateGenre(genre)
+	if(err != nil) {
+		fmt.Println(err)
+		return "", err
+	}
+
+	return lastGenreCreated, nil
 }

@@ -8,4 +8,5 @@ import (
 func RegisterRoutes(router *gin.Engine){
 	api := router.Group("/api/v1")
 	BooksRouter(api)
+	GenreRouter(api)
 }
