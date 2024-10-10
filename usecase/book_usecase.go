@@ -38,3 +38,12 @@ func (bu *BookUsecase) CreateBook(book model.Book) (string,error){
 
 	return lastInsertID, nil
 }
+
+func (bu *BookUsecase) DeleteBook(ctx *gin.Context) (string,error){
+	lastDeleteBook, err := bu.repository.DeleteBook(ctx)
+	if(err != nil){
+		return "", err
+	}
+
+	return lastDeleteBook, nil
+}
