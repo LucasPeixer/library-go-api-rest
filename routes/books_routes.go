@@ -17,6 +17,8 @@ func BooksRouter(rg *gin.RouterGroup) {
 		panic(err)
 	}
 
+	defer dbConnection.Close()
+
 	bookRepository := repository.NewBookRepository(dbConnection)
 	bookUseCase := usecase.NewBookUseCase(bookRepository)
 	bookController := controller.NewBookController(bookUseCase)
@@ -26,6 +28,7 @@ func BooksRouter(rg *gin.RouterGroup) {
 		{
 			//books.GET("/", bookController.GetAllBooks)
 			books.GET("/", bookController.GetBooks)
+			books.DELETE("/gerenciamento", bookController.DeleteBook)
 			books.POST("/registro", bookController.CreateBook)
 		}
 

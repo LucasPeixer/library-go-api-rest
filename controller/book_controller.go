@@ -54,3 +54,14 @@ func (b *bookController) CreateBook(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Livro registrado com sucesso", "book_id": lastInsertID})
 }
+
+func (b *bookController) DeleteBook(ctx *gin.Context){
+	lastBookDeleted, err := b.bookUseCase.DeleteBook(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar o Livro"})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Livro deletado com sucesso!", "Informações do Livro": lastBookDeleted})
+}
