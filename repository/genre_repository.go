@@ -30,7 +30,7 @@ func (pr *GenreRepository) GetGenres() ([]model.Genre, error){
 	for rows.Next(){
 		err = rows.Scan(
 			&genreObj.ID,
-			&genreObj.Name)
+			&genreObj.Genre)
 
 		if(err != nil){
 			fmt.Println(err)
@@ -43,4 +43,24 @@ func (pr *GenreRepository) GetGenres() ([]model.Genre, error){
 	rows.Close()
 
 	return genreList, nil
+}
+
+func (pr *GenreRepository) CreateGenre(genre model.Genre) (string, error){
+	query,err := pr.connection.Prepare("INSERT INTO genre (genre) VALUES($1)")
+	if (err != nil){
+		fmt.Println(err)
+		return "", err
+	}
+
+	defer query.Close()
+
+	var title string
+
+	err = query.QueryRow(genre.ID, genre.Genre).Scan(&title)
+	if(err != nil){
+		fmt.Println(err)
+		return "", err
+	}
+	return title, nil
+
 }
