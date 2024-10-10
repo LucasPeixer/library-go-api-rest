@@ -22,10 +22,10 @@ func BooksRouter(rg *gin.RouterGroup) {
 	bookController := controller.NewBookController(bookUseCase)
 
 		//Separando as rotas dos livros
-		books := rg.Group("/livro")
+		books := rg.Group("/livros")
 		{
-			books.GET("/", bookController.GetAllBooks)
-			books.GET("/:{id}", bookController.GetBooks)
+			//books.GET("/", bookController.GetAllBooks)
+			books.GET("/", bookController.GetBooks)
 			books.POST("/registro", bookController.CreateBook)
 		}
 

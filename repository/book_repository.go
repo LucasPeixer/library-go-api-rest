@@ -19,7 +19,7 @@ func NewBookRepository (connection *sql.DB) BookRepository {
 }
 
 func (pr *BookRepository) GetAllBooks() ([]model.Book, error){
-	query := "SELECT * FROM books"
+	query := "SELECT * FROM book"
 	rows, err := pr.connection.Query(query)
 	if(err != nil){
 		fmt.Println(err)
@@ -56,7 +56,7 @@ func (pr *BookRepository) GetBooks(c *gin.Context) ([]model.Book, error){
 	genre := c.Query("genre")
 	author := c.Query("author")
 
-	query := "SELECT * FROM books WHERE 1=1"
+	query := "SELECT * FROM book WHERE 1=1"
 	var args []interface{}
 	argIdx := 1
 
@@ -122,6 +122,41 @@ func (pr *BookRepository) GetBooks(c *gin.Context) ([]model.Book, error){
 	}
 
 	return bookList, nil
+}
+
+func (pr *BookRepository) DeleteBook(c *gin.Context) (string, error){
+	id := c.Param("id")
+	title := c.Param("title")
+
+	query, err := pr.connection.Prepare("DELETE FROM book WHERE id = $1")
+
+	if err != nil {
+		fmt.Println(err)
+		return "",err
+	}
+
+	defer query.Close()
+
+	result, err := query.Exec(id)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	// Verifica se alguma linha foi afetada
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	// Se nenhuma linha foi afetada, significa que o livro com o ID fornecido não existe
+	if rowsAffected == 0 {
+		return "", fmt.Errorf("Nenhum livro encontrado com o id %s", id)
+	}
+
+	return fmt.Sprintf("O livro %s foi deletado com sucesso!", title), nil
+
 }
 
 func (pr *BookRepository) CreateBook(book model.Book) (string, error){
