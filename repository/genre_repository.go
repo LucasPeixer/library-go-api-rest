@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"go-api/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GenreRepository struct {
@@ -63,4 +65,35 @@ func (pr *GenreRepository) CreateGenre(genre model.Genre) (string, error){
 	}
 	return title, nil
 
+}
+
+func (pr *GenreRepository) DeleteGenre(c *gin.Context) (string, error){
+	id := c.Param("id")
+	genre := c.Param("genre")
+
+	query, err := pr.connection.Prepare("DELETE FROM genre WHERE id= $1")
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	defer query.Close()
+
+	result, err := query.Exec(id)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	if rowsAffected == 0 {
+		return "", fmt.Errorf("Nenhum genero encontrado com o id %s", id)
+	}
+
+	return fmt.Sprintf("O genero %s foi deletado com sucesso!", genre), nil
 }
