@@ -20,8 +20,9 @@ func GenreRouter(gr *gin.RouterGroup){
 	genreUseCase := usecase.NewGenreUseCase(genreRepository)
 	genreController := controller.NewGenreController(genreUseCase)
 
-	genres :=gr.Group("/generos")
+	genres := gr.Group("/generos")
 	{
 		genres.GET("/", genreController.GetGenres)
+		genres.DELETE("/", genreController.DeleteGenre)
 	}	
 }
