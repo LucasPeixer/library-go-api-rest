@@ -31,7 +31,7 @@ func (pr *BookRepository) GetAllBooks() ([]model.Book, error){
 
 	for rows.Next(){
 		err = rows.Scan(
-			&bookObj.ID,
+			&bookObj.Id,
 			&bookObj.Title,
 			&bookObj.Synopsis,
 			&bookObj.Price,
@@ -105,7 +105,7 @@ func (pr *BookRepository) GetBooks(c *gin.Context) ([]model.Book, error){
 		var bookObj model.Book
 
 		err = rows.Scan(
-			&bookObj.ID,
+			&bookObj.Id,
 			&bookObj.Title,
 			&bookObj.Synopsis,
 			&bookObj.Price,
@@ -160,7 +160,17 @@ func (pr *BookRepository) DeleteBook(c *gin.Context) (string, error){
 }
 
 func (pr *BookRepository) CreateBook(book model.Book) (string, error){
-	query, err := pr.connection.Prepare("INSERT INTO books" +
+	var authorID string
+	err := pr.connection.QueryRow("SELECT id FROM author WHERE name = $1", book.Author_id).Scan(&authorID)
+	
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("autor não encontrado com o nome: %s", book.Author_id)
+		}
+		return "", err
+	}
+
+	query, err := pr.connection.Prepare("INSERT INTO book" +
 							"(title, synopsis, price, amount, author_id)" +
 							"VALUES ($1, $2, $3 , $4, $5) RETURNING id")
 
@@ -171,7 +181,7 @@ func (pr *BookRepository) CreateBook(book model.Book) (string, error){
 	defer query.Close()
 	var id string
 
-	err = query.QueryRow(book.Title, book.Synopsis, book.Price, book.Amount, book.Author_id).Scan(&id)
+	err = query.QueryRow(book.Title, book.Synopsis, book.Price, book.Amount, authorID).Scan(&id)
 		if err != nil {
 			fmt.Println(err)
 			return "", err
@@ -182,7 +192,8 @@ func (pr *BookRepository) CreateBook(book model.Book) (string, error){
 
 func (pr *BookRepository) UpdateBook(book model.Book) error {
 	// Prepara a consulta SQL para atualização
-	query, err := pr.connection.Prepare("UPDATE books SET title = ?, synopsis = ?, price = ?, amount = ?, author_id = ? WHERE id = ?")
+	query, err := pr.connection.Prepare("UPDATE book SET title = $1, synopsis = $2, price = $3, amount = $4, author_id = $5 WHERE id = $6")
+
 	if err != nil {
 			fmt.Println("Erro ao preparar a consulta:", err)
 			return err
@@ -191,7 +202,7 @@ func (pr *BookRepository) UpdateBook(book model.Book) error {
 	defer query.Close()
 
 	// Executa a consulta com os parâmetros do livro
-	_, err = query.Exec(book.Title, book.Synopsis, book.Price, book.Amount, book.Author_id, book.ID)
+	_, err = query.Exec(book.Title, book.Synopsis, book.Price, book.Amount, book.Author_id, book.Id)
 	if err != nil {
 			fmt.Println("Erro ao executar a consulta:", err)
 			return err

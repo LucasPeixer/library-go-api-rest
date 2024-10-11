@@ -17,7 +17,6 @@ func BooksRouter(rg *gin.RouterGroup) {
 		panic(err)
 	}
 
-	defer dbConnection.Close()
 
 	bookRepository := repository.NewBookRepository(dbConnection)
 	bookUseCase := usecase.NewBookUseCase(bookRepository)

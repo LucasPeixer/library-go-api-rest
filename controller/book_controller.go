@@ -73,11 +73,7 @@ func (bc *bookController) UpdateBook(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
 			return
 	}
-	// Obtém o ID do livro a partir dos parâmetros da URL
-	id := c.Param("id")
-	book.ID = id // Atribui o ID ao livro
 
-	// Chama o método de atualização no use case
 	err := bc.bookUseCase.UpdateBook(book)
 	if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar as informações do livro"})
