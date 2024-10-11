@@ -30,6 +30,7 @@ func BooksRouter(rg *gin.RouterGroup) {
 			books.GET("/", bookController.GetBooks)
 			books.DELETE("/gerenciamento", bookController.DeleteBook)
 			books.POST("/registro", bookController.CreateBook)
+			books.PUT("/gerenciamento", bookController.UpdateBook)
 		}
 
 }
