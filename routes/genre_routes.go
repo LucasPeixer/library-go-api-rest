@@ -23,6 +23,7 @@ func GenreRouter(gr *gin.RouterGroup){
 	genres := gr.Group("/generos")
 	{
 		genres.GET("/", genreController.GetGenres)
+		genres.POST("/", genreController.CreateGenre)
 		genres.DELETE("/", genreController.DeleteGenre)
 	}	
 }
