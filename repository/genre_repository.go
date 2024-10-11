@@ -92,7 +92,7 @@ func (pr *GenreRepository) DeleteGenre(c *gin.Context) (string, error){
 	}
 
 	if rowsAffected == 0 {
-		return "", fmt.Errorf("Nenhum genero encontrado com o id %s", id)
+		return "",fmt.Errorf("nenhum genero encontrado com o id %s", id)
 	}
 
 	return fmt.Sprintf("O genero %s foi deletado com sucesso!", genre), nil

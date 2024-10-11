@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"go-api/model"
 	"go-api/repository"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GenreUsecase struct {
@@ -28,4 +30,14 @@ func (gu *GenreUsecase) CreateGenre(genre model.Genre) (string, error){
 	}
 
 	return lastGenreCreated, nil
+}
+
+func (gu *GenreUsecase) DeleteGenre(c *gin.Context) (string, error){
+	lastGenereDeleted, err := gu.repository.DeleteGenre(c)
+	if err != nil{
+		fmt.Println(err)
+		return "", err
+	}
+
+	return lastGenereDeleted, nil
 }

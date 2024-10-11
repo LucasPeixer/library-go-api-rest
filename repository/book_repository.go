@@ -152,7 +152,7 @@ func (pr *BookRepository) DeleteBook(c *gin.Context) (string, error){
 
 	// Se nenhuma linha foi afetada, significa que o livro com o ID fornecido não existe
 	if rowsAffected == 0 {
-		return "", fmt.Errorf("Nenhum livro encontrado com o id %s", id)
+		return "",fmt.Errorf("nenhum livro encontrado com o id %s", id)
 	}
 
 	return fmt.Sprintf("O livro %s foi deletado com sucesso!", title), nil
