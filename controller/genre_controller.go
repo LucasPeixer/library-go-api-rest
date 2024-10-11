@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"go-api/model"
 	"go-api/usecase"
 	"net/http"
@@ -42,4 +43,17 @@ func (g *genreController) CreateGenre(ctx *gin.Context){
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao registrar o Genero"})
 	}
 	ctx.JSON(http.StatusOK, lastGenreCreated)
+}
+
+func (g *genreController) DeleteGenre (ctx *gin.Context){
+	lastGenereDeleted, err := g.genreUseCase.DeleteGenre(ctx)
+
+	if err != nil {
+		fmt.Println(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao deletar o Livro!"})
+		return 
+	}
+
+	ctx.JSON(http.StatusOK,gin.H{"message": "Genero deletado com sucesso!", "Genero deletado": lastGenereDeleted})
+
 }
