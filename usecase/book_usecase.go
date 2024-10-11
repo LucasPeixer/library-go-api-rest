@@ -47,3 +47,7 @@ func (bu *BookUsecase) DeleteBook(ctx *gin.Context) (string,error){
 
 	return lastDeleteBook, nil
 }
+
+func (bu* BookUsecase) UpdateBook(book model.Book) error{
+	return bu.repository.UpdateBook(book)
+}

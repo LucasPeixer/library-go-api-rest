@@ -168,15 +168,34 @@ func (pr *BookRepository) CreateBook(book model.Book) (string, error){
 			fmt.Println(err)
 			return "",err
 	}
+	defer query.Close()
+	var id string
 
-		var id string
-
-		err = query.QueryRow(book.Title, book.Synopsis, book.Price, book.Amount, book.Author_id).Scan(&id)
+	err = query.QueryRow(book.Title, book.Synopsis, book.Price, book.Amount, book.Author_id).Scan(&id)
 		if err != nil {
 			fmt.Println(err)
 			return "", err
 	}
 	
-	query.Close()
 	return id, nil
+}
+
+func (pr *BookRepository) UpdateBook(book model.Book) error {
+	// Prepara a consulta SQL para atualização
+	query, err := pr.connection.Prepare("UPDATE books SET title = ?, synopsis = ?, price = ?, amount = ?, author_id = ? WHERE id = ?")
+	if err != nil {
+			fmt.Println("Erro ao preparar a consulta:", err)
+			return err
+	}
+	// Certifique-se de fechar a consulta após o uso
+	defer query.Close()
+
+	// Executa a consulta com os parâmetros do livro
+	_, err = query.Exec(book.Title, book.Synopsis, book.Price, book.Amount, book.Author_id, book.ID)
+	if err != nil {
+			fmt.Println("Erro ao executar a consulta:", err)
+			return err
+	}
+
+	return nil 
 }

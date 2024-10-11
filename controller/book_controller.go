@@ -64,3 +64,25 @@ func (b *bookController) DeleteBook(ctx *gin.Context){
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Livro deletado com sucesso!", "Informações do Livro": lastBookDeleted})
 }
+
+func (bc *bookController) UpdateBook(c *gin.Context) {
+	var book model.Book
+
+	// Decodifica os dados JSON do corpo da requisição
+	if err := c.ShouldBindJSON(&book); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
+			return
+	}
+	// Obtém o ID do livro a partir dos parâmetros da URL
+	id := c.Param("id")
+	book.ID = id // Atribui o ID ao livro
+
+	// Chama o método de atualização no use case
+	err := bc.bookUseCase.UpdateBook(book)
+	if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao atualizar as informações do livro"})
+			return
+	}
+	
+	c.JSON(http.StatusOK, gin.H{"message": "Informações do livro atualizadas com sucesso"})
+}
