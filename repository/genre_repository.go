@@ -2,98 +2,38 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"go-api/model"
-
-	"github.com/gin-gonic/gin"
 )
 
-type GenreRepository struct {
-	connection *sql.DB
+type GenreRepository interface {
+	GetGenreById(id int) (*model.Genre, error)
 }
 
-func NewGenreRepository (connection *sql.DB) GenreRepository {
-	return GenreRepository{
-		connection: connection,
-	}
+type genreRepository struct {
+	db *sql.DB
 }
 
-func (pr *GenreRepository) GetGenres() ([]model.Genre, error){
-	query := "SELECT * FROM genres"
-	rows, err := pr.connection.Query(query)
-	if(err != nil){
-		fmt.Println(err)
-		return []model.Genre{}, err
-	}
+func NewGenreRepository(db *sql.DB) GenreRepository {
+	return &genreRepository{db: db}
+}
 
-	var genreList []model.Genre
-	var genreObj model.Genre
+func (gr *genreRepository) GetGenreById(id int) (*model.Genre, error) {
+	query := `
+        SELECT id, name
+        FROM genre
+        WHERE id = $1;
+    `
 
-	for rows.Next(){
-		err = rows.Scan(
-			&genreObj.ID,
-			&genreObj.Genre)
-
-		if(err != nil){
-			fmt.Println(err)
-		return []model.Genre{}, err
+	var genre model.Genre
+	err := gr.db.QueryRow(query, id).Scan(&genre.Id, &genre.Name)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("genre with id %d not found", id)
 		}
-
-		genreList = append(genreList, genreObj)
+		return nil, err
 	}
 
-	rows.Close()
-
-	return genreList, nil
-}
-
-func (pr *GenreRepository) CreateGenre(genre model.Genre) (string, error){
-	query,err := pr.connection.Prepare("INSERT INTO genre (genre) VALUES($1)")
-	if (err != nil){
-		fmt.Println(err)
-		return "", err
-	}
-
-	defer query.Close()
-
-	var title string
-
-	err = query.QueryRow(genre.ID, genre.Genre).Scan(&title)
-	if(err != nil){
-		fmt.Println(err)
-		return "", err
-	}
-	return title, nil
-
-}
-
-func (pr *GenreRepository) DeleteGenre(c *gin.Context) (string, error){
-	id := c.Param("id")
-	genre := c.Param("genre")
-
-	query, err := pr.connection.Prepare("DELETE FROM genre WHERE id= $1")
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}
-
-	defer query.Close()
-
-	result, err := query.Exec(id)
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}
-
-	if rowsAffected == 0 {
-		return "",fmt.Errorf("nenhum genero encontrado com o id %s", id)
-	}
-
-	return fmt.Sprintf("O genero %s foi deletado com sucesso!", genre), nil
+	return &genre, nil
 }

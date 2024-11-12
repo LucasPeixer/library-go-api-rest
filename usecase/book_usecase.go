@@ -3,51 +3,35 @@ package usecase
 import (
 	"go-api/model"
 	"go-api/repository"
-
-	"github.com/gin-gonic/gin"
 )
 
-type BookUsecase struct {
+type BookUseCase interface {
+	CreateBook(title, synopsis string, amount, authorId int, genreIds []int) (*model.Book, error)
+	GetBooks(title, author string, genres []string) ([]model.Book, error)
+	UpdateBook(id int, title, synopsis string, amount, authorId int) error
+	DeleteBook(id int) error
+}
+
+type bookUseCase struct {
 	repository repository.BookRepository
 }
 
-func NewBookUseCase(repo repository.BookRepository) BookUsecase {
-	return BookUsecase{
-		repository: repo,
-	}
+func NewBookUseCase(repository repository.BookRepository) BookUseCase {
+	return &bookUseCase{repository: repository}
 }
 
-func (bu *BookUsecase) GetAllBooks() ([]model.Book,error){
-	return bu.repository.GetAllBooks()
+func (uc *bookUseCase) CreateBook(title, synopsis string, amount, authorId int, genreIds []int) (*model.Book, error) {
+	return uc.repository.CreateBook(title, synopsis, amount, authorId, genreIds)
 }
 
-func (bu *BookUsecase) GetBooks(ctx *gin.Context) ([]model.Book, error){
-	books, err := bu.repository.GetBooks(ctx)
-
-	if err != nil {
-		return nil, err
-	}	
-	return books, nil
+func (uc *bookUseCase) GetBooks(title, author string, genres []string) ([]model.Book, error) {
+	return uc.repository.GetBooks(title, author, genres)
 }
 
-func (bu *BookUsecase) CreateBook(book model.Book) (string,error){
-	lastInsertID, err := bu.repository.CreateBook(book)
-	if(err != nil){
-		return "", err
-	}
-
-	return lastInsertID, nil
+func (uc *bookUseCase) UpdateBook(id int, title, synopsis string, amount, authorId int) error {
+	return uc.repository.UpdateBook(id, title, synopsis, amount, authorId)
 }
 
-func (bu *BookUsecase) DeleteBook(ctx *gin.Context) (string,error){
-	lastDeleteBook, err := bu.repository.DeleteBook(ctx)
-	if(err != nil){
-		return "", err
-	}
-
-	return lastDeleteBook, nil
-}
-
-func (bu* BookUsecase) UpdateBook(book model.Book) error{
-	return bu.repository.UpdateBook(book)
+func (uc *bookUseCase) DeleteBook(id int) error {
+	return uc.repository.DeleteBook(id)
 }

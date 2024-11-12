@@ -4,9 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Criando o inicial de cada rota para concatenar os endpoints
-func RegisterRoutes(router *gin.Engine){
-	api := router.Group("/api/v1")
-	BooksRouter(api)
-	GenreRouter(api)
+// Routes registra todas as rotas http.
+func Routes(r *gin.Engine) {
+	api := r.Group("/api/v1")
+	UserRoutes(api)
+	BookRoutes(api)
 }

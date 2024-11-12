@@ -1,17 +1,24 @@
 package main
 
 import (
+	"go-api/initializers"
 	"go-api/routes"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
-func main() {	
+func init() {
+	initializers.LoadEnv()
+	initializers.InitDB()
+}
 
-		
-	router := gin.Default()
-	routes.RegisterRoutes(router)
-	
-	router.Run(":8000")
+func main() {
+	defer initializers.DB.Close()
+
+	r := gin.Default()
+	routes.Routes(r)
+
+	log.Fatal(r.Run(":8080"))
 }
