@@ -1,6 +1,6 @@
-package model
+package user
 
-type Genre struct {
+type AccountRole struct {
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }

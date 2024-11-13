@@ -2,26 +2,23 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
 )
 
-func ConnectDB() (*sql.DB, error) {
-	connect := "host=vividly-climbing-mallard.data-1.use1.tembo.io port=5432 user=postgres password=8fjHOEvlIsib4fhH dbname=armazem_DB sslmode=require"
-
-	db, err := sql.Open("postgres", connect)
-
+// CreateDB cria uma conexão com o banco de dados utilizando o DSN.
+func CreateDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		log.Fatal("Erro ao conectar ao banco de dados: ", err)
+		return nil, fmt.Errorf("error opening database connection: %s", err)
 	}
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatal("Erro ao pingar o banco de dados: ", err)
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("error pinging database: %s", err)
 	}
 
-	log.Println("Conexão estabelecida com sucesso!")
-
+	log.Println("Connected to database successfully")
 	return db, nil
 }
