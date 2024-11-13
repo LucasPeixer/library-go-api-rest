@@ -13,6 +13,9 @@ var DbDSN string
 // JwtKey é a chave secreta para geração de chaves JWT.
 var JwtKey []byte
 
+// Port é a porta que irá atender as requisições HTTP
+var Port string
+
 // LoadEnv carrega as variáveis de ambiente necessárias.
 func LoadEnv() {
 	// Carrega as variáveis do arquivo .env se existir
@@ -33,4 +36,10 @@ func LoadEnv() {
 		log.Fatal("JWT_KEY environment variable not set")
 	}
 	JwtKey = []byte(jwtKey)
+
+	Port = os.Getenv("PORT")
+	if Port == "" {
+		Port = "8080"
+	}
+
 }
