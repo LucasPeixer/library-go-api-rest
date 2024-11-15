@@ -20,5 +20,5 @@ func main() {
 	r := gin.Default()
 	routes.Routes(r)
 
-	log.Fatal(r.Run(":8080"))
+	log.Fatal(r.Run(":" + initializers.Port))
 }
