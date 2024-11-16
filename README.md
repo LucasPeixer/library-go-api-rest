@@ -2,16 +2,17 @@
 API feita em Go para gerenciar um site de empréstimos de livros de uma biblioteca.
 
 ## Requisitos
-* [Go](https://go.dev/dl/)
-
+* Go: 1.20+
+* PostgreSQL: 12+
+* 
 ## Instalação
 1. Clone o repositório do Github.
-```
+```bash
 git clone https://github.com/LucasPeixer/library-go-api-rest
 cd library-go-api-rest
 ```
 2. Instale as dependências.
-```
+```bash
 go mod tidy
 ```
 
@@ -32,7 +33,7 @@ postgres://user:password@host:port/database
 ```
 
 * `user`: nome de usuário do banco de dados;
-* `senha`: senha do banco de dados;
+* `password`: senha do banco de dados;
 * `host`: endereço do servidor onde o banco de dados está hospedado (por exemplo, localhost ou um endereço na nuvem);
 * `port`: número da porta do PostgreSQL (geralmente 5432);
 * `database`: nome do banco de dados que será utilizado pela API.
@@ -43,3 +44,23 @@ postgresql://postgres:NDAED123dDGFr@gravely-incredible-emerald.data-1.use1.tembo
 ```
 
 Feito isso, será necessário criar as tabelas do banco de dados. Acesse o arquivo `DDL.sql` e execute-o.
+
+## Utilização
+Após definir as variáveis de ambiente e instânciar o banco de dados, basta executar o arquivo `main.go`, que está 
+localizado na pasta `cmd`.
+
+```bash
+go run cmd/main.go
+```
+
+Feito isso você já pode acessar as rotas e fazer requisições HTTP.
+
+### Criando um usuário administrador
+Para registrar novos usuários, é necessário que haja ao menos um usuário administrador, você pode criá-lo a partir do 
+arquivo `create-user.go`, localizado na pasta `cmd`.
+
+```bash
+go run cmd/create-user.go
+```
+
+---
