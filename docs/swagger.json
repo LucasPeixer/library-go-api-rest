@@ -1,0 +1,54 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Teste implementação Swagger",
+        "description": "Api utilizada para teste",
+        "termsOfService": "http://linkseguro.com.br",
+        "contact": {
+            "email": "mama@minhapika.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://api/v1",
+            "description": "Api de test"
+        }
+    ],
+    "paths": {
+        "/posts": {
+            "post": {
+                "summary": "Cadastro de usuário",
+                "description": "Rota para adição de usuário",
+                "tags": ["Usuário"],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "number"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
