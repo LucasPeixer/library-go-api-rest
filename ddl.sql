@@ -26,14 +26,39 @@ CREATE TABLE IF NOT EXISTS book
 (
     id           SERIAL PRIMARY KEY,
     title        VARCHAR(200) UNIQUE NOT NULL,
-    synopsis     TEXT                NOT NULL,                     
-    amount       INTEGER   DEFAULT 0 CHECK ( amount >= 0 ),
+    synopsis     TEXT                NOT NULL,
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fk_author_id INTEGER references author (id) ON DELETE RESTRICT 
+    fk_author_id INTEGER references author (id) ON DELETE RESTRICT
 );
 
--- Trigger to update `updated_at` on book updates
+CREATE TYPE book_stock_status AS ENUM ('available', 'borrowed', 'missing');
+
+CREATE TABLE IF NOT EXISTS book_stock
+(
+    id         SERIAL PRIMARY KEY,
+    status     book_stock_status DEFAULT 'available',
+    code       INTEGER NOT NULL UNIQUE,
+    created_at TIMESTAMP         DEFAULT CURRENT_TIMESTAMP,
+    fk_book_id INTEGER REFERENCES book (id)
+);
+
+CREATE OR REPLACE FUNCTION prevent_book_stock_delete_if_borrowed()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    IF OLD.status = 'borrowed' THEN
+        RAISE EXCEPTION 'Cannot delete book_stock unless the status is ''available'' or ''missing''.';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER before_stock_delete_check_status
+    BEFORE DELETE
+    on book_stock
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_book_stock_delete_if_borrowed();
+
 CREATE OR REPLACE FUNCTION update_book_timestamp()
     RETURNS TRIGGER AS
 $$
@@ -116,43 +141,10 @@ CREATE TABLE IF NOT EXISTS reservation
     expires_at    TIMESTAMP GENERATED ALWAYS AS ( reserved_at + INTERVAL '24 hours') STORED,
     borrowed_days INTEGER NOT NULL CHECK ( borrowed_days <= 90 ),          
     status        reservation_status DEFAULT 'pending',
-    fk_user_id    INTEGER REFERENCES user_account (id) ON DELETE RESTRICT, 
+    fk_user_id    INTEGER REFERENCES user_account (id) ON DELETE CASCADE,
     fk_admin_id   INTEGER REFERENCES user_account (id) ON DELETE SET NULL,
     fk_book_id    INTEGER REFERENCES book (id) ON DELETE CASCADE
 );
-
--- Trigger to decrement book stock on reservation creation
-CREATE OR REPLACE FUNCTION decrement_book_on_reservation_create()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    -- Lock the row for the book to prevent race conditions
-    SELECT amount
-    FROM book
-    WHERE id = NEW.fk_book_id
-        FOR UPDATE;
-
-    -- Attempt to decrement the book amount conditionally
-    UPDATE book
-    SET amount = amount - 1
-    WHERE id = NEW.fk_book_id
-      AND amount > 0
-    RETURNING amount;
-
-    -- If no row was updated (i.e., stock is 0), raise an exception
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Book is out of stock, cannot reserve.';
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER reservation_create
-    AFTER INSERT
-    ON reservation
-    FOR EACH ROW
-EXECUTE FUNCTION decrement_book_on_reservation_create();
 
 -- Trigger to prevent deletion of active reservations
 CREATE OR REPLACE FUNCTION prevent_reservation_delete_if_active()
@@ -172,34 +164,6 @@ CREATE OR REPLACE TRIGGER before_reservation_delete_check_status
     FOR EACH ROW
 EXECUTE FUNCTION prevent_reservation_delete_if_active();
 
--- Trigger to handle changes in reservation status
-CREATE OR REPLACE FUNCTION create_loan_or_increment_book_on_reservation_status_change()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    -- Handle reservation status change to 'collected'
-    IF NEW.status = 'collected' AND OLD.status != 'collected' THEN
-        -- Insert a new loan record
-        INSERT INTO loan (return_by, fk_reservation_id)
-        VALUES (CURRENT_TIMESTAMP + NEW.borrowed_days * INTERVAL '1 day', NEW.id);
-
-        -- Handle reservation status change to 'cancelled' or 'expired'
-    ELSIF NEW.status IN ('cancelled', 'expired') AND OLD.status != NEW.status THEN
-        -- Increase the book amount by 1
-        UPDATE book
-        SET amount = amount + 1
-        WHERE id = NEW.fk_book_id;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER reservation_status_change
-    AFTER UPDATE
-    ON reservation
-    FOR EACH ROW
-    WHEN (NEW.status IS DISTINCT FROM OLD.status)
-EXECUTE FUNCTION create_loan_or_increment_book_on_reservation_status_change();
-
 -- ===========================
 -- 5. Loan Tables
 -- ===========================
@@ -216,6 +180,7 @@ CREATE TABLE IF NOT EXISTS loan
     returned_at       TIMESTAMP CHECK (returned_at IS NULL OR returned_at > loaned_at),
     status            loan_status DEFAULT 'borrowed',
     fk_admin_id       INTEGER   REFERENCES user_account (id) ON DELETE SET NULL,
+    fk_book_stock_id  INTEGER REFERENCES book_stock (id) ON DELETE CASCADE,
     fk_reservation_id INTEGER REFERENCES reservation (id) ON DELETE CASCADE
 );
 
@@ -226,10 +191,9 @@ $$
 BEGIN
     -- Check if the loan status is changed to 'returned'
     IF NEW.status = 'returned' AND OLD.status != 'returned' THEN
-        -- Increment the book amount by 1
-        UPDATE book
-        SET amount = amount + 1
-        WHERE id = (SELECT fk_book_id FROM reservation WHERE id = NEW.fk_reservation_id);
+        UPDATE book_stock
+        SET status = 'available'
+        WHERE id = NEW.fk_book_stock_id;
 
         -- Update the reservation status to 'finished'
         UPDATE reservation
@@ -246,3 +210,21 @@ CREATE OR REPLACE TRIGGER loan_status_change
     FOR EACH ROW
     WHEN (NEW.status IS DISTINCT FROM OLD.status)
 EXECUTE FUNCTION increment_book_on_loan_return_and_finish_reservation();
+
+-- Trigger to prevent loan deletion when its status is 'returned'
+CREATE OR REPLACE FUNCTION prevent_loan_delete_if_active()
+    RETURNS TRIGGER AS
+$$
+BEGIN
+    IF OLD.status = 'returned' THEN
+        RAISE EXCEPTION 'Cannot delete loan unless the status is ''returned''.';
+
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER before_loan_delete_check_status
+    BEFORE DELETE
+    ON loan
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_loan_delete_if_active()
