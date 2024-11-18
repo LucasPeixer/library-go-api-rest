@@ -10,16 +10,16 @@ type ReservationUseCaseInterface interface {
 }
 
 type ReservationUseCase struct {
-	Repo repository.ReservationRepositoryInterface
+	ReservationRepo repository.ReservationRepositoryInterface
 }
 
 // NewReservationUseCase cria e retorna uma nova instância de ReservationUseCase
 func NewReservationUseCase(repo repository.ReservationRepositoryInterface) ReservationUseCaseInterface {
 	return &ReservationUseCase{
-		Repo: repo,
+		ReservationRepo: repo,
 	}
 }
 
-func (u *ReservationUseCase) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
-	return u.Repo.GetReservationsByFilters(userName, status, reservedAt)
+func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
+	return ru.ReservationRepo.GetReservationsByFilters(userName, status, reservedAt)
 }

@@ -12,17 +12,15 @@ type ReservationRepositoryInterface interface {
 }
 
 type ReservationRepository struct {
-	DB *sql.DB
+	db *sql.DB
 }
 
 func NewReservationRepository(db *sql.DB) ReservationRepositoryInterface {
-	return &ReservationRepository{
-		DB: db,
-	}
+	return &ReservationRepository{db}
 }
 
 // Modificando o método para aceitar filtros opcionais.
-func (r *ReservationRepository) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
+func (rr *ReservationRepository) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
 	// Usando strings.Builder para construir a query
 	var sb strings.Builder
 	sb.WriteString("SELECT * FROM reservation WHERE 1=1")
@@ -52,7 +50,7 @@ func (r *ReservationRepository) GetReservationsByFilters(userName, status, reser
 
 	// Executando a consulta com os filtros aplicados
 	query := sb.String()
-	rows, err := r.DB.Query(query, args...)
+	rows, err := rr.db.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
 	}
