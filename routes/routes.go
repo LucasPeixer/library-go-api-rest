@@ -10,9 +10,10 @@ import (
 // Routes registra todas as rotas http.
 func Routes(r *gin.Engine) {
 	api := r.Group("/api/v1")
-	UserRoutes(api)
-	BookRoutes(api)
-	
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("/api/v1/swagger.json")))
 	api.StaticFile("/swagger.json", "./docs/swagger.json")
+	UserRoutes(api)
+	BookRoutes(api)
+	ReservationRoutes(api)
 }
+	
