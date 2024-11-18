@@ -14,6 +14,10 @@ type BookController interface {
 	GetBooks(c *gin.Context)
 	UpdateBook(c *gin.Context)
 	DeleteBook(c *gin.Context)
+	AddStock(c *gin.Context)
+	GetStock(c *gin.Context)
+	UpdateStockStatus(c *gin.Context)
+	RemoveStock(c *gin.Context)
 }
 
 type bookController struct {
@@ -27,11 +31,11 @@ func NewBookController(useCase usecase.BookUseCase) BookController {
 // CreateBook recebe um input JSON através do gin.Context e tenta criar um livro.
 func (bc *bookController) CreateBook(c *gin.Context) {
 	var i struct {
-		Title    string `json:"title" binding:"required"`
-		Synopsis string `json:"synopsis" binding:"required"`
-		Amount   int    `json:"amount" binding:"required"`
-		AuthorId int    `json:"author_id" binding:"required"`
-		GenreIds []int  `json:"genre_ids" binding:"required"`
+		Title     string `json:"title" binding:"required"`
+		Synopsis  string `json:"synopsis" binding:"required"`
+		BookCodes []int  `json:"book_codes"`
+		AuthorId  int    `json:"author_id" binding:"required"`
+		GenreIds  []int  `json:"genre_ids" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&i); err != nil {
@@ -39,7 +43,11 @@ func (bc *bookController) CreateBook(c *gin.Context) {
 		return
 	}
 
-	book, err := bc.useCase.CreateBook(i.Title, i.Synopsis, i.Amount, i.AuthorId, i.GenreIds)
+	if i.BookCodes == nil {
+		i.BookCodes = []int{}
+	}
+
+	book, err := bc.useCase.CreateBook(i.Title, i.Synopsis, i.BookCodes, i.AuthorId, i.GenreIds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -79,7 +87,6 @@ func (bc *bookController) UpdateBook(c *gin.Context) {
 	var i struct {
 		Title    string `json:"title" binding:"required"`
 		Synopsis string `json:"synopsis" binding:"required"`
-		Amount   int    `json:"amount" binding:"required"`
 		AuthorId int    `json:"author_id" binding:"required"`
 	}
 
@@ -88,7 +95,7 @@ func (bc *bookController) UpdateBook(c *gin.Context) {
 		return
 	}
 
-	if err := bc.useCase.UpdateBook(id, i.Title, i.Synopsis, i.Amount, i.AuthorId); err != nil {
+	if err := bc.useCase.UpdateBook(id, i.Title, i.Synopsis, i.AuthorId); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -110,4 +117,76 @@ func (bc *bookController) DeleteBook(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully"})
+}
+
+func (bc *bookController) AddStock(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book Id"})
+		return
+	}
+
+	var i struct {
+		Code int `json:"code" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&i); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book stock input"})
+		return
+	}
+
+	_, err = bc.useCase.AddStock(i.Code, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Book stock added"})
+}
+
+func (bc *bookController) GetStock(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book Id"})
+		return
+	}
+
+	codeParam := c.DefaultQuery("code", "")
+
+	var code *int
+	if codeParam != "" {
+		parsedCode, err := strconv.Atoi(codeParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stock code"})
+			return
+		}
+		code = &parsedCode
+	}
+	stockList, err := bc.useCase.GetStock(code, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, stockList)
+}
+
+func (bc *bookController) UpdateStockStatus(c *gin.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (bc *bookController) RemoveStock(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book stock Id"})
+		return
+	}
+
+	if err := bc.useCase.RemoveStock(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Book stock removed"})
 }

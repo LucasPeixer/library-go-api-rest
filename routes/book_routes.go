@@ -23,5 +23,13 @@ func BookRoutes(rg *gin.RouterGroup) {
 		books.GET("/", bookController.GetBooks)
 		books.PUT("/update/:id", middleware.RoleRequired("admin"), bookController.UpdateBook)
 		books.DELETE("/delete/:id", middleware.RoleRequired("admin"), bookController.DeleteBook)
+
+		stock := books.Group("/:id/stock", middleware.RoleRequired("admin"))
+		{
+			stock.POST("/add", bookController.AddStock)
+			stock.GET("/", bookController.GetStock)
+			stock.PUT("/update-status", bookController.UpdateStockStatus)
+			stock.DELETE("/remove", bookController.RemoveStock)
+		}
 	}
 }

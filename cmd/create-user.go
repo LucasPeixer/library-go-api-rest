@@ -9,9 +9,17 @@ import (
 	"go-api/utils"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	if _, err := os.Stat(".env"); err == nil {
+		err := godotenv.Load(".env")
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
 	DbDSN := os.Getenv("DB_DSN")
 	if DbDSN == "" {
 		log.Fatal("DB_DSN environment variable not set")
