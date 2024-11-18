@@ -11,23 +11,62 @@
     },
     "servers": [
         {
-            "url": "http://api/v1",
+            "url": "http://localhost:8080/api/v1",
             "description": "Api de test"
         }
     ],
     "paths": {
-        "/posts": {
+        "/books/create": {
             "post": {
-                "summary": "Cadastro de usuário",
-                "description": "Rota para adição de usuário",
-                "tags": ["Usuário"],
+                "summary": "Lista todos os livros",
+                "description": "Rota para adição de livros",
+                "tags": [
+                    "Livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/User"
+                                "$ref": "#/components/schemas/booksCreate"
+                            },
+                            "examples": {
+                                "book": {
+                                    "value": {
+                                        "title": "Minha Pika",
+                                        "synopsis": "Minha Pika quadrada",
+                                        "amount": 3,
+                                        "author_id": 3,
+                                        "genre_ids": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5
+                                        ]
+                                    }
+                                }
                             }
                         }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/booksCreate"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": ""
                     }
                 }
             }
@@ -35,19 +74,35 @@
     },
     "components": {
         "schemas": {
-            "User": {
+            "booksCreate": {
                 "type": "object",
                 "properties": {
-                    "userId": {
-                        "type": "number"
-                    },
                     "title": {
                         "type": "string"
                     },
-                    "body": {
+                    "synopsis": {
                         "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "author_id": {
+                        "type": "number"
+                    },
+                    "genre_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     }
