@@ -54,6 +54,5 @@ func (uc *bookUseCase) UpdateStockStatus(id int, status string) error {
 }
 
 func (uc *bookUseCase) RemoveStock(id int) error {
-	//TODO implement me
-	panic("implement me")
+	return uc.repository.RemoveStock(id)
 }

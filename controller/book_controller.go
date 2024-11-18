@@ -177,6 +177,16 @@ func (bc *bookController) UpdateStockStatus(c *gin.Context) {
 }
 
 func (bc *bookController) RemoveStock(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book stock Id"})
+		return
+	}
+
+	if err := bc.useCase.RemoveStock(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Book stock removed"})
 }

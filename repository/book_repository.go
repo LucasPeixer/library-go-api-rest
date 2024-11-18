@@ -280,6 +280,17 @@ func (br *bookRepository) UpdateStockStatus(id int, status string) error {
 }
 
 func (br *bookRepository) RemoveStock(id int) error {
-	//TODO implement me
-	panic("implement me")
+	query := `
+        DELETE FROM book_stock 
+        WHERE id = $1 
+        RETURNING id;
+    `
+
+	var deletedBookStockId int
+	err := br.db.QueryRow(query, id).Scan(&deletedBookStockId)
+	if err != nil {
+		return fmt.Errorf("error deleting book stock: %v", err)
+	}
+
+	return nil
 }
