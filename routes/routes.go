@@ -9,4 +9,5 @@ func Routes(r *gin.Engine) {
 	api := r.Group("/api/v1")
 	UserRoutes(api)
 	BookRoutes(api)
+	ReservationRoutes(api)
 }
