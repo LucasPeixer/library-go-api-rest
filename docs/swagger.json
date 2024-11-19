@@ -5,14 +5,14 @@
         "description": "Api utilizada para teste",
         "termsOfService": "http://linkseguro.com.br",
         "contact": {
-            "email": "mama@minhapika.com"
+            "email": "poweredtable@gmail.com"
         },
         "version": "1.0.0"
     },
     "servers": [
         {
             "url": "http://localhost:8080/api/v1",
-            "description": "Api de test"
+            "description": "Sitema de APIs"
         }
     ],
     "paths": {
@@ -32,7 +32,7 @@
                             "examples": {
                                 "Credenciais": {
                                     "value": {
-                                        "email": "waldyrrcosta@gmail.com",
+                                        "email": "locodoparanaue46@gmail.com",
                                         "password": "123"
                                     }
                                 }
@@ -68,11 +68,11 @@
                             "examples": {
                                 "Credenciais": {
                                     "value": {
-                                        "name": "makeMoney",
-                                        "phone": "777777777",
-                                        "email": "minhapika@gmail.com",
+                                        "name": "Julio",
+                                        "phone": "(48)98484-5555",
+                                        "email": "empresa@gmail.com",
                                         "password": "123",
-                                        "role_id": 1
+                                        "role_id": 2
                                     }
                                 }
                             }
@@ -107,8 +107,8 @@
                             "examples": {
                                 "book": {
                                     "value": {
-                                        "title": "Minha Pika",
-                                        "synopsis": "Minha Pika quadrada",
+                                        "title": "Navio",
+                                        "synopsis": "Navio voador",
                                         "book_codes": [
                                             1,
                                             2,
