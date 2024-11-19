@@ -16,9 +16,79 @@
         }
     ],
     "paths": {
+        "/login": {
+            "post": {
+                "summary": "Faz login no sistema",
+                "description": "Para utilizar as demais rotas é necessário utilizar o token gerado no login",
+                "tags": [
+                    "User"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/loginUser"
+                            },
+                            "examples": {
+                                "Credenciais": {
+                                    "value": {
+                                        "email": "waldyrrcosta@gmail.com",
+                                        "password": "123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deve retornar um token"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "summary": "Registra novos usuários",
+                "description": "Faz o registro de novos usuários no sistema",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/registerUser"
+                            },
+                            "examples": {
+                                "Credenciais": {
+                                    "value": {
+                                        "name": "makeMoney",
+                                        "phone": "777777777",
+                                        "email": "minhapika@gmail.com",
+                                        "password": "123",
+                                        "role_id": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully"
+                    }
+                }
+            }
+        },
         "/books/create": {
             "post": {
-                "summary": "Lista todos os livros",
+                "summary": "Cria um livro",
                 "description": "Rota para adição de livros",
                 "tags": [
                     "Livros"
@@ -39,7 +109,12 @@
                                     "value": {
                                         "title": "Minha Pika",
                                         "synopsis": "Minha Pika quadrada",
-                                        "amount": 3,
+                                        "book_codes": [
+                                            1,
+                                            2,
+                                            3,
+                                            4
+                                        ],
                                         "author_id": 3,
                                         "genre_ids": [
                                             1,
@@ -74,6 +149,37 @@
     },
     "components": {
         "schemas": {
+            "loginUser": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "registerUser": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "role_id": {
+                        "type": "number"
+                    }
+                }
+            },
             "booksCreate": {
                 "type": "object",
                 "properties": {
