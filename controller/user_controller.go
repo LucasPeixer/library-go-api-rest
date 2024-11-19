@@ -4,6 +4,7 @@ import (
 	"go-api/usecase"
 	"go-api/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,8 @@ import (
 type UserController interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
+	GetUsersByFilters(c *gin.Context)
+	GetUserById(c *gin.Context)
 }
 type userController struct {
 	useCase usecase.UserUseCase
@@ -67,4 +70,33 @@ func (uc *userController) Login(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, token)
+}
+
+func (uc *userController) GetUsersByFilters(c *gin.Context) {
+	name := c.Query("name")
+	email := c.Query("email")
+
+	userAccountList, err := uc.useCase.GetUsersByFilters(name, email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, userAccountList)
+}
+
+func (uc *userController) GetUserById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+		return
+	}
+
+	userAccount, err := uc.useCase.GetUserById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, userAccount)
 }

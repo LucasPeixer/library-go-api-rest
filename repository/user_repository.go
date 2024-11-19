@@ -5,11 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"go-api/model/user"
+	"strconv"
 )
 
 type UserRepository interface {
 	CreateUser(name, phone, email, passwordHash string, fkAccountRole int) error
 	GetUserByEmail(email string) (*user.Account, error)
+	GetUsersByFilters(name, email string) (*[]user.Account, error)
+	GetUserById(id int) (*user.Account, error)
 }
 
 type userRepository struct {
@@ -66,6 +69,98 @@ func (ur *userRepository) GetUserByEmail(email string) (*user.Account, error) {
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("user with email %s not found", email)
+		}
+		return nil, err // Return other errors if they occur
+	}
+
+	return &userAccount, nil
+}
+
+func (ur *userRepository) GetUsersByFilters(name, email string) (*[]user.Account, error) {
+	query := `
+	SELECT 
+	       ua.id             AS user_id,
+	       ua.name           AS user_name,
+	       ua.phone          AS user_phone,
+	       ua.email          AS user_email,
+	       ua.is_active      AS user_is_active,
+	       ar.id             AS account_role_id,
+	       ar.name           AS account_role_name
+	FROM 
+	       user_account ua
+	JOIN
+	       account_role ar ON ua.fk_account_role = ar.id
+	WHERE 1=1`
+
+	var args []interface{}
+
+	if name != "" {
+		query += " AND ua.name ILIKE $" + strconv.Itoa(len(args)+1)
+		args = append(args, "%"+name+"%")
+	}
+
+	if email != "" {
+		query += " AND ua.email ILIKE $" + strconv.Itoa(len(args)+1)
+		args = append(args, "%"+email+"%")
+	}
+
+	rows, err := ur.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	userAccountList := make([]user.Account, 0)
+	for rows.Next() {
+		var userAccount user.Account
+		err := rows.Scan(
+			&userAccount.Id,
+			&userAccount.Name,
+			&userAccount.Phone,
+			&userAccount.Email,
+			&userAccount.IsActive,
+			&userAccount.AccountRole.Id,
+			&userAccount.AccountRole.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+		userAccountList = append(userAccountList, userAccount)
+	}
+	return &userAccountList, nil
+}
+
+func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
+	query := `
+	SELECT 
+	       ua.id             AS user_id,
+	       ua.name           AS user_name,
+	       ua.phone          AS user_phone,
+	       ua.email          AS user_email,
+	       ua.is_active      AS user_is_active,
+	       ar.id             AS account_role_id,
+	       ar.name           AS account_role_name
+	FROM 
+	       user_account ua
+	JOIN
+	       account_role ar ON ua.fk_account_role = ar.id
+	WHERE ua.id = $1`
+
+	var userAccount user.Account
+
+	err := ur.db.QueryRow(query, id).Scan(
+		&userAccount.Id,
+		&userAccount.Name,
+		&userAccount.Phone,
+		&userAccount.Email,
+		&userAccount.IsActive,
+		&userAccount.AccountRole.Id,
+		&userAccount.AccountRole.Name,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("user with id %d not found", id)
 		}
 		return nil, err // Return other errors if they occur
 	}
