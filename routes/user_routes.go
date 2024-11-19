@@ -23,4 +23,10 @@ func UserRoutes(rg *gin.RouterGroup) {
 		middleware.RoleRequired("admin"),
 		userController.Register,
 	)
+
+	users := rg.Group("/users", middleware.JWTAuthMiddleware, middleware.RoleRequired("admin"))
+	{
+		users.GET("/", userController.GetUsersByFilters)
+		users.GET("/:id", userController.GetUserById)
+	}
 }
