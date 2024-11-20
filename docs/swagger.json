@@ -1,0 +1,215 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Teste implementação Swagger",
+        "description": "Api utilizada para teste",
+        "termsOfService": "http://linkseguro.com.br",
+        "contact": {
+            "email": "poweredtable@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api/v1",
+            "description": "Sistema de APIs"
+        }
+    ],
+    "paths": {
+        "/login": {
+            "post": {
+                "summary": "Faz login no sistema",
+                "description": "Para utilizar as demais rotas é necessário utilizar o token gerado no login",
+                "tags": [
+                    "User"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/loginUser"
+                            },
+                            "examples": {
+                                "Credenciais": {
+                                    "value": {
+                                        "email": "locodoparanaue46@gmail.com",
+                                        "password": "123"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Deve retornar um token"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "summary": "Registra novos usuários",
+                "description": "Faz o registro de novos usuários no sistema",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/registerUser"
+                            },
+                            "examples": {
+                                "Credenciais": {
+                                    "value": {
+                                        "name": "Julio",
+                                        "phone": "(48)98484-5555",
+                                        "email": "empresa@gmail.com",
+                                        "password": "123",
+                                        "role_id": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered successfully"
+                    }
+                }
+            }
+        },
+        "/books/create": {
+            "post": {
+                "summary": "Cria um livro",
+                "description": "Rota para adição de livros",
+                "tags": [
+                    "Livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/booksCreate"
+                            },
+                            "examples": {
+                                "book": {
+                                    "value": {
+                                        "title": "Navio",
+                                        "synopsis": "Navio voador",
+                                        "book_codes": [
+                                            1,
+                                            2,
+                                            3,
+                                            4
+                                        ],
+                                        "author_id": 3,
+                                        "genre_ids": [
+                                            1,
+                                            2,
+                                            3,
+                                            4,
+                                            5
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/booksCreate"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "loginUser": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "registerUser": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "role_id": {
+                        "type": "number"
+                    }
+                }
+            },
+            "booksCreate": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "synopsis": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "author_id": {
+                        "type": "number"
+                    },
+                    "genre_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
