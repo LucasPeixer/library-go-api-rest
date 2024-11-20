@@ -25,15 +25,15 @@ func NewUserUseCase(repo repository.UserRepository) UserUseCase {
 // Login busca o usuário pelo email, verifica a senha hashed e retorna um token JWT.
 func (uu *userUseCase) Login(email, password string) (string, error) {
 	// Busca o usuário pelo seu email
-	user, err := uu.userRepo.GetUserByEmail(email)
+	userAccount, err := uu.userRepo.GetUserByEmail(email)
 	if err != nil {
 		return "", err
 	}
-	if !utils.CheckPasswordHash(password, user.PasswordHash) {
+	if !utils.CheckPasswordHash(password, userAccount.PasswordHash) {
 		return "", errors.New("invalid credentials")
 	}
 	// Gera um token JWT com ID e Role se atendido todas as condições
-	return utils.GenerateJWT(user.Id, user.AccountRole.Name)
+	return utils.GenerateJWT(userAccount.Id, userAccount.AccountRole.Name)
 }
 
 // Register cria um novo usuário no banco de dados.
