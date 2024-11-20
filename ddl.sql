@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS book_stock
     status     book_stock_status DEFAULT 'available',
     code       INTEGER NOT NULL UNIQUE,
     created_at TIMESTAMP         DEFAULT CURRENT_TIMESTAMP,
-    fk_book_id INTEGER REFERENCES book (id)
+    fk_book_id INTEGER REFERENCES book (id) ON DELETE CASCADE
 );
 
 CREATE OR REPLACE FUNCTION prevent_book_stock_delete_if_borrowed()
