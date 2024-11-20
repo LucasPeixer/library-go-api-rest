@@ -50,6 +50,7 @@ BEGIN
     IF OLD.status = 'borrowed' THEN
         RAISE EXCEPTION 'Cannot delete book_stock unless the status is ''available'' or ''missing''.';
     END IF;
+    RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -220,6 +221,7 @@ BEGIN
         RAISE EXCEPTION 'Cannot delete loan unless the status is ''returned''.';
 
     END IF;
+    RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
