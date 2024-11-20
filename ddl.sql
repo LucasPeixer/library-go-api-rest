@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS author
 (
     id         SERIAL PRIMARY KEY,
-    name       VARCHAR(100) NOT NULL, 
+    name       VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS author
 CREATE TABLE IF NOT EXISTS genre
 (
     id   SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL 
+    name VARCHAR(100) UNIQUE NOT NULL
 );
 
 -- ===========================
@@ -101,13 +101,13 @@ CREATE TABLE IF NOT EXISTS user_account
 (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(150)        NOT NULL,
-    phone           VARCHAR(20) UNIQUE  NOT NULL,                           
+    phone           VARCHAR(20) UNIQUE  NOT NULL,
     email           VARCHAR(150) UNIQUE NOT NULL,
     password_hash   VARCHAR(255)        NOT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                    
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_active       BOOLEAN   DEFAULT TRUE,
-    fk_account_role INTEGER REFERENCES account_role (id) ON DELETE RESTRICT 
+    fk_account_role INTEGER REFERENCES account_role (id) ON DELETE RESTRICT
 );
 
 -- Trigger to update `updated_at` on user account updates
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS reservation
     id            SERIAL PRIMARY KEY,
     reserved_at   TIMESTAMP          DEFAULT CURRENT_TIMESTAMP,
     expires_at    TIMESTAMP GENERATED ALWAYS AS ( reserved_at + INTERVAL '24 hours') STORED,
-    borrowed_days INTEGER NOT NULL CHECK ( borrowed_days <= 90 ),          
+    borrowed_days INTEGER NOT NULL CHECK ( borrowed_days <= 90 ),
     status        reservation_status DEFAULT 'pending',
     fk_user_id    INTEGER REFERENCES user_account (id) ON DELETE CASCADE,
     fk_admin_id   INTEGER REFERENCES user_account (id) ON DELETE SET NULL,
