@@ -32,5 +32,13 @@ func UserRoutes(rg *gin.RouterGroup) {
 		users.DELETE("/delete/:id", userController.DeleteUser)
 	}
 
+	user := rg.Group("/user")
+	{
+		user.POST("/login", userController.Login)
+		user.POST("/register",
+			middleware.JWTAuthMiddleware,
+			middleware.RoleRequired("admin"),
+			userController.Register,
+		)
 	}
 }
