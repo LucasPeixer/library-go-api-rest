@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"strconv" 
 	"net/http"
 	"go-api/usecase"
+	"go-api/model"
 	"github.com/gin-gonic/gin"
+	"fmt"
 )
 
 type ReservationController struct {
@@ -44,7 +47,7 @@ func (rc *ReservationController) CreateReservation(c *gin.Context) {
 	}
 
 	// Pegando os dados da reserva do corpo da requisição
-	var request model.ReservationRequest
+	var request model.Reservation
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
