@@ -3,8 +3,8 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger"
-    "github.com/swaggo/files"  // Pacote correto para servir os arquivos Swagger
-    _ "go-api/docs" // Atualize conforme o nome do módulo no go.mod
+    "github.com/swaggo/files"
+    _ "go-api/docs"
 )
 
 // Routes registra todas as rotas http.
