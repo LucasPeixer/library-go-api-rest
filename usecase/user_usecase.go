@@ -12,6 +12,9 @@ type UserUseCase interface {
 	Register(name, phone, email, passwordHash string, fkAccountRole int) error
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
+	ActivateUser(id int) error
+	DeactivateUser(id int) error
+	DeleteUser(id int) error
 }
 
 type userUseCase struct {
@@ -47,4 +50,16 @@ func (uu *userUseCase) GetUsersByFilters(name, email string) (*[]user.Account, e
 
 func (uu *userUseCase) GetUserById(id int) (*user.Account, error) {
 	return uu.userRepo.GetUserById(id)
+}
+
+func (uu *userUseCase) ActivateUser(id int) error {
+	return uu.userRepo.ActivateUser(id)
+}
+
+func (uu *userUseCase) DeactivateUser(id int) error {
+	return uu.userRepo.DeactivateUser(id)
+}
+
+func (uu *userUseCase) DeleteUser(id int) error {
+	return uu.userRepo.DeleteUser(id)
 }
