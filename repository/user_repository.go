@@ -13,6 +13,9 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
+	ActivateUser(id int) error
+	DeactivateUser(id int) error
+	DeleteUser(id int) error
 }
 
 type userRepository struct {
@@ -166,4 +169,52 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	}
 
 	return &userAccount, nil
+}
+
+func (ur *userRepository) ActivateUser(id int) error {
+	err := ur.toggleUser(id, true)
+	if err != nil {
+		return fmt.Errorf("error activating user: %v", err)
+	}
+	return nil
+}
+
+func (ur *userRepository) DeactivateUser(id int) error {
+	err := ur.toggleUser(id, false)
+	if err != nil {
+		return fmt.Errorf("error deactivating user: %v", err)
+	}
+	return nil
+}
+
+func (ur *userRepository) toggleUser(id int, status bool) error {
+	query := `
+	UPDATE user_account 
+	SET is_active = $1 
+	WHERE id = $2
+	RETURNING id
+	`
+	var userId int
+	err := ur.db.QueryRow(query, status, id).Scan(&userId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("user with id %d not found", id)
+		}
+		return err
+	}
+	return nil
+}
+
+func (ur *userRepository) DeleteUser(id int) error {
+	query := `
+		DELETE FROM user_account
+		WHERE id = $1
+		RETURNING id
+	`
+	var userId int
+	err := ur.db.QueryRow(query, id).Scan(&userId)
+	if err != nil {
+		return fmt.Errorf("error deleting user: %v", err)
+	}
+	return nil
 }

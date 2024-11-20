@@ -17,7 +17,6 @@ func UserRoutes(rg *gin.RouterGroup) {
 	userController := controller.NewUserController(userUseCase)
 
 	rg.POST("/login", userController.Login)
-
 	rg.POST("/register",
 		middleware.JWTAuthMiddleware,
 		middleware.RoleRequired("admin"),
@@ -28,5 +27,18 @@ func UserRoutes(rg *gin.RouterGroup) {
 	{
 		users.GET("/", userController.GetUsersByFilters)
 		users.GET("/:id", userController.GetUserById)
+		users.PUT("/activate/:id", userController.ToggleUser("activate"))
+		users.PUT("/deactivate/:id", userController.ToggleUser("deactivate"))
+		users.DELETE("/delete/:id", userController.DeleteUser)
+	}
+
+	user := rg.Group("/user")
+	{
+		user.POST("/login", userController.Login)
+		user.POST("/register",
+			middleware.JWTAuthMiddleware,
+			middleware.RoleRequired("admin"),
+			userController.Register,
+		)
 	}
 }
