@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"go-api/model"
 	"strconv"
@@ -16,7 +17,7 @@ type BookRepository interface {
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
-	RemoveStock(id int) error
+	RemoveStock(id int, bookId *int) error
 }
 
 type bookRepository struct {
@@ -360,16 +361,29 @@ func (br *bookRepository) UpdateStockStatus(id int, status string) error {
 	panic("implement me")
 }
 
-func (br *bookRepository) RemoveStock(id int) error {
+func (br *bookRepository) RemoveStock(id int, bookId *int) error {
 	query := `
         DELETE FROM book_stock 
-        WHERE id = $1 
-        RETURNING id;
+        WHERE id = $1
     `
 
+	var args []interface{}
+	args = append(args, id)
+
+	if bookId != nil {
+		query += ` AND fk_book_id = $2`
+		args = append(args, bookId)
+	}
+
+	query += ` RETURNING id;`
+
 	var deletedBookStockId int
-	err := br.db.QueryRow(query, id).Scan(&deletedBookStockId)
+
+	err := br.db.QueryRow(query, args...).Scan(&deletedBookStockId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("book stock with id %d not found", id)
+		}
 		return fmt.Errorf("error deleting book stock: %v", err)
 	}
 
