@@ -34,7 +34,7 @@ func (rc *ReservationController) GetReservationsByFilters(c *gin.Context) {
 
 func (rc *ReservationController) CreateReservation(c *gin.Context) {
 
-	userIDStr, exists := c.Get("user_id") 
+	userIDStr, exists := c.Get("userId") 
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
 		return
