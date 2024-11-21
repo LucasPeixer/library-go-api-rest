@@ -21,6 +21,7 @@ func BookRoutes(rg *gin.RouterGroup) {
 	{
 		books.POST("/create", middleware.RoleRequired("admin"), bookController.CreateBook)
 		books.GET("/", bookController.GetBooks)
+		books.GET("/:id", bookController.GetBookById)
 		books.PUT("/update/:id", middleware.RoleRequired("admin"), bookController.UpdateBook)
 		books.DELETE("/delete/:id", middleware.RoleRequired("admin"), bookController.DeleteBook)
 

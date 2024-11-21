@@ -12,6 +12,7 @@ import (
 type BookController interface {
 	CreateBook(c *gin.Context)
 	GetBooks(c *gin.Context)
+	GetBookById(c *gin.Context)
 	UpdateBook(c *gin.Context)
 	DeleteBook(c *gin.Context)
 	AddStock(c *gin.Context)
@@ -74,6 +75,21 @@ func (bc *bookController) GetBooks(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, books)
+}
+
+func (bc *bookController) GetBookById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book Id"})
+		return
+	}
+
+	book, err := bc.useCase.GetBookById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, book)
 }
 
 // UpdateBook atualiza as informações de um livro existente.
