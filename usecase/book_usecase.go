@@ -13,7 +13,7 @@ type BookUseCase interface {
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
-	RemoveStock(id int) error
+	RemoveStock(id int, bookId *int) error
 }
 
 type bookUseCase struct {
@@ -53,6 +53,6 @@ func (uc *bookUseCase) UpdateStockStatus(id int, status string) error {
 	panic("implement me")
 }
 
-func (uc *bookUseCase) RemoveStock(id int) error {
-	return uc.repository.RemoveStock(id)
+func (uc *bookUseCase) RemoveStock(id int, bookId *int) error {
+	return uc.repository.RemoveStock(id, bookId)
 }
