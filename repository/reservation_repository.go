@@ -9,7 +9,7 @@ import (
 
 type ReservationRepositoryInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
-	CreateReservation(reservation *model.Reservation) (*model.Reservation, error) 
+	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) 
 }
 
 type ReservationRepository struct {
@@ -75,19 +75,20 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 }
 
 
-func (rr *ReservationRepository) CreateReservation(reservation *model.Reservation) (*model.Reservation, error) {
+func (rr *ReservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
 	
 	query := `
 		INSERT INTO reservation (borrowed_days, fk_user_id, fk_book_id)
 		VALUES ($1, $2, $3)
 		RETURNING id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id`
 	
-	err := rr.db.QueryRow(query, reservation.BorrowedDays, reservation.UserID, reservation.BookID).
+	var reservation model.Reservation
+	err := rr.db.QueryRow(query, reservationRequest.BorrowedDays, reservationRequest.UserID, reservationRequest.BookID).
 		Scan(&reservation.ID, &reservation.ReservedAt, &reservation.ExpiresAt, &reservation.BorrowedDays, &reservation.Status, &reservation.UserID, &reservation.AdminID, &reservation.BookID)
 	if err != nil {
 		return nil, fmt.Errorf("error inserting reservation: %w", err)
 	}
 
-	return reservation, nil
+	return &reservation, nil
 }
 

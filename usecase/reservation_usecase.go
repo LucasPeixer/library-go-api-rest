@@ -8,7 +8,7 @@ import (
 
 type ReservationUseCaseInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
-	CreateReservation(reservation *model.Reservation) (*model.Reservation, error)
+	CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error)
 }
 
 type ReservationUseCase struct {
@@ -31,7 +31,7 @@ func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reserve
 	return ru.ReservationRepo.GetReservationsByFilters(userName, status, reservedAt)
 }
 
-func (ru *ReservationUseCase) CreateReservation(reservation *model.Reservation) (*model.Reservation, error) {
+func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error) {
 
 	//Verificar se a conta do usuário está ativa 
 	user, err := ru.userRepo.GetUserById(reservation.UserID)

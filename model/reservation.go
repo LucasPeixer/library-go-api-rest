@@ -22,3 +22,9 @@ type Reservation struct {
 	AdminID      int    `json:"fk_admin_id" db:"fk_admin_id"`
 	BookID       int    `json:"fk_book_id" db:"fk_book_id"`
 }
+
+type ReservationRequest struct {
+	UserID       int       `json:"user_id" binding:"required"`
+	BookID       int       `json:"book_id" binding:"required"`
+	BorrowedDays int       `json:"borrowed_days" binding:"required"`
+}

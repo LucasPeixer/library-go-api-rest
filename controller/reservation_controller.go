@@ -47,7 +47,7 @@ func (rc *ReservationController) CreateReservation(c *gin.Context) {
 	}
 
 	// Pegando os dados da reserva do corpo da requisição
-	var request model.Reservation
+	var request model.ReservationRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
