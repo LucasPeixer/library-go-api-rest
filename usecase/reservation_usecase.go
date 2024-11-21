@@ -36,10 +36,10 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.Reservation) 
 	//Verificar se a conta do usuário está ativa 
 	user, err := ru.userRepo.GetUserById(reservation.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao buscar usuário: %w", err)
+		return nil, fmt.Errorf("error when searching for user: %w", err)
 	}
 	if user.IsActive != true {
-		return nil, fmt.Errorf("usuário não está ativo")
+		return nil, fmt.Errorf("user is not active")
 	}
 
 	//Verificar se o usuário não tem empréstimos em atraso
