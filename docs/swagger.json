@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Teste implementação Swagger",
-        "description": "Api utilizada para teste",
+        "title": "Sistema de APIs",
+        "description": "APIs utilizadas para gerenciar bibliotecas",
         "termsOfService": "http://linkseguro.com.br",
         "contact": {
             "email": "poweredtable@gmail.com"
@@ -204,7 +204,7 @@
         },
         "/books": {
             "get": {
-                "summary": "Lista e flitra os livros",
+                "summary": "Lista e filtra os livros",
                 "description": "Lista e filtra os livros registrados",
                 "tags": [
                     "Livros"
@@ -257,10 +257,10 @@
                 }
             }
         },
-        "/books/{id}": {
+        "/books/update/{id}": {
             "put": {
                 "summary": "Edita um livro",
-                "description": "Realização a edição de um livro utilizando o ID do mesmo",
+                "description": "Realiza a edição de um livro utilizando o ID do mesmo",
                 "tags": [
                     "Livros"
                 ],
@@ -272,11 +272,11 @@
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "description": "Id do livro a ser editado",
                         "required": true,
                         "schema": {
-                            "type": "number"
+                            "type": "string"
                         }
                     }
                 ],
@@ -305,7 +305,7 @@
                 }
             }
         },
-        "/books/delete{id}": {
+        "/books/delete/{id}": {
             "delete": {
                 "summary": "Deleta um livro",
                 "description": "Realização a deleção de um livro utilizando o ID do mesmo",
@@ -340,7 +340,7 @@
         },
         "/books/{id}/stock": {
             "get": {
-                "summary": "Lista livros do estoque",
+                "summary": "Lista livros no estoque",
                 "description": "Lista livros presentes no estoque",
                 "tags": [
                     "Estoque de livros"
@@ -377,7 +377,7 @@
         },
         "/books/{id}/stock/add": {
             "post": {
-                "summary": "Adicona um livro ao estoque",
+                "summary": "Adiciona um livro ao estoque",
                 "description": "Rota para adição de livros no estoque",
                 "tags": [
                     "Estoque de livros"
@@ -385,6 +385,17 @@
                 "security": [
                     {
                         "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id do livro",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "requestBody": {
