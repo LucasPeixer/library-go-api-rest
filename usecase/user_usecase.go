@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"go-api/model"
 	"go-api/model/user"
 	"go-api/repository"
 	"go-api/utils"

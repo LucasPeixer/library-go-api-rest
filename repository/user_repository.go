@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"go-api/model"
 	"go-api/model/user"
 	"strconv"
 )
@@ -13,6 +14,7 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
+	GetUserLoans(userID int) ([]model.Loan, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error

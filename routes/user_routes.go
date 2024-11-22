@@ -40,5 +40,6 @@ func UserRoutes(rg *gin.RouterGroup) {
 			middleware.RoleRequired("admin"),
 			userController.Register,
 		)
+		user.GET("/:id/loans", userController.GetUserLoans)
 	}
 }
