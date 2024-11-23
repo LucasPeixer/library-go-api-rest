@@ -55,12 +55,13 @@ func (uc *userController) Register(c *gin.Context) {
 		return
 	}
 
-	if err := uc.useCase.Register(i.Name, i.Cpf, i.Phone, i.Email, hashedPassword, i.RoleId); err != nil {
+	userId, err := uc.useCase.Register(i.Name, i.Cpf, i.Phone, i.Email, hashedPassword, i.RoleId)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully", "user_id": userId})
 }
 
 // Login recebe um input JSON através do gin.Context e tenta realizar o login do usuário.
