@@ -337,7 +337,7 @@
         "/books/delete/{id}": {
             "delete": {
                 "summary": "Remove um livro",
-                "description": "Realização a remoção de um livro utilizando o ID do mesmo",
+                "description": "Realiza a remoção de um livro utilizando o ID do mesmo",
                 "tags": [
                     "Livros"
                 ],
