@@ -15,6 +15,7 @@ type UserRepository interface {
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
 	GetUserLoans(userID int) ([]model.Loan, error)
+	GetUserReservation(userID int) ([]*model.Reservation, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
@@ -213,6 +214,43 @@ func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error){
 	}
 
 	return loans, nil
+}
+
+func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, error) {
+	query := `
+		SELECT 
+			r.id, 
+			r.fk_user_id, 
+			r.fk_book_id, 
+			r.borrowed_days, 
+			r.status, 
+			r.reserved_at, 
+			r.expires_at
+		FROM reservation r
+		WHERE r.fk_user_id = $1
+	`
+	rows, err := ur.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching reservations: %w", err)
+	}
+	defer rows.Close()
+
+	var reservations []*model.Reservation
+
+	for rows.Next() {
+		var reservation model.Reservation
+		if err := rows.Scan(&reservation.ID, &reservation.UserID, &reservation.BookID, &reservation.BorrowedDays, &reservation.Status, &reservation.ReservedAt, &reservation.ExpiresAt); err != nil {
+			return nil, fmt.Errorf("error reading reservation data: %w", err)
+		}
+
+		reservations = append(reservations, &reservation)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over reservations: %w", err)
+	}
+
+	return reservations, nil
 }
 
 func (ur *userRepository) ActivateUser(id int) error {
