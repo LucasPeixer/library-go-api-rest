@@ -74,7 +74,7 @@ BEGIN
     FROM book_stock bs
              LEFT JOIN reservation r
                        ON r.fk_book_id = bs.fk_book_id
-                           AND r.status IN ('pending', 'collected')
+                           AND r.status = 'pending'
                            AND r.expires_at > CURRENT_TIMESTAMP
     WHERE bs.id = OLD.id AND bs.status = 'available';
 
