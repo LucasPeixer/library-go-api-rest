@@ -31,6 +31,7 @@ func NewUserController(useCase usecase.UserUseCase) UserController {
 func (uc *userController) Register(c *gin.Context) {
 	var i struct {
 		Name     string `json:"name" binding:"required"`
+		Cpf      string `json:"cpf" binding:"required"`
 		Phone    string `json:"phone" binding:"required"`
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`
@@ -41,6 +42,12 @@ func (uc *userController) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid registration input"})
 		return
 	}
+
+	if !utils.IsValidCPF(i.Cpf) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid cpf input"})
+		return
+	}
+
 	// Tenta criar um hash da senha do usuário
 	hashedPassword, err := utils.HashPassword(i.Password)
 	if err != nil {
@@ -48,7 +55,7 @@ func (uc *userController) Register(c *gin.Context) {
 		return
 	}
 
-	if err := uc.useCase.Register(i.Name, i.Phone, i.Email, hashedPassword, i.RoleId); err != nil {
+	if err := uc.useCase.Register(i.Name, i.Cpf, i.Phone, i.Email, hashedPassword, i.RoleId); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

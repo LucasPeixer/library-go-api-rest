@@ -69,6 +69,7 @@
                                 "Credenciais": {
                                     "value": {
                                         "name": "Julio",
+                                        "cpf": "60939530090",
                                         "phone": "(48)98484-5555",
                                         "email": "empresa@gmail.com",
                                         "password": "123",
@@ -519,6 +520,9 @@
                     "name": {
                         "type": "string"
                     },
+                    "cpf": {
+                        "type": "string"
+                    },
                     "phone": {
                         "type": "string"
                     },
@@ -540,6 +544,9 @@
                         "type": "integer"
                     },
                     "name":{
+                        "type": "string"
+                    },
+                    "cpf": {
                         "type": "string"
                     },
                     "phone":{
