@@ -106,10 +106,15 @@ func (uc *userController) GetUserById(c *gin.Context) {
 }
 
 func (uc *userController) GetUserLoans(c *gin.Context) {
-	userIDParam := c.Param("id")
-	userID, err := strconv.Atoi(userIDParam)
+	userIDValue, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDValue.(string))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID format"})
 		return
 	}
 
