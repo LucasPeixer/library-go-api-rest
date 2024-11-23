@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Teste implementação Swagger",
-        "description": "Api utilizada para teste",
+        "title": "Sistema de APIs",
+        "description": "APIs utilizadas para gerenciar bibliotecas",
         "termsOfService": "http://linkseguro.com.br",
         "contact": {
             "email": "poweredtable@gmail.com"
@@ -87,6 +87,91 @@
                 }
             }
         },
+        "/users": {
+            "get": {
+                "summary": "Lista e filtra usuários",
+                "description": "Lista e filtra os usuários registrados",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Nome do usuário",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email do usuário",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna uma lista de usuários",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "$ref": "#/components/schemas/userInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "summary": "Filtra usuários por ID",
+                "description": "Filtra os usuários registrados por ID",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de um usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna usuário filtrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "$ref": "#/components/schemas/userInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/books/create": {
             "post": {
                 "summary": "Cria um livro",
@@ -146,6 +231,274 @@
                     }
                 }
             }
+        },
+        "/books": {
+            "get": {
+                "summary": "Lista e filtra os livros",
+                "description": "Lista e filtra os livros registrados",
+                "tags": [
+                    "Livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "description": "Título do livro",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "description": "Autor do livro",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "genres",
+                        "in": "query",
+                        "description": "Gênero do livro",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna uma lista de livros",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/booksCreate"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/books/update/{id}": {
+            "put": {
+                "summary": "Edita um livro",
+                "description": "Realiza a edição de um livro utilizando o ID do mesmo",
+                "tags": [
+                    "Livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do livro a ser editado",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/booksUpdate"
+                            },
+                            "examples": {
+                                "book": {
+                                    "value": {
+                                        "title": "Navio",
+                                        "synopsis": "Navio voador",
+                                        "author_id": 3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Livro editado com sucesso."
+                    }
+                }
+            }
+        },
+        "/books/delete/{id}": {
+            "delete": {
+                "summary": "Remove um livro",
+                "description": "Realiza a remoção de um livro utilizando o ID do mesmo",
+                "tags": [
+                    "Livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do livro a ser removido",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livro removido com sucesso"
+                    },
+                    "400": {
+                        "description": "Livro não encontrado"
+                    }
+                }
+            }
+        },
+        "/books/{id}/stock": {
+            "get": {
+                "summary": "Lista o estoque de um determinado livro",
+                "description": "Lista o estoque de um livro pelo seu Id",
+                "tags": [
+                    "Estoque de livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id do livro",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna uma lista do estoque de um livro",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/booksCreate"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/books/{id}/stock/add": {
+            "post": {
+                "summary": "Adiciona estoque a um livro",
+                "description": "Adiciona estoque a um livro utilizando seu Id",
+                "tags": [
+                    "Estoque de livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id do livro",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/stockAdd"
+                            },
+                            "examples": {
+                                "book": {
+                                    "value": {
+                                        "code": 9
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/stocks"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/books/{id}/stock/remove/{id}": {
+            "delete": {
+                "summary": "Remove um estoque de um livro",
+                "description": "Realiza a remoção de um estoque de um livro utilizando o Id do livro e do estoque",
+                "tags": [
+                    "Estoque de livros"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do livro",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do livro do estoque",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Livro removido com sucesso"
+                    },
+                    "400": {
+                        "description": "Livro não encontrado"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -180,7 +533,41 @@
                         "type": "string"
                     },
                     "role_id": {
-                        "type": "number"
+                        "type": "integer"
+                    }
+                }
+            },
+            "userInfo":{
+                "type": "object",
+                "properties": {
+                    "id":{
+                        "type": "integer"
+                    },
+                    "name":{
+                        "type": "string"
+                    },
+                    "phone":{
+                        "type": "string" 
+                    },
+                    "email":{
+                        "type": "string"
+                    },
+                    "password_hash":{
+                        "type": "string"
+                    },
+                    "account_role":{
+                        "type": "object",
+                        "properties":{
+                            "id":{
+                                "type": "integer"
+                            },
+                            "name":{
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "is_active":{
+                        "type": "boolean"
                     }
                 }
             },
@@ -193,17 +580,59 @@
                     "synopsis": {
                         "type": "string"
                     },
-                    "amount": {
-                        "type": "number"
+                    "book_codes": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     "author_id": {
-                        "type": "number"
+                        "type": "integer"
                     },
                     "genre_ids": {
                         "type": "array",
                         "items": {
                             "type": "integer"
                         }
+                    }
+                }
+            },
+            "booksUpdate": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "synopsis": {
+                        "type": "string"
+                    },
+                    "author_id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "stockAdd": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "bookStock": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "integer"
+                    },
+                    "book_id": {
+                        "type": "integer"
                     }
                 }
             }
@@ -215,5 +644,19 @@
                 "bearerFormat": "JWT"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "User",
+            "description": "Operações relacionadas a usuário"
+        },
+        {
+            "name": "Livros",
+            "description": "Gerenciamento de livros (CRUD)"
+        },
+        {
+            "name": "Estoque de livros",
+            "description": "Gerenciamento do estoque dos livros"
+        }
+    ]
 }
