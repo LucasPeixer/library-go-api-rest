@@ -97,7 +97,8 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	SELECT b.id         AS book_id,
 	       b.title      AS book_title,
 	       b.synopsis   AS book_synopsis,
-	       COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 else 0 END), 0) AS amount,
+           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) - 
+           COALESCE(SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END), 0) AS amount,
 	       g.id         AS genre_id,
 	       g.name       AS genre_name,
 	       a.id         AS author_id,
@@ -112,6 +113,8 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	       author a ON b.fk_author_id = a.id
 	LEFT JOIN 
 	        book_stock bs ON b.id = bs.fk_book_id
+	LEFT JOIN
+	   reservation r ON b.id = r.fk_book_id
 	WHERE 
 		    1=1 -- Permite adicionar condições "AND"
     `
@@ -198,7 +201,8 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
     SELECT b.id         AS book_id,
            b.title      AS book_title,
            b.synopsis   AS book_synopsis,
-           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) AS amount,
+           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) - 
+           COALESCE(SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END), 0) AS amount,
            g.id         AS genre_id,
            g.name       AS genre_name,
            a.id         AS author_id,
@@ -213,6 +217,8 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
            author a ON b.fk_author_id = a.id
     LEFT JOIN 
            book_stock bs ON b.id = bs.fk_book_id
+    LEFT JOIN
+           reservation r ON b.id = r.fk_book_id
     WHERE 
            b.id = $1
     GROUP BY 
