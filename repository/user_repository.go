@@ -9,7 +9,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(name, phone, email, passwordHash string, fkAccountRole int) error
+	CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) error
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
@@ -26,13 +26,13 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{db}
 }
 
-func (ur *userRepository) CreateUser(name, phone, email, passwordHash string, fkAccountRole int) error {
+func (ur *userRepository) CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) error {
 	query := `
-        INSERT INTO user_account (name, phone, email, password_hash, fk_account_role)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO user_account (name, cpf, phone, email, password_hash, fk_account_role)
+        VALUES ($1, $2, $3, $4, $5, $6)
     `
 
-	_, err := ur.db.Exec(query, name, phone, email, passwordHash, fkAccountRole)
+	_, err := ur.db.Exec(query, name, cpf, phone, email, passwordHash, fkAccountRole)
 	if err != nil {
 		return fmt.Errorf("error creating user: %v", err)
 	}
@@ -44,6 +44,7 @@ func (ur *userRepository) GetUserByEmail(email string) (*user.Account, error) {
 	SELECT 
 	       ua.id             AS user_id,
 	       ua.name           AS user_name,
+	       ua.cpf            AS user_cpf,
 	       ua.phone          AS user_phone,
 	       ua.email          AS user_email,
 	       ua.password_hash  AS user_password_hash,
@@ -61,6 +62,7 @@ func (ur *userRepository) GetUserByEmail(email string) (*user.Account, error) {
 	err := ur.db.QueryRow(query, email).Scan(
 		&userAccount.Id,
 		&userAccount.Name,
+		&userAccount.Cpf,
 		&userAccount.Phone,
 		&userAccount.Email,
 		&userAccount.PasswordHash,
@@ -84,6 +86,7 @@ func (ur *userRepository) GetUsersByFilters(name, email string) (*[]user.Account
 	SELECT 
 	       ua.id             AS user_id,
 	       ua.name           AS user_name,
+	       ua.cpf            AS user_cpf,
 	       ua.phone          AS user_phone,
 	       ua.email          AS user_email,
 	       ua.is_active      AS user_is_active,
@@ -119,6 +122,7 @@ func (ur *userRepository) GetUsersByFilters(name, email string) (*[]user.Account
 		err := rows.Scan(
 			&userAccount.Id,
 			&userAccount.Name,
+			&userAccount.Cpf,
 			&userAccount.Phone,
 			&userAccount.Email,
 			&userAccount.IsActive,
@@ -138,6 +142,7 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	SELECT 
 	       ua.id             AS user_id,
 	       ua.name           AS user_name,
+	       ua.cpf            AS user_cpf,
 	       ua.phone          AS user_phone,
 	       ua.email          AS user_email,
 	       ua.is_active      AS user_is_active,
@@ -154,6 +159,7 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	err := ur.db.QueryRow(query, id).Scan(
 		&userAccount.Id,
 		&userAccount.Name,
+		&userAccount.Cpf,
 		&userAccount.Phone,
 		&userAccount.Email,
 		&userAccount.IsActive,

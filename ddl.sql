@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS user_account
 (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(150)        NOT NULL,
+    cpf             CHAR(11) UNIQUE,
     phone           VARCHAR(20) UNIQUE  NOT NULL,
     email           VARCHAR(150) UNIQUE NOT NULL,
     password_hash   VARCHAR(255)        NOT NULL,
