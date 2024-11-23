@@ -142,6 +142,44 @@
                 }
             }
         },
+        "/users/{id}": {
+            "get": {
+                "summary": "Filtra usuários por ID",
+                "description": "Filtra os usuários registrados por ID",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de um usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna usuário filtrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "$ref": "#/components/schemas/userInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/books/create": {
             "post": {
                 "summary": "Cria um livro",
@@ -501,6 +539,40 @@
                     },
                     "role_id": {
                         "type": "number"
+                    }
+                }
+            },
+            "userInfo":{
+                "type": "object",
+                "properties": {
+                    "id":{
+                        "type": "number"
+                    },
+                    "name":{
+                        "type": "string"
+                    },
+                    "phone":{
+                        "type": "number" 
+                    },
+                    "email":{
+                        "type": "string"
+                    },
+                    "password_hash":{
+                        "type": "string"
+                    },
+                    "account_role":{
+                        "type": "object",
+                        "properties":{
+                            "id":{
+                                "type": "number"
+                            },
+                            "name":{
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "is_active":{
+                        "type": "boolean"
                     }
                 }
             },
