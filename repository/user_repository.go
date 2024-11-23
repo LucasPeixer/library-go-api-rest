@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) error
+	CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) (*int, error)
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
@@ -29,17 +29,18 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{db}
 }
 
-func (ur *userRepository) CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) error {
+func (ur *userRepository) CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) (*int, error) {
 	query := `
         INSERT INTO user_account (name, cpf, phone, email, password_hash, fk_account_role)
         VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id
     `
-
-	_, err := ur.db.Exec(query, name, cpf, phone, email, passwordHash, fkAccountRole)
+	var userId int
+	err := ur.db.QueryRow(query, name, cpf, phone, email, passwordHash, fkAccountRole).Scan(&userId)
 	if err != nil {
-		return fmt.Errorf("error creating user: %v", err)
+		return nil, fmt.Errorf("error creating user: %v", err)
 	}
-	return nil
+	return &userId, nil
 }
 
 func (ur *userRepository) GetUserByEmail(email string) (*user.Account, error) {
@@ -180,7 +181,7 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	return &userAccount, nil
 }
 
-func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error){
+func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error) {
 	query := `
 			SELECT l.id, l.loaned_at, l.return_by, l.returned_at, l.status, 
        l.fk_admin_id, l.fk_book_stock_id, l.fk_reservation_id
