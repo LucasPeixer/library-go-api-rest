@@ -450,7 +450,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/stocks"
+                                    "$ref": "#/components/schemas/bookStock"
                                 }
                             }
                         }
