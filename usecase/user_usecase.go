@@ -60,12 +60,7 @@ func (uu *userUseCase) GetUserLoans(userID int) ([]model.Loan, error) {
 }
 
 func (uu *userUseCase) GetUserReservations(userID int) ([]*model.Reservation, error) {
-	// Chama o repositório para pegar as reservas do usuário
-	reservations, err := uu.userRepo.GetUserReservation(userID)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching user reservations: %w", err)
-	}
-	return reservations, nil
+	return uu.userRepo.GetUserReservation(userID)
 }
 
 func (uu *userUseCase) ActivateUser(id int) error {
