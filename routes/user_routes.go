@@ -40,6 +40,6 @@ func UserRoutes(rg *gin.RouterGroup) {
 			middleware.RoleRequired("admin"),
 			userController.Register,
 		)
-		user.GET("/loans", userController.GetUserLoans)
+		user.GET("/loans",middleware.JWTAuthMiddleware, userController.GetUserLoans)
 	}
 }
