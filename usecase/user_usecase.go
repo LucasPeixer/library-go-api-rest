@@ -6,7 +6,6 @@ import (
 	"go-api/model/user"
 	"go-api/repository"
 	"go-api/utils"
-	"fmt"
 )
 
 type UserUseCase interface {

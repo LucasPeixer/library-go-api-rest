@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-api/repository"
 	"go-api/model"
+	"time"
 )
 
 type ReservationUseCaseInterface interface {
@@ -33,7 +34,6 @@ func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reserve
 
 func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error) {
 
-	//Verificar se a conta do usuário está ativa 
 	user, err := ru.userRepo.GetUserById(reservation.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user: %w", err)
@@ -42,44 +42,46 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		return nil, fmt.Errorf("user is not active")
 	}
 
-	//Verificar se o usuário não tem empréstimos em atraso
-	/*activeLoans, err := ru.userRepo.GetUserLoans(reservation.UserID)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao buscar empréstimos do usuário: %w", err)
-	}
-	for _, loan := range activeLoans {
-	// Verificar se o empréstimo está em atraso
-	if loan.ReturnBy.Before(time.Now()) {
-			return nil, fmt.Errorf("usuário tem empréstimos em atraso")
-		}
-	}*/
-
-
-	//Verificar se o usuário não excedeu o limite de 5 reservas/empréstimos ativos 
-	/*activeReservations, err := ru.reservationRepo.GetReservationsByFilters(fmt.Sprintf("%d", reservation.UserID), "pending", "")
-	if err != nil {
-		return nil, fmt.Errorf("error when searching for active user reservations: %w", err)
-	}
-
 	activeLoans, err := ru.userRepo.GetUserLoans(reservation.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("error when searching for active user loans: %w", err)
+		return nil, fmt.Errorf("error when searching for user loans: %w", err)
 	}
 
-	totalActive := len(activeReservations) + len(activeLoans)
+	borrowedLoansCount := 0
+	for _, loan := range activeLoans {
+		if loan.Status == "borrowed" {
+			borrowedLoansCount++
+			// Verificar se o empréstimo está em atraso
+			if loan.ReturnBy.Before(time.Now()) {
+				return nil, fmt.Errorf("user has overdue loans")
+			}
+		}
+	}
 
+	userReservations, err := ru.userRepo.GetUserReservation(reservation.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("error when searching for user reservations: %w", err)
+	}
+
+	pendingReservationsCount := 0
+	for _, res := range userReservations {
+		if res.Status == "pending" {
+			pendingReservationsCount++
+		}
+	}
+
+	totalActive := pendingReservationsCount + borrowedLoansCount
 	if totalActive >= 5 {
 		return nil, fmt.Errorf("user already has 5 or more active reservations/loans")
-	}*/
+	}
 
-	/*book, err := ru.bookRepo.GetBookByID(reservation.BookID)
+	book, err := ru.bookRepo.GetBookById(reservation.BookID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for book: %w", err)
-	}*/
-
-	/*if book.Amount <= 0 {
+	}
+	if book.Amount <= 0 {
 		return nil, fmt.Errorf("book out of stock")
-	}*/
+	}
 
 	newReservation, err := ru.ReservationRepo.CreateReservation(reservation)
 	if err != nil {

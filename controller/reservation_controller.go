@@ -48,13 +48,12 @@ func (rc *ReservationController) CreateReservation(c *gin.Context) {
 
 	// Pegando os dados da reserva do corpo da requisição
 	var request model.ReservationRequest
+	request.UserID = userID
+	
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
 	}
-
-	// Atribuindo o ID do usuário na reserva
-	request.UserID = userID
 
 	// Criando a reserva
 	reservation, err := rc.UseCase.CreateReservation(&request)
