@@ -13,8 +13,8 @@ export function validarObjetoNaLista(lista, objetoEsperado) {
       usuario.cpf === objetoEsperado.cpf &&
       usuario.phone === objetoEsperado.phone &&
       usuario.email === objetoEsperado.email &&
-      usuario.is_active === objetoEsperado.is_active &&
       usuario.account_role.id === objetoEsperado.account_role.id &&
-      usuario.account_role.name === objetoEsperado.account_role.name
+      usuario.account_role.name === objetoEsperado.account_role.name &&
+      usuario.is_active === objetoEsperado.is_active
     );
   }

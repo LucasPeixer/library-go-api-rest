@@ -1,5 +1,7 @@
 import 'cypress-plugin-api';
-import '../utils/validarObjeto';
+import {validarObjetoNaLista
+
+} from '../utils/validarObjeto';
 
 let authToken;
 describe('API tests', () => {
@@ -15,6 +17,8 @@ describe('API tests', () => {
 
             expect(response.status).to.equal(200)
             authToken = response.body.replace(/^"|"$/g, '');
+            cy.log(`Auth Token: ${authToken}`);
+
         });
     });
 
@@ -37,12 +41,16 @@ describe('API tests', () => {
 
             expect(response.status).to.equal(201)
             expect(response.body).to.have.property('message', "User registered successfully")
+            const userId = response.body.user_id;  // Verifique o nome exato da chave
+            Cypress.env('userId', userId);
         });
     })
 
     it('get user', () => {
+        const userId = Cypress.env('userId');
+        cy.log(userId)
         cy.api({
-            method: 'POST',
+            method: 'get',
             url: 'http://localhost:8080/api/v1/users',
             headers: {
                 Authorization: `Bearer ${authToken}`
@@ -52,11 +60,11 @@ describe('API tests', () => {
             expect(response.status).to.equal(200)
             const listaUsuarios = response.body;
             const objetoEsperado = {
-                id: 4,
-                name: "Babau",
-                cpf: "32514250056",
-                phone: "(48)98484-5555",
-                email: "empresa@gmail.com",
+                id: userId,
+                name: "usuário",
+                cpf: "64801920012",
+                phone: "(48)98484-6666",
+                email: "empresa22@gmail.com",
                 account_role: {
                     id: 2,
                     name: "user"
@@ -69,11 +77,10 @@ describe('API tests', () => {
         })
     });
     it('Activate user', () => {
-        const usuarioId = 4;
-
+        const userId = Cypress.env('userId');
         cy.api({
             method: 'PUT',
-            url: `http://localhost:8080/api/v1/users/activate/${usuarioId}`,
+            url: `http://localhost:8080/api/v1/users/activate/${userId}`,
             headers: {
                 Authorization: `Bearer ${authToken}`
             }
@@ -84,11 +91,10 @@ describe('API tests', () => {
         });
     });
     it('Deactivate user', () => {
-        const usuarioId = 4;
-
+        const userId = Cypress.env('userId');
         cy.api({
             method: 'PUT',
-            url: `http://localhost:8080/api/v1/users/deactivate/${usuarioId}`,
+            url: `http://localhost:8080/api/v1/users/deactivate/${userId}`,
             headers: {
                 Authorization: `Bearer ${authToken}`
             }
@@ -99,10 +105,10 @@ describe('API tests', () => {
         });
     });
     it('Delete user', () => {
-        const usuarioId = 12;
+        const userId = Cypress.env('userId');
         cy.api({
             method: 'DELETE',
-            url: `http://localhost:8080/api/v1/users/delete/${usuarioId}`,
+            url: `http://localhost:8080/api/v1/users/delete/${userId}`,
             headers: {
                 Authorization: `Bearer ${authToken}`
             }
