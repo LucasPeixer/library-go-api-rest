@@ -10,11 +10,12 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) error
+	CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) (*int, error)
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
 	GetUserLoans(userID int) ([]model.Loan, error)
+	GetUserReservation(userID int) ([]*model.Reservation, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
@@ -28,17 +29,18 @@ func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{db}
 }
 
-func (ur *userRepository) CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) error {
+func (ur *userRepository) CreateUser(name, cpf, phone, email, passwordHash string, fkAccountRole int) (*int, error) {
 	query := `
         INSERT INTO user_account (name, cpf, phone, email, password_hash, fk_account_role)
         VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id
     `
-
-	_, err := ur.db.Exec(query, name, cpf, phone, email, passwordHash, fkAccountRole)
+	var userId int
+	err := ur.db.QueryRow(query, name, cpf, phone, email, passwordHash, fkAccountRole).Scan(&userId)
 	if err != nil {
-		return fmt.Errorf("error creating user: %v", err)
+		return nil, fmt.Errorf("error creating user: %v", err)
 	}
-	return nil
+	return &userId, nil
 }
 
 func (ur *userRepository) GetUserByEmail(email string) (*user.Account, error) {
@@ -179,7 +181,7 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	return &userAccount, nil
 }
 
-func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error){
+func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error) {
 	query := `
 			SELECT l.id, l.loaned_at, l.return_by, l.returned_at, l.status, 
        l.fk_admin_id, l.fk_book_stock_id, l.fk_reservation_id
@@ -213,6 +215,43 @@ func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error){
 	}
 
 	return loans, nil
+}
+
+func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, error) {
+	query := `
+		SELECT 
+			r.id, 
+			r.fk_user_id, 
+			r.fk_book_id, 
+			r.borrowed_days, 
+			r.status, 
+			r.reserved_at, 
+			r.expires_at
+		FROM reservation r
+		WHERE r.fk_user_id = $1
+	`
+	rows, err := ur.db.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching reservations: %w", err)
+	}
+	defer rows.Close()
+
+	var reservations []*model.Reservation
+
+	for rows.Next() {
+		var reservation model.Reservation
+		if err := rows.Scan(&reservation.ID, &reservation.UserID, &reservation.BookID, &reservation.BorrowedDays, &reservation.Status, &reservation.ReservedAt, &reservation.ExpiresAt); err != nil {
+			return nil, fmt.Errorf("error reading reservation data: %w", err)
+		}
+
+		reservations = append(reservations, &reservation)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over reservations: %w", err)
+	}
+
+	return reservations, nil
 }
 
 func (ur *userRepository) ActivateUser(id int) error {
