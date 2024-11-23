@@ -76,7 +76,7 @@ BEGIN
                        ON r.fk_book_id = bs.fk_book_id
                            AND r.status IN ('pending', 'collected')
                            AND r.expires_at > CURRENT_TIMESTAMP
-    WHERE bs.id = OLD.id;
+    WHERE bs.id = OLD.id AND bs.status = 'available';
 
     -- Prevent deletion if active reservations >= available stock
     IF stock_and_reservations_count.active_reservations_count >= stock_and_reservations_count.total_stock_count THEN
