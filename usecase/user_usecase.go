@@ -6,6 +6,7 @@ import (
 	"go-api/model/user"
 	"go-api/repository"
 	"go-api/utils"
+	"fmt"
 )
 
 type UserUseCase interface {
@@ -56,6 +57,10 @@ func (uu *userUseCase) GetUserById(id int) (*user.Account, error) {
 
 func (uu *userUseCase) GetUserLoans(userID int) ([]model.Loan, error) {
 	return uu.userRepo.GetUserLoans(userID)
+}
+
+func (uu *userUseCase) GetUserReservations(userID int) ([]*model.Reservation, error) {
+	return uu.userRepo.GetUserReservation(userID)
 }
 
 func (uu *userUseCase) ActivateUser(id int) error {
