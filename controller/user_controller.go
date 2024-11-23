@@ -14,7 +14,11 @@ type UserController interface {
 	Login(c *gin.Context)
 	GetUsersByFilters(c *gin.Context)
 	GetUserById(c *gin.Context)
+	GetUserLoans(c *gin.Context)
+	ToggleUser(action string) gin.HandlerFunc
+	DeleteUser(c *gin.Context)
 }
+
 type userController struct {
 	useCase usecase.UserUseCase
 }
@@ -99,4 +103,71 @@ func (uc *userController) GetUserById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, userAccount)
+}
+
+func (uc *userController) GetUserLoans(c *gin.Context) {
+	userIDValue, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDValue.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	loans, err := uc.useCase.GetUserLoans(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, loans)
+}
+
+func (uc *userController) ToggleUser(action string) gin.HandlerFunc {
+	if action != "activate" && action != "deactivate" {
+		panic("Invalid action. Must be either 'activate' or 'deactivate'")
+	}
+
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+			return
+		}
+
+		var userErr error
+		if action == "activate" {
+			userErr = uc.useCase.ActivateUser(id)
+
+		} else {
+			userErr = uc.useCase.DeactivateUser(id)
+		}
+
+		if userErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": userErr.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "User has been successfully " + action + "d"})
+	}
+}
+
+func (uc *userController) DeleteUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user id"})
+		return
+	}
+
+	err = uc.useCase.DeleteUser(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User has been successfully deleted"})
 }

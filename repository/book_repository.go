@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"go-api/model"
 	"strconv"
@@ -10,12 +11,13 @@ import (
 type BookRepository interface {
 	CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error)
 	GetBooks(title, author string, genres []string) (*[]model.Book, error)
+	GetBookById(id int) (*model.Book, error)
 	UpdateBook(bookId int, title, synopsis string, authorId int) error
 	DeleteBook(bookId int) error
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
-	RemoveStock(id int) error
+	RemoveStock(id int, bookId *int) error
 }
 
 type bookRepository struct {
@@ -191,6 +193,86 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	return &books, nil
 }
 
+func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
+	query := `
+    SELECT b.id         AS book_id,
+           b.title      AS book_title,
+           b.synopsis   AS book_synopsis,
+           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) AS amount,
+           g.id         AS genre_id,
+           g.name       AS genre_name,
+           a.id         AS author_id,
+           a.name       AS author_name
+    FROM 
+           book b
+    LEFT JOIN
+           book_genre bg ON b.id = bg.fk_book_id
+    LEFT JOIN
+           genre g ON bg.fk_genre_id = g.id
+    LEFT JOIN
+           author a ON b.fk_author_id = a.id
+    LEFT JOIN 
+           book_stock bs ON b.id = bs.fk_book_id
+    WHERE 
+           b.id = $1
+    GROUP BY 
+           b.id, b.title, b.synopsis, g.id, g.name, a.id, a.name
+    `
+
+	rows, err := br.db.Query(query, id)
+	if err != nil {
+		return nil, fmt.Errorf("error querying book by ID: %v", err)
+	}
+	defer rows.Close()
+
+	var book *model.Book
+	var genres []model.Genre
+
+	for rows.Next() {
+		var bookId int
+		var title, synopsis string
+		var amount int
+		var genreId, authorId *int
+		var genreName, authorName *string
+
+		// Scan the row into variables
+		err := rows.Scan(&bookId, &title, &synopsis, &amount, &genreId, &genreName, &authorId, &authorName)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning row: %v", err)
+		}
+
+		// Initialize the book only once
+		if book == nil {
+			book = &model.Book{
+				Id:       bookId,
+				Title:    title,
+				Synopsis: synopsis,
+				Amount:   amount,
+				Author: &model.Author{
+					Id:   *authorId,
+					Name: *authorName,
+				},
+				Genres: []model.Genre{},
+			}
+		}
+
+		// Append genres if present
+		if genreId != nil && genreName != nil {
+			genres = append(genres, model.Genre{
+				Id:   *genreId,
+				Name: *genreName,
+			})
+		}
+	}
+
+	if book == nil {
+		return nil, fmt.Errorf("book with ID %d not found", id)
+	}
+
+	book.Genres = genres
+	return book, nil
+}
+
 // UpdateBook atualiza as informações de um livro existente.
 func (br *bookRepository) UpdateBook(id int, title, synopsis string, authorId int) error {
 	query := `
@@ -279,16 +361,29 @@ func (br *bookRepository) UpdateStockStatus(id int, status string) error {
 	panic("implement me")
 }
 
-func (br *bookRepository) RemoveStock(id int) error {
+func (br *bookRepository) RemoveStock(id int, bookId *int) error {
 	query := `
         DELETE FROM book_stock 
-        WHERE id = $1 
-        RETURNING id;
+        WHERE id = $1
     `
 
+	var args []interface{}
+	args = append(args, id)
+
+	if bookId != nil {
+		query += ` AND fk_book_id = $2`
+		args = append(args, bookId)
+	}
+
+	query += ` RETURNING id;`
+
 	var deletedBookStockId int
-	err := br.db.QueryRow(query, id).Scan(&deletedBookStockId)
+
+	err := br.db.QueryRow(query, args...).Scan(&deletedBookStockId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("book stock with id %d not found", id)
+		}
 		return fmt.Errorf("error deleting book stock: %v", err)
 	}
 

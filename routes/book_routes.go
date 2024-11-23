@@ -21,6 +21,7 @@ func BookRoutes(rg *gin.RouterGroup) {
 	{
 		books.POST("/create", middleware.RoleRequired("admin"), bookController.CreateBook)
 		books.GET("/", bookController.GetBooks)
+		books.GET("/:id", bookController.GetBookById)
 		books.PUT("/update/:id", middleware.RoleRequired("admin"), bookController.UpdateBook)
 		books.DELETE("/delete/:id", middleware.RoleRequired("admin"), bookController.DeleteBook)
 
@@ -28,8 +29,8 @@ func BookRoutes(rg *gin.RouterGroup) {
 		{
 			stock.POST("/add", bookController.AddStock)
 			stock.GET("/", bookController.GetStock)
-			stock.PUT("/update-status", bookController.UpdateStockStatus)
-			stock.DELETE("/remove", bookController.RemoveStock)
+			stock.PUT("/update-status/:stock-id", bookController.UpdateStockStatus)
+			stock.DELETE("/remove/:stock-id", bookController.RemoveStock)
 		}
 	}
 }

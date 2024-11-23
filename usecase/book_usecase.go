@@ -8,12 +8,13 @@ import (
 type BookUseCase interface {
 	CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error)
 	GetBooks(title, author string, genres []string) (*[]model.Book, error)
+	GetBookById(id int) (*model.Book, error)
 	UpdateBook(id int, title, synopsis string, authorId int) error
 	DeleteBook(id int) error
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
-	RemoveStock(id int) error
+	RemoveStock(id int, bookId *int) error
 }
 
 type bookUseCase struct {
@@ -30,6 +31,10 @@ func (uc *bookUseCase) CreateBook(title, synopsis string, bookCodes []int, autho
 
 func (uc *bookUseCase) GetBooks(title, author string, genres []string) (*[]model.Book, error) {
 	return uc.repository.GetBooks(title, author, genres)
+}
+
+func (uc *bookUseCase) GetBookById(id int) (*model.Book, error) {
+	return uc.repository.GetBookById(id)
 }
 
 func (uc *bookUseCase) UpdateBook(id int, title, synopsis string, authorId int) error {
@@ -53,6 +58,6 @@ func (uc *bookUseCase) UpdateStockStatus(id int, status string) error {
 	panic("implement me")
 }
 
-func (uc *bookUseCase) RemoveStock(id int) error {
-	return uc.repository.RemoveStock(id)
+func (uc *bookUseCase) RemoveStock(id int, bookId *int) error {
+	return uc.repository.RemoveStock(id, bookId)
 }

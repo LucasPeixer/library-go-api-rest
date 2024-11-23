@@ -12,6 +12,7 @@ import (
 type BookController interface {
 	CreateBook(c *gin.Context)
 	GetBooks(c *gin.Context)
+	GetBookById(c *gin.Context)
 	UpdateBook(c *gin.Context)
 	DeleteBook(c *gin.Context)
 	AddStock(c *gin.Context)
@@ -74,6 +75,21 @@ func (bc *bookController) GetBooks(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, books)
+}
+
+func (bc *bookController) GetBookById(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book Id"})
+		return
+	}
+
+	book, err := bc.useCase.GetBookById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, book)
 }
 
 // UpdateBook atualiza as informações de um livro existente.
@@ -177,13 +193,24 @@ func (bc *bookController) UpdateStockStatus(c *gin.Context) {
 }
 
 func (bc *bookController) RemoveStock(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	var err error
+	var bookId int
+
+	bookId, err = strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book stock Id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book Id"})
 		return
 	}
 
-	if err := bc.useCase.RemoveStock(id); err != nil {
+	var stockId int
+
+	stockId, err = strconv.Atoi(c.Param("stock-id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stock Id"})
+		return
+	}
+
+	if err := bc.useCase.RemoveStock(stockId, &bookId); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
