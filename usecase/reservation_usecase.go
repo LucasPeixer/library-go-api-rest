@@ -42,6 +42,10 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		return nil, fmt.Errorf("user is not active")
 	}
 
+	if reservation.BorrowedDays != 30 && reservation.BorrowedDays != 60 && reservation.BorrowedDays != 90 {
+		return nil, fmt.Errorf("borrowed days must be 30, 60, or 90")
+	}
+	
 	activeLoans, err := ru.userRepo.GetUserLoans(reservation.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user loans: %w", err)
