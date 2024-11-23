@@ -223,9 +223,8 @@ func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, 
 		FROM reservation r
 		WHERE r.fk_user_id = $1
 	`
-	rows, err := ur.DB.Query(query, userID)
+	rows, err := ur.db.Query(query, userID)
 	if err != nil {
-		log.Printf("Error executing query: %v", err)
 		return nil, fmt.Errorf("error fetching reservations: %w", err)
 	}
 	defer rows.Close()
@@ -234,8 +233,7 @@ func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, 
 
 	for rows.Next() {
 		var reservation model.Reservation
-		if err := rows.Scan(&reservation.ID, &reservation.FkUserId, &reservation.FkBookId, &reservation.BorrowedDays, &reservation.Status, &reservation.ReservedAt, &reservation.ExpiresAt); err != nil {
-			log.Printf("Error reading reservation data: %v", err)
+		if err := rows.Scan(&reservation.ID, &reservation.UserID, &reservation.BookID, &reservation.BorrowedDays, &reservation.Status, &reservation.ReservedAt, &reservation.ExpiresAt); err != nil {
 			return nil, fmt.Errorf("error reading reservation data: %w", err)
 		}
 
@@ -243,7 +241,6 @@ func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, 
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Printf("Error iterating over reservations: %v", err)
 		return nil, fmt.Errorf("error iterating over reservations: %w", err)
 	}
 
