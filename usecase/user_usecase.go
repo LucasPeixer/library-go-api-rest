@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"go-api/model"
 	"go-api/model/user"
 	"go-api/repository"
 	"go-api/utils"
@@ -12,6 +13,7 @@ type UserUseCase interface {
 	Register(name, phone, email, passwordHash string, fkAccountRole int) error
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
+	GetUserLoans(userID int) ([]model.Loan, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
@@ -50,6 +52,10 @@ func (uu *userUseCase) GetUsersByFilters(name, email string) (*[]user.Account, e
 
 func (uu *userUseCase) GetUserById(id int) (*user.Account, error) {
 	return uu.userRepo.GetUserById(id)
+}
+
+func (uu *userUseCase) GetUserLoans(userID int) ([]model.Loan, error) {
+	return uu.userRepo.GetUserLoans(userID)
 }
 
 func (uu *userUseCase) ActivateUser(id int) error {

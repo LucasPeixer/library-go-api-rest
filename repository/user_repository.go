@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"go-api/model"
 	"go-api/model/user"
 	"strconv"
 )
@@ -13,6 +14,7 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
+	GetUserLoans(userID int) ([]model.Loan, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
@@ -169,6 +171,42 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	}
 
 	return &userAccount, nil
+}
+
+func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error){
+	query := `
+			SELECT l.id, l.loaned_at, l.return_by, l.returned_at, l.status, 
+       l.fk_admin_id, l.fk_book_stock_id, l.fk_reservation_id
+			FROM loan l
+			JOIN reservation r ON l.fk_reservation_id = r.id 
+			WHERE r.fk_user_id = $1;`
+
+	rows, err := ur.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var loans []model.Loan
+	for rows.Next() {
+		var loan model.Loan
+		err := rows.Scan(
+			&loan.ID,
+			&loan.LoanedAt,
+			&loan.ReturnBy,
+			&loan.ReturnedAt,
+			&loan.Status,
+			&loan.AdminID,
+			&loan.BookStockID,
+			&loan.ReservationID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		loans = append(loans, loan)
+	}
+
+	return loans, nil
 }
 
 func (ur *userRepository) ActivateUser(id int) error {

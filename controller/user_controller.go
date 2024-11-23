@@ -14,6 +14,7 @@ type UserController interface {
 	Login(c *gin.Context)
 	GetUsersByFilters(c *gin.Context)
 	GetUserById(c *gin.Context)
+	GetUserLoans(c *gin.Context)
 	ToggleUser(action string) gin.HandlerFunc
 	DeleteUser(c *gin.Context)
 }
@@ -102,6 +103,28 @@ func (uc *userController) GetUserById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, userAccount)
+}
+
+func (uc *userController) GetUserLoans(c *gin.Context) {
+	userIDValue, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found"})
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDValue.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID format"})
+		return
+	}
+
+	loans, err := uc.useCase.GetUserLoans(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, loans)
 }
 
 func (uc *userController) ToggleUser(action string) gin.HandlerFunc {
