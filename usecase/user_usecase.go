@@ -10,7 +10,7 @@ import (
 
 type UserUseCase interface {
 	Login(email, password string) (string, error)
-	Register(name, phone, email, passwordHash string, fkAccountRole int) error
+	Register(name, cpf, phone, email, passwordHash string, fkAccountRole int) error
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
 	GetUserLoans(userID int) ([]model.Loan, error)
@@ -42,8 +42,8 @@ func (uu *userUseCase) Login(email, password string) (string, error) {
 }
 
 // Register cria um novo usuário no banco de dados.
-func (uu *userUseCase) Register(name, phone, email, passwordHash string, fkAccountRole int) error {
-	return uu.userRepo.CreateUser(name, phone, email, passwordHash, fkAccountRole)
+func (uu *userUseCase) Register(name, cpf, phone, email, passwordHash string, fkAccountRole int) error {
+	return uu.userRepo.CreateUser(name, cpf, phone, email, passwordHash, fkAccountRole)
 }
 
 func (uu *userUseCase) GetUsersByFilters(name, email string) (*[]user.Account, error) {

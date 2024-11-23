@@ -40,6 +40,7 @@ func main() {
 
 	var i struct {
 		Name     string
+		Cpf      string
 		Phone    string
 		Email    string
 		Password string
@@ -49,6 +50,14 @@ func main() {
 	fmt.Print("Enter name: ")
 	scanner.Scan()
 	i.Name = scanner.Text()
+
+	fmt.Print("Enter CPF (len=11): ")
+	scanner.Scan()
+	i.Cpf = scanner.Text()
+
+	if !utils.IsValidCPF(i.Cpf) {
+		log.Fatalf("Invalid CPF '%s'", i.Cpf)
+	}
 
 	fmt.Print("Enter phone: ")
 	scanner.Scan()
@@ -76,7 +85,7 @@ func main() {
 	}
 
 	// Cria um novo usuário com o useCase
-	err = userUseCase.Register(i.Name, i.Phone, i.Email, hashedPassword, i.RoleId)
+	err = userUseCase.Register(i.Name, i.Cpf, i.Phone, i.Email, hashedPassword, i.RoleId)
 	if err != nil {
 		log.Fatalf("Error registering user: %v", err)
 	}
