@@ -9,6 +9,7 @@ import (
 
 type ReservationRepositoryInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
+	GetReservationByID(reservationID int) (*model.Reservation, error)
 	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error)
 	UpdateReservationStatus(reservationID int, status string) error
 }
@@ -75,6 +76,37 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 	return reservations, nil
 }
 
+func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.Reservation, error) {
+
+	query := `
+		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
+		FROM reservations
+		WHERE id = $1
+	`
+
+	reservation := &model.Reservation{}
+
+	row := r.DB.QueryRow(query, reservationID)
+	err := row.Scan(
+		&reservation.ID,
+		&reservation.ReservedAt,
+		&reservation.ExpiresAt,
+		&reservation.BorrowedDays,
+		&reservation.Status,
+		&reservation.UserID,
+		&reservation.AdminID,
+		&reservation.BookID,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("reservation with ID %d not found", reservationID)
+		}
+		return nil, fmt.Errorf("error fetching reservation: %w", err)
+	}
+
+	return reservation, nil
+}
 
 func (rr *ReservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
 	
