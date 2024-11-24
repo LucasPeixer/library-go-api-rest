@@ -61,16 +61,6 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 		return nil, fmt.Errorf("failed to update book stock status: %w", err)
 	}
 	
-	returnBy := time.Now().AddDate(0, 0, reservation.BorrowedDays)
-
-	loan := &model.Loan{
-    ReturnBy:      returnBy,
-    BookStockID:   request.BookStockID,
-    ReservationID: request.ReservationID,
-	}
-
-
-	// Create loan
 	createdLoan, err := lu.loanRepo.CreateLoan(loan)
 	if err != nil {
 			return nil, fmt.Errorf("error creating loan: %w", err)
