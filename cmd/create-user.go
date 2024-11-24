@@ -85,7 +85,7 @@ func main() {
 	}
 
 	// Cria um novo usuário com o useCase
-	err = userUseCase.Register(i.Name, i.Cpf, i.Phone, i.Email, hashedPassword, i.RoleId)
+	_, err = userUseCase.Register(i.Name, i.Cpf, i.Phone, i.Email, hashedPassword, i.RoleId)
 	if err != nil {
 		log.Fatalf("Error registering user: %v", err)
 	}
