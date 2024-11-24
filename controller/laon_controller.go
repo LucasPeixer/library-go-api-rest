@@ -7,6 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type LoanController interface {
+	CreateLoan(c *gin.Context)
+}
+
 type LoanController struct {
 	UseCase usecase.LoanUseCaseInterface
 }
@@ -23,7 +27,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 		return
 	}
 
-	loan, err := lc.LoanUseCase.CreateLoan(&loanRequest)
+	loan, err := lc.LoanUseCase.CreateLoanAndUpdateReservation(&loanRequest)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "reservation not found or invalid"})
