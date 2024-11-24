@@ -151,13 +151,13 @@ func (bc *bookController) AddStock(c *gin.Context) {
 		return
 	}
 
-	_, err = bc.useCase.AddStock(i.Code, id)
+	bookStock, err := bc.useCase.AddStock(i.Code, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Book stock added"})
+	c.JSON(http.StatusOK, gin.H{"message": "Book stock added", "book_stock_id": bookStock.Id})
 }
 
 func (bc *bookController) GetStock(c *gin.Context) {
