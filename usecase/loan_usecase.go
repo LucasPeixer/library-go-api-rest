@@ -15,9 +15,11 @@ type LoanUseCase struct {
 	LoanRepo repository.LoanRepositoryInterface
 }
 
-func NewLoanUseCase(loanRepo repository.LoanRepositoryInterface){
+func NewLoanUseCase(loanRepo repository.LoanRepositoryInterface, reservationRepo repository.ReservationRepositoryInterface, bookStockRepo repository.BookStockRepositoryInterface){
 	return &LoanUseCase{
-		LoanRepo: loanRepo
+		LoanRepo: loanRepo,
+		bookStockRepo: bookStockRepo,
+		reservationRepo: reservationRepo
 	}
 }
 
