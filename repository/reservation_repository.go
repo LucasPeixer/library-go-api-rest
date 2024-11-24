@@ -86,7 +86,7 @@ func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.R
 
 	reservation := &model.Reservation{}
 
-	row := rr.DB.QueryRow(query, reservationID)
+	row := rr.db.QueryRow(query, reservationID)
 	err := row.Scan(
 		&reservation.ID,
 		&reservation.ReservedAt,
