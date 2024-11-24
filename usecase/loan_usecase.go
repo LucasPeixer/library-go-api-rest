@@ -30,9 +30,14 @@ func (lu *LoanUseCase) CreateLoan(request *model.LoanRequest) (*model.Loan, erro
 			return nil, fmt.Errorf("error fetching reservation: %w", err)
 	}
 
-	if reservation.Status != "collected" {
-			return nil, fmt.Errorf("reservation is not collected")
+		if reservation.Status != "pending" {
+			return nil, fmt.Errorf("reservation is not pending")
 	}*/
+
+	err := lu.reservationRepo.UpdateReservationStatus(reservationID, "collected")
+	if err != nil {
+		return nil, fmt.Errorf("failed to update reservation status: %w", err)
+	}
 
 	/*bookStock, err := lu.bookStockRepo.GetBookStockByID(request.BookStockID)
 	if err != nil {
