@@ -9,7 +9,8 @@ import (
 
 type ReservationRepositoryInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
-	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) 
+	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error)
+	UpdateReservationStatus(reservationID int, status string) error
 }
 
 type ReservationRepository struct {
@@ -90,5 +91,14 @@ func (rr *ReservationRepository) CreateReservation(reservationRequest *model.Res
 	}
 
 	return &reservation, nil
+}
+
+func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, status string) error {
+	query := `UPDATE reservation SET status = $1 WHERE id = $2`
+	_, err := r.db.Exec(query, status, reservationID)
+	if err != nil {
+		return fmt.Errorf("failed to update reservation status: %w", err)
+	}
+	return nil
 }
 
