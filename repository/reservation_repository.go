@@ -95,7 +95,7 @@ func (rr *ReservationRepository) CreateReservation(reservationRequest *model.Res
 
 func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, status string) error {
 	query := `UPDATE reservation SET status = $1 WHERE id = $2`
-	_, err := r.db.Exec(query, status, reservationID)
+	_, err := rr.db.Exec(query, status, reservationID)
 	if err != nil {
 		return fmt.Errorf("failed to update reservation status: %w", err)
 	}

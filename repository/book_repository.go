@@ -16,6 +16,7 @@ type BookRepository interface {
 	DeleteBook(bookId int) error
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
+	GetStockById(id int) (*model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
 	RemoveStock(id int, bookId *int) error
 }
@@ -362,9 +363,25 @@ func (br *bookRepository) GetStock(code *int, bookId int) (*[]model.BookStock, e
 	return &bookStocks, nil
 }
 
+func (br *bookRepository) GetStockById(id int) (*model.BookStock, error) {
+	query := `SELECT id, status, code, fk_book_id FROM book_stock WHERE id = $1`
+	var bookStock model.BookStock
+	err := br.db.Get(&bookStock, query, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get book stock by id: %w", err)
+	}
+	return &bookStock, nil
+}
+
 func (br *bookRepository) UpdateStockStatus(id int, status string) error {
-	//TODO implement me
-	panic("implement me")
+
+	query := `UPDATE book_stocks SET status = ? WHERE id = ?`
+
+	if err := br.DB.Exec(query, status, id).Error; err != nil {
+		return fmt.Errorf("failed to update book stock status: %w", err)
+	}
+
+	return nil
 }
 
 func (br *bookRepository) RemoveStock(id int, bookId *int) error {
