@@ -15,5 +15,6 @@ func Routes(r *gin.Engine) {
 	UserRoutes(api)
 	BookRoutes(api)
 	ReservationRoutes(api)
+	LoanRoutes(api)
 }
 	
