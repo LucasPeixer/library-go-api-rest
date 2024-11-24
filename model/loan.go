@@ -24,4 +24,5 @@ type LoanRequest struct {
 	ReturnBy      time.Time `json:"return_by"`
 	BookStockID   int       `json:"book_stock_id" binding:"required"`
 	ReservationID int       `json:"reservation_id" binding:"required"`
+	AdminID       *int       `json:"admin_id"`
 }

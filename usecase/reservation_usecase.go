@@ -98,8 +98,5 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 
 func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
 	reservation, err := ru.ReservationRepo.GetReservationByID(reservationID)
-	if err != nil {
-		return nil, fmt.Errorf("usecase error: %w", err)
-	}
 	return reservation, nil
 }
