@@ -1,7 +1,5 @@
 import 'cypress-plugin-api';
-import {validarObjetoNaLista
-
-} from '../utils/validarObjeto';
+import {validarObjetoNaLista} from '../utils/validarObjeto';
 
 let authToken;
 describe('API tests', () => {
@@ -41,7 +39,7 @@ describe('API tests', () => {
 
             expect(response.status).to.equal(201)
             expect(response.body).to.have.property('message', "User registered successfully")
-            const userId = response.body.user_id;  // Verifique o nome exato da chave
+            const userId = response.body.user_id;
             Cypress.env('userId', userId);
         });
     })
