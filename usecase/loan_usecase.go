@@ -49,6 +49,10 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 			return nil, fmt.Errorf("book stock is not available")
 	}*/
 
+	err = lu.bookStockRepo.UpdateStockStatus(request.BookStockID, "borrowed")
+	if err != nil {
+		return nil, fmt.Errorf("failed to update book stock status: %w", err)
+	}
 	// Calculate return_by using reservation's BorrowedDays and current timestamp
 	/*returnBy := time.Now().AddDate(0, 0, reservation.BorrowedDays)
 
