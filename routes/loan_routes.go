@@ -13,13 +13,13 @@ import (
 func LoanRoutes(rg *gin.RouterGroup) {
 	loanRepository := repository.NewLoanRepository(initializers.DB)
 	reservationRepository := repository.NewReservationRepository(initializers.DB)
-	bookStockRepository := repository.NewBookStockRepository(initializers.DB)
+	bookStockRepository := repository.NewBookRepository(initializers.DB)
 
 	loanUseCase := usecase.NewLoanUseCase(loanRepository, reservationRepository, bookStockRepository)
 	loanController := controller.NewLoanController(loanUseCase)
 
 	loan := rg.Group("/loans", middleware.JWTAuthMiddleware)
 	{
-		loan.POST("/create", loanController.CreateLoanAndUpdateReservation)
+		loan.POST("/create", loanController.CreateLoan)
 	}
 }

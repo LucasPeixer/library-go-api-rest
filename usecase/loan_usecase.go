@@ -51,7 +51,7 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 			return nil, fmt.Errorf("book stock is not available")
 	}
 
-	err := lu.reservationRepo.UpdateReservationStatus(reservationID, "collected")
+	err = lu.reservationRepo.UpdateReservationStatus(request.ReservationID, "collected")
 	if err != nil {
 		return nil, fmt.Errorf("failed to update reservation status: %w", err)
 	}
