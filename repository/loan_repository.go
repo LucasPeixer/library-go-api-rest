@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"go-api/model"
 )
@@ -15,11 +14,11 @@ type loanRepository struct {
 	db *sql.DB
 }
 
-func NewLoanRepository(db *sql.DB) LoanRepository {
+func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
 	return &loanRepository{db: db}
 }
 
-func (lr *LoanRepository) CreateLoan(loan *model.Loan) (*model.Loan, error) {
+func (lr *loanRepository) CreateLoan(loan *model.Loan) (*model.Loan, error) {
 	query := `
 			INSERT INTO loan (return_by, fk_book_stock_id, fk_reservation_id)
 			VALUES ($1, $2, $3)

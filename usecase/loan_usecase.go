@@ -12,16 +12,24 @@ type LoanUseCaseInterface interface {
 }
 
 type LoanUseCase struct {
-	LoanRepo repository.LoanRepositoryInterface
+	loanRepo        repository.LoanRepositoryInterface
+	bookStockRepo   repository.BookRepository
+	reservationRepo repository.ReservationRepositoryInterface
 }
 
-func NewLoanUseCase(loanRepo repository.LoanRepositoryInterface, reservationRepo repository.ReservationRepositoryInterface, bookStockRepo repository.BookStockRepositoryInterface){
+
+func NewLoanUseCase(
+	loanRepo repository.LoanRepositoryInterface,
+	reservationRepo repository.ReservationRepositoryInterface,
+	bookStockRepo repository.BookRepository,
+) *LoanUseCase {
 	return &LoanUseCase{
-		LoanRepo: loanRepo,
-		bookStockRepo: bookStockRepo,
-		reservationRepo: reservationRepo
+			loanRepo:        loanRepo,
+			bookStockRepo:   bookStockRepo,
+			reservationRepo: reservationRepo,
 	}
 }
+
 
 func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {
 
@@ -30,7 +38,7 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 			return nil, fmt.Errorf("error fetching reservation: %w", err)
 	}
 	
-	bookStock, err := lu.bookStockRepo.GetBookStockByID(request.BookStockID)
+	bookStock, err := lu.bookStockRepo.GetStockById(request.BookStockID)
 	if err != nil {
 			return nil, fmt.Errorf("error fetching book stock: %w", err)
 	}
@@ -56,10 +64,11 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 	returnBy := time.Now().AddDate(0, 0, reservation.BorrowedDays)
 
 	loan := &model.Loan{
-			ReturnBy:      returnBy,
-			BookStockID:   request.BookStockID,
-			ReservationID: request.ReservationID,
+    ReturnBy:      returnBy,
+    BookStockID:   request.BookStockID,
+    ReservationID: request.ReservationID,
 	}
+
 
 	// Create loan
 	createdLoan, err := lu.loanRepo.CreateLoan(loan)
