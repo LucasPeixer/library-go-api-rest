@@ -7,8 +7,8 @@ import (
 	"go-api/model"
 )
 
-type LoanRepository interface {
-
+type LoanRepositoryInterface interface {
+	CreateLoan(loan *model.Loan) (*model.Loan, error)
 }
 
 type loanRepository struct {
