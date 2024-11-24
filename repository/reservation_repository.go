@@ -80,13 +80,13 @@ func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.R
 
 	query := `
 		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
-		FROM reservations
+		FROM reservation
 		WHERE id = $1
 	`
 
 	reservation := &model.Reservation{}
 
-	row := r.DB.QueryRow(query, reservationID)
+	row := rr.DB.QueryRow(query, reservationID)
 	err := row.Scan(
 		&reservation.ID,
 		&reservation.ReservedAt,
