@@ -363,8 +363,14 @@ func (br *bookRepository) GetStock(code *int, bookId int) (*[]model.BookStock, e
 }
 
 func (br *bookRepository) UpdateStockStatus(id int, status string) error {
-	//TODO implement me
-	panic("implement me")
+
+	query := `UPDATE book_stocks SET status = ? WHERE id = ?`
+
+	if err := br.DB.Exec(query, status, id).Error; err != nil {
+		return fmt.Errorf("failed to update book stock status: %w", err)
+	}
+
+	return nil
 }
 
 func (br *bookRepository) RemoveStock(id int, bookId *int) error {
