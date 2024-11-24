@@ -60,6 +60,41 @@ CREATE OR REPLACE TRIGGER before_stock_delete_check_status
     FOR EACH ROW
 EXECUTE FUNCTION prevent_book_stock_delete_if_borrowed();
 
+-- Function to prevent deletion if active reservations exceed available stock
+CREATE OR REPLACE FUNCTION prevent_book_stock_delete_if_reserved_exceeds_available()
+    RETURNS TRIGGER AS
+$$
+DECLARE
+    stock_and_reservations_count RECORD;
+BEGIN
+    -- Single query to get both total stock count and active reservations count
+    SELECT COUNT(bs.id) AS total_stock_count,
+           COUNT(r.id)  AS active_reservations_count
+    INTO stock_and_reservations_count
+    FROM book_stock bs
+             LEFT JOIN reservation r
+                       ON r.fk_book_id = bs.fk_book_id
+                           AND r.status = 'pending'
+                           AND r.expires_at > CURRENT_TIMESTAMP
+    WHERE bs.id = OLD.id AND bs.status = 'available';
+
+    -- Prevent deletion if active reservations >= available stock
+    IF stock_and_reservations_count.active_reservations_count >= stock_and_reservations_count.total_stock_count THEN
+        RAISE EXCEPTION 'Cannot delete book_stock as active reservations exceed or equal available stock.';
+    END IF;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to check reservations before deleting book_stock
+CREATE OR REPLACE TRIGGER before_book_stock_delete_check_reservations_and_stock
+    BEFORE DELETE
+    ON book_stock
+    FOR EACH ROW
+EXECUTE FUNCTION prevent_book_stock_delete_if_reserved_exceeds_available();
+
+
 CREATE OR REPLACE FUNCTION update_book_timestamp()
     RETURNS TRIGGER AS
 $$
@@ -101,7 +136,7 @@ CREATE TABLE IF NOT EXISTS user_account
 (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(150)        NOT NULL,
-    cpf             CHAR(11) UNIQUE NOT NULL,
+    cpf             CHAR(11) UNIQUE     NOT NULL,
     phone           VARCHAR(20) UNIQUE  NOT NULL,
     email           VARCHAR(150) UNIQUE NOT NULL,
     password_hash   VARCHAR(255)        NOT NULL,

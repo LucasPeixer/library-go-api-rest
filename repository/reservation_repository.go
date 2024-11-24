@@ -9,6 +9,7 @@ import (
 
 type ReservationRepositoryInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
+	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) 
 }
 
 type ReservationRepository struct {
@@ -72,3 +73,22 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 
 	return reservations, nil
 }
+
+
+func (rr *ReservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
+	
+	query := `
+		INSERT INTO reservation (borrowed_days, fk_user_id, fk_book_id)
+		VALUES ($1, $2, $3)
+		RETURNING id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_book_id`
+	
+	var reservation model.Reservation
+	err := rr.db.QueryRow(query, reservationRequest.BorrowedDays, reservationRequest.UserID, reservationRequest.BookID).
+		Scan(&reservation.ID, &reservation.ReservedAt, &reservation.ExpiresAt, &reservation.BorrowedDays, &reservation.Status, &reservation.UserID, &reservation.BookID)
+	if err != nil {
+		return nil, fmt.Errorf("error inserting reservation: %w", err)
+	}
+
+	return &reservation, nil
+}
+
