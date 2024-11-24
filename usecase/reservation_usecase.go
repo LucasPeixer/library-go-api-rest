@@ -10,6 +10,7 @@ import (
 type ReservationUseCaseInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
 	CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error)
+	GetReservationByID(reservationID int) (*model.Reservation, error)
 }
 
 type ReservationUseCase struct {
@@ -93,4 +94,12 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 	}
 
 	return newReservation, nil
+}
+
+func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
+	reservation, err := ru.ReservationRepo.GetReservationByID(reservationID)
+	if err != nil {
+		return nil, fmt.Errorf("usecase error: %w", err)
+	}
+	return reservation, nil
 }
