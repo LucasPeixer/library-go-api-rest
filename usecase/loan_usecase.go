@@ -8,7 +8,7 @@ import (
 )
 
 type LoanUseCaseInterface interface {
-	CreateLoan(request *model.LoanRequest) (*model.Loan, error)
+	CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error)
 }
 
 type LoanUseCase struct {
@@ -23,7 +23,7 @@ func NewLoanUseCase(loanRepo repository.LoanRepositoryInterface, reservationRepo
 	}
 }
 
-func (lu *LoanUseCase) CreateLoan(request *model.LoanRequest) (*model.Loan, error) {
+func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {
 
 	/*reservation, err := lu.reservationRepo.GetReservationByID(request.ReservationID)
 	if err != nil {
