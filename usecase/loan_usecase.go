@@ -41,6 +41,11 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 			return nil, fmt.Errorf("reservation is not pending")
 	}
 
+	expiryBuffer := time.Now().Add(-30 * time.Minute)
+	if reservation.ExpiresAt.Before(expiryBuffer) {
+    	return nil, fmt.Errorf("reservation has expired")
+	}
+	
 	bookStock, err := lu.bookStockRepo.GetStockById(request.BookStockID)
 	if err != nil {
 			return nil, fmt.Errorf("error fetching book stock: %w", err)
