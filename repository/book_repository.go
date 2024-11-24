@@ -364,21 +364,29 @@ func (br *bookRepository) GetStock(code *int, bookId int) (*[]model.BookStock, e
 }
 
 func (br *bookRepository) GetStockById(id int) (*model.BookStock, error) {
-	query := `SELECT id, status, code, fk_book_id FROM book_stock WHERE id = $1`
+	query := `SELECT id, status, code FROM book_stock WHERE id = $1`
 	var bookStock model.BookStock
-	err := br.db.Get(&bookStock, query, id)
+	err := br.db.QueryRow(query, id).Scan(&bookStock.Id, &bookStock.Status, &bookStock.Code)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get book stock by id: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("book stock with id %d not found", id)
+		}
+		return nil, err
 	}
 	return &bookStock, nil
 }
 
 func (br *bookRepository) UpdateStockStatus(id int, status string) error {
+	query := `
+		UPDATE book_stock 
+		SET status = $1 
+		WHERE id = $2
+		RETURNING id;
+	`
 
-	query := `UPDATE book_stocks SET status = ? WHERE id = ?`
-
-	if err := br.DB.Exec(query, status, id).Error; err != nil {
-		return fmt.Errorf("failed to update book stock status: %w", err)
+	err := br.db.QueryRow(query, status, id).Scan(&id)
+	if err != nil {
+		return fmt.Errorf("error updating stock status: %v", err)
 	}
 
 	return nil
