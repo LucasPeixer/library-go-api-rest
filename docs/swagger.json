@@ -730,37 +730,61 @@
   },
   "components": {
     "schemas": {
-      "loginUser": {
+      "userLogin": {
         "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "example": "usuario@hotmail.com"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "example": "123"
           }
         }
       },
-      "registerUser": {
+      "userRegister": {
         "type": "object",
+        "required": [
+          "name",
+          "cpf",
+          "phone",
+          "email",
+          "password",
+          "role_id"
+        ],
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "example": "Marcelo Pedro da Silva"
           },
           "cpf": {
-            "type": "string"
+            "type": "string",
+            "example": "38836046070"
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "example": "(48) 98444-9891"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "example": "marcelo@gmail.com"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "example": "senha123"
           },
           "role_id": {
-            "type": "integer"
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "example": 2
           }
         }
       },
@@ -768,31 +792,39 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "example": "Reginaldo Barconcelos"
           },
           "cpf": {
-            "type": "string"
+            "type": "string",
+            "example": "92768657050"
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "example": "(48) 98181-2111"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "example": "regigi@gmail.com"
           },
           "password_hash": {
-            "type": "string"
+            "type": "string",
+            "example": ""
           },
           "account_role": {
             "type": "object",
             "properties": {
               "id": {
-                "type": "integer"
+                "type": "integer",
+                "example": 1
               },
               "name": {
-                "type": "string"
+                "type": "string",
+                "example": "user"
               }
             }
           },
@@ -801,62 +833,202 @@
           }
         }
       },
-      "booksCreate": {
+      "bookCreate": {
         "type": "object",
+        "required": [
+          "title",
+          "synopsis",
+          "author_id",
+          "genre_ids"
+        ],
         "properties": {
           "title": {
-            "type": "string"
+            "type": "string",
+            "example": "O Grande Livro"
           },
           "synopsis": {
-            "type": "string"
+            "type": "string",
+            "example": "Um livro tão grande que não cabia em uma biblioteca"
           },
           "author_id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1
           },
           "genre_ids": {
             "type": "array",
             "items": {
               "type": "integer"
-            }
+            },
+            "example": [
+              1,
+              2
+            ]
           }
         }
       },
-      "booksUpdate": {
+      "bookInfo": {
+        "type": "object",
+        "required": [
+          "title",
+          "synopsis",
+          "amount",
+          "author",
+          "genres"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "O Grande Livro"
+          },
+          "synopsis": {
+            "type": "string",
+            "example": "Um livro tão grande que não cabia em uma biblioteca"
+          },
+          "amount": {
+            "type": "integer",
+            "example": 0
+          },
+          "author": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "id": 1,
+              "name": "Marcelo Pedro"
+            }
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "id": 1,
+                "name": "ação"
+              }
+            ]
+          }
+        }
+      },
+      "bookUpdate": {
         "type": "object",
         "properties": {
           "title": {
-            "type": "string"
+            "type": "string",
+            "example": "O Pequeno Livro"
           },
           "synopsis": {
-            "type": "string"
+            "type": "string",
+            "example": "Um livro tão pequeno que não era encontrado facilmente."
           },
           "author_id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1
           }
         }
       },
       "stockAdd": {
         "type": "object",
+        "required": [
+          "code"
+        ],
         "properties": {
           "code": {
-            "type": "integer"
+            "type": "integer",
+            "example": 2092232
           }
         }
       },
-      "bookStock": {
+      "bookStockInfo": {
         "type": "object",
+        "required": [
+          "id",
+          "status",
+          "code",
+          "book_id"
+        ],
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "missing",
+              "available",
+              "borrowed"
+            ],
+            "example": "available"
           },
           "code": {
-            "type": "integer"
+            "type": "integer",
+            "example": 2092232
           },
           "book_id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "bookStockStatusUpdate": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "missing"
+            ],
+            "example": "missing"
+          }
+        }
+      },
+      "reservationCreate": {
+        "type": "object",
+        "required": [
+          "book_id",
+          "borrowed_days"
+        ],
+        "properties": {
+          "book_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "borrowed_days": {
+            "type": "integer",
+            "enum": [
+              30,
+              60,
+              90
+            ],
+            "example": 30
           }
         }
       },
@@ -864,52 +1036,72 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "example": 1
           },
           "reserved_at": {
-            "type": "string"
+            "type": "string",
+            "example": "2024-11-24 22:48:31.336403"
           },
           "expires_at": {
-            "type": "string"
-          },
-          "borrowed_days": {
-            "type": "integer"
-          },
-          "status": {
-            "type": "string"
-          },
-          "fk_user_id": {
-            "type": "integer"
-          },
-          "fk_admin_id": {
-            "type": "integer"
-          },
-          "fk_book_id": {
-            "type": "integer"
-          }
-        }
-      },
-      "reservationCreated": {
-        "type": "object",
-        "properties": {
-          "book_id": {
-            "type": "integer",
-            "description": "ID do livro"
+            "type": "string",
+            "example": "2024-11-25 22:48:31.336403"
           },
           "borrowed_days": {
             "type": "integer",
-            "description": "Número de dias para o empréstimo (30, 60 ou 90)",
             "enum": [
               30,
               60,
               90
+            ],
+            "example": 30
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "cancelled",
+              "expired",
+              "collected",
+              "finished"
             ]
+          },
+          "fk_user_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "fk_admin_id": {
+            "type": "integer",
+            "additionalProperties": {
+              "type": "null"
+            },
+            "example": null
+          },
+          "fk_book_id": {
+            "type": "integer",
+            "example": 1
           }
-        },
+        }
+      },
+      "loanCreate": {
+        "type": "object",
         "required": [
-          "book_id",
-          "borrowed_days"
-        ]
+          "book_stock_id",
+          "reservation_id"
+        ],
+        "properties": {
+          "book_stock_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "reservation_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "loanInfo": {
+        "type": "object"
       }
     },
     "securitySchemes": {
