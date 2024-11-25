@@ -11,6 +11,7 @@ import (
 
 type LoanControllerInterface interface {
 	CreateLoan(c *gin.Context)
+	UpdateLoan(c *gin.Context)
 }
 
 type LoanController struct {
@@ -74,4 +75,33 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 
 	// Retorno do empréstimo criado
 	c.JSON(http.StatusCreated, createdLoan)
+}
+
+func (c *LoanController) UpdateLoan(c *gin.Context) {
+	var request LoanUpdateRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	// Obtém o ID do administrador do JWT
+	adminIdStr, exists := ctx.Get("admin_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	adminId, err := strconv.Atoi(adminIdStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid admin ID"})
+		return
+	}
+
+	err := c.usecase.UpdateLoan(request, adminID.(int))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "loan updated successfully"})
 }
