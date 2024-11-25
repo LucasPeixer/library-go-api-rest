@@ -70,8 +70,8 @@
                                     "value": {
                                         "name": "Julio",
                                         "cpf": "60939530090",
-                                        "phone": "(48)98484-5555",
-                                        "email": "empresa@gmail.com",
+                                        "phone": "(48)99999-1111",
+                                        "email": "empresa66@gmail.com",
                                         "password": "123",
                                         "role_id": 2
                                     }
@@ -172,6 +172,236 @@
                 }
             }
         },
+        "/users/activate/{id}": {
+            "put": {
+                "summary": "Ativa um usuário",
+                "description": "Ativa um usuário utilizando o ID do mesmo",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso na ativação"
+                    }
+                }
+            }
+        },
+        "/users/deactivate/{id}": {
+            "put": {
+                "summary": "Desativa um usuário",
+                "description": "Desativa um usuário utilizando o ID do mesmo",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do usuário",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sucesso na desativação"
+                    }
+                }
+            }
+        },
+        "/users/delete/{id}": {
+            "delete": {
+                "summary": "Remove um usuário",
+                "description": "Realiza a remoção de um usuário utilizando o ID do mesmo",
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id do livro a ser removido",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário removido com sucesso"
+                    },
+                    "400": {
+                        "description": "Usuário não encontrado"
+                    }
+                }
+            }
+        },
+        "/user/loans": {
+            "get": {
+                "summary": "Lista emprestimos do usuário logado",
+                "description": "Lista os emprestimos do usuario",
+                "tags": [
+                    "Emprestimo"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna lista de emprestimos"
+                    }
+                }
+            }
+        },
+        
+        "/reservation/create": {
+            "post": {
+                "summary": "Cria a reserva de um livro",
+                "description": "Cria a reserva de um livro desejado",
+                "tags": [
+                    "Emprestimo"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "Tempo do emprestimo",
+                        "in": "query",
+                        "required": true,
+                        "description": "Número de dias para o empréstimo (30, 60 ou 90)",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                30,
+                                60,
+                                90
+                            ],
+                            "default": 30
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/reservationCreated"
+                            },
+                            "examples": {
+                                "Credenciais": {
+                                    "value": {
+                                        "book_id": 119,
+                                        "borrowed_days": 30
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Retorna lista de emprestimos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "$ref": "#/components/schemas/reservationCreated"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/reservations": {
+            "get": {
+                "summary": "Lista as reservas dos usuários",
+                "description": "Lista e filtra as reservas dos usuários, podendo filtrar por nome de usuário, status da reserver e sua data final",
+                "tags": [
+                    "Emprestimo"
+                ],
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "user_name",
+                        "in": "query",
+                        "description": "Nome do usuário",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Status",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "reserved_at",
+                        "in": "query",
+                        "description": "Data em que a reserva expira",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Retorna lista de reservas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "$ref": "#/components/schemas/reservationInfo"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/books/create": {
             "post": {
                 "summary": "Cria um livro",
@@ -251,7 +481,7 @@
                         "description": "Título do livro",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -458,7 +688,7 @@
                 }
             }
         },
-        "/books/{id}/stock/remove/{id}": {
+        "/books/{bookId}/stock/remove/{stockId}": {
             "delete": {
                 "summary": "Remove um estoque de um livro",
                 "description": "Realiza a remoção de um estoque de um livro utilizando o Id do livro e do estoque",
@@ -472,7 +702,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "bookId",
                         "in": "path",
                         "description": "Id do livro",
                         "required": true,
@@ -481,7 +711,7 @@
                         }
                     },
                     {
-                        "name": "id",
+                        "name": "stockId",
                         "in": "path",
                         "description": "Id do livro do estoque",
                         "required": true,
@@ -537,39 +767,39 @@
                     }
                 }
             },
-            "userInfo":{
+            "userInfo": {
                 "type": "object",
                 "properties": {
-                    "id":{
+                    "id": {
                         "type": "integer"
                     },
-                    "name":{
+                    "name": {
                         "type": "string"
                     },
                     "cpf": {
                         "type": "string"
                     },
-                    "phone":{
-                        "type": "string" 
-                    },
-                    "email":{
+                    "phone": {
                         "type": "string"
                     },
-                    "password_hash":{
+                    "email": {
                         "type": "string"
                     },
-                    "account_role":{
+                    "password_hash": {
+                        "type": "string"
+                    },
+                    "account_role": {
                         "type": "object",
-                        "properties":{
-                            "id":{
+                        "properties": {
+                            "id": {
                                 "type": "integer"
                             },
-                            "name":{
+                            "name": {
                                 "type": "string"
                             }
                         }
                     },
-                    "is_active":{
+                    "is_active": {
                         "type": "boolean"
                     }
                 }
@@ -638,6 +868,57 @@
                         "type": "integer"
                     }
                 }
+            },
+            "reservationInfo": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "reserved_at": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": "string"
+                    },
+                    "borrowed_days": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "fk_user_id": {
+                        "type": "integer"
+                    },
+                    "fk_admin_id": {
+                        "type": "integer"
+                    },
+                    "fk_book_id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "reservationCreated": {
+                "type": "object",
+                "properties": {
+                    "book_id": {
+                        "type": "integer",
+                        "description": "ID do livro"
+                    },
+                    "borrowed_days": {
+                        "type": "integer",
+                        "description": "Número de dias para o empréstimo (30, 60 ou 90)",
+                        "enum": [
+                            30,
+                            60,
+                            90
+                        ]
+                    }
+                },
+                "required": [
+                    "book_id",
+                    "borrowed_days"
+                ]
             }
         },
         "securitySchemes": {
@@ -660,6 +941,10 @@
         {
             "name": "Estoque de livros",
             "description": "Gerenciamento do estoque dos livros"
+        },
+        {
+            "name": "Emprestimo",
+            "description": "Gerenciamento de emprestimos"
         }
     ]
 }
