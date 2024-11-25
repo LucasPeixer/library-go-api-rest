@@ -66,3 +66,11 @@ func (lr *loanRepository) GetLoanByID(id int) (*model.Loan, error) {
 	}
 	return &loan, nil
 }
+
+func (lr *loanRepository) UpdateLoan(loan *LoanUpdateRequest) error {
+	query := `UPDATE loan 
+              SET returned_at = $1, admin_id = $2, status = $3 
+              WHERE id = $4`
+	_, err := lr.db.Exec(query, loan.ReturnedAt, loan.AdminID, loan.Status, loan.ID)
+	return err
+}
