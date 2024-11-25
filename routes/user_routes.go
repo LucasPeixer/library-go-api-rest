@@ -46,7 +46,7 @@ func UserRoutes(rg *gin.RouterGroup) {
 		reservations := user.Group("/reservations", middleware.JWTAuthMiddleware)
 		{
 			reservations.GET("/", userController.GetLoggedUserReservations)
-			reservations.PUT("/:id/cancel", userController.CancelLoggedUserReservation)
+			reservations.PUT("/cancel/:id", userController.CancelLoggedUserReservation)
 		}
 
 		user.GET("/loans", middleware.JWTAuthMiddleware, userController.GetUserLoans)
