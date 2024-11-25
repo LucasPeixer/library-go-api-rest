@@ -77,17 +77,17 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdLoan)
 }
 
-func (c *LoanController) UpdateLoan(c *gin.Context) {
-	var request LoanUpdateRequest
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+func (lc *LoanController) UpdateLoan(c *gin.Context) {
+	var request model.LoanUpdateRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
 	// Obtém o ID do administrador do JWT
-	adminIdStr, exists := ctx.Get("admin_id")
+	adminIdStr, exists := c.Get("adminId")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
@@ -97,11 +97,11 @@ func (c *LoanController) UpdateLoan(c *gin.Context) {
 		return
 	}
 
-	err := c.usecase.UpdateLoan(request, adminID.(int))
+	err = lc.loanUsecase.UpdateLoan(request, adminId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "loan updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "loan updated successfully"})
 }
