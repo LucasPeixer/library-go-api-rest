@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"net/http"
-	"go-api/usecase"
-	"go-api/model"
 	"github.com/gin-gonic/gin"
+	"go-api/model"
+	"go-api/usecase"
+	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -13,14 +14,14 @@ type LoanControllerInterface interface {
 }
 
 type LoanController struct {
-	loanUsecase       usecase.LoanUseCaseInterface
+	loanUsecase        usecase.LoanUseCaseInterface
 	reservationUsecase usecase.ReservationUseCaseInterface
 }
 
 // Corrigindo o nome do campo para 'loanUsecase'
 func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUsecase usecase.ReservationUseCaseInterface) *LoanController {
 	return &LoanController{
-		loanUsecase:       loanUsecase,
+		loanUsecase:        loanUsecase,
 		reservationUsecase: reservationUsecase,
 	}
 }
@@ -31,6 +32,13 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
 		return
 	}
+
+	adminId, err := strconv.Atoi(adminIdStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid admin ID"})
+		return
+	}
+
 	var loanRequest model.LoanRequest
 
 	// Bind JSON e validação do corpo da requisição
@@ -54,7 +62,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 		ReturnBy:      returnBy,
 		BookStockID:   loanRequest.BookStockID,
 		ReservationID: loanRequest.ReservationID,
-		AdminID:       adminIdStr,
+		AdminID:       &adminId,
 	}
 
 	// Criação do empréstimo e atualização da reserva
