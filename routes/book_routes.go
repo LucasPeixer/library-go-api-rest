@@ -13,7 +13,8 @@ import (
 // BookRoutes registra todas as rotas de livro.
 func BookRoutes(rg *gin.RouterGroup) {
 	bookRepository := repository.NewBookRepository(initializers.DB)
-	bookUseCase := usecase.NewBookUseCase(bookRepository)
+	reservationRepository := repository.NewReservationRepository(initializers.DB)
+	bookUseCase := usecase.NewBookUseCase(bookRepository, reservationRepository)
 	bookController := controller.NewBookController(bookUseCase)
 
 	// Cria um grupo de rotas para '/books' que requerem autorização JWT, algumas com autorização 'admin'
