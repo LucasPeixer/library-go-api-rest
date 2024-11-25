@@ -31,9 +31,6 @@ describe('API tests', () => {
             body: {
                 "title": "A casa amarela",
                 "synopsis": "Uma casa que um dia foi amarela",
-                "book_codes": [
-                    20, 21
-                ],
                 "author_id": 2,
                 "genre_ids": [
                     1, 2, 3, 4, 5
@@ -44,7 +41,7 @@ describe('API tests', () => {
             expect(response.status).to.equal(201)
             expect(response.body).to.have.property('title', "A casa amarela")
             expect(response.body).to.have.property('synopsis', "Uma casa que um dia foi amarela")
-            expect(response.body).to.have.property('amount', 2)
+            expect(response.body).to.have.property('amount', 0)
             expect(response.body.author).to.deep.equal(author);
             expect(response.body.genres).to.deep.equal(genres);
 
@@ -68,7 +65,7 @@ describe('API tests', () => {
                 id: bookId,
                 title: "A casa amarela",
                 synopsis: "Uma casa que um dia foi amarela",
-                amount: 2,
+                amount: 0,
                 stock: null,
                 author: {
                     id: 2,
@@ -145,7 +142,7 @@ describe('API tests', () => {
 
             expect(response.status).to.equal(200)
             const listBookStock = response.body;
-            const stockObject = listBookStock[2];
+            const stockObject = listBookStock[0];
             const findObject = validarObjetoNaListaStock(listBookStock, stockObject);
             cy.log(listBookStock)
             cy.log(findObject)
@@ -153,6 +150,9 @@ describe('API tests', () => {
 
         })
     });
+
+    
+
 
     it('Delete book stock', () => {
         const bookId = Cypress.env('bookId');

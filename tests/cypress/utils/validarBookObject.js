@@ -38,3 +38,16 @@ export function validarObjetoNaListaStock(lista, objetoEsperado) {
         objeto.book_id === objetoEsperado.book_id
     );
 }
+
+export function validarObjetoNaListaReservas(lista, objetoEsperado) {
+    return lista.some((objeto) =>
+        objeto.id === objetoEsperado.id &&
+        objeto.reserved_at === objetoEsperado.reserved_at &&
+        objeto.expires_at === objetoEsperado.expires_at &&
+        objeto.borrowed_days === objetoEsperado.borrowed_days &&
+        objeto.status === objetoEsperado.status &&
+        objeto.fk_user_id === objetoEsperado.fk_user_id &&
+        objeto.fk_admin_id === objetoEsperado.fk_admin_id &&
+        objeto.fk_book_id === objetoEsperado.fk_book_id
+    );
+}
