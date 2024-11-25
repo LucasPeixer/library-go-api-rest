@@ -25,6 +25,7 @@ func UserRoutes(rg *gin.RouterGroup) {
 
 	users := rg.Group("/users", middleware.JWTAuthMiddleware, middleware.RoleRequired("admin"))
 	{
+		users.POST("/register", userController.Register)
 		users.GET("/", userController.GetUsersByFilters)
 		users.GET("/:id", userController.GetUserById)
 		users.PUT("/activate/:id", userController.ToggleUser("activate"))
@@ -41,16 +42,11 @@ func UserRoutes(rg *gin.RouterGroup) {
 	user := rg.Group("/user")
 	{
 		user.POST("/login", userController.Login)
-		user.POST("/register",
-			middleware.JWTAuthMiddleware,
-			middleware.RoleRequired("admin"),
-			userController.Register,
-		)
 
 		reservations := user.Group("/reservations", middleware.JWTAuthMiddleware)
 		{
 			reservations.GET("/", userController.GetLoggedUserReservations)
-			reservations.PUT("/:id/cancel", userController.CancelLoggedUserReservation)
+			reservations.PUT("/cancel/:id", userController.CancelLoggedUserReservation)
 		}
 
 		user.GET("/loans", middleware.JWTAuthMiddleware, userController.GetUserLoans)

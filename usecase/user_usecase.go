@@ -14,11 +14,11 @@ type UserUseCase interface {
 	Register(name, cpf, phone, email, passwordHash string, fkAccountRole int) (*int, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
-	GetUserLoans(userID int) ([]model.Loan, error)
+	GetUserLoans(id int) (*[]model.Loan, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
-	GetUserReservations(id int) ([]*model.Reservation, error)
+	GetUserReservations(id int) (*[]model.Reservation, error)
 	CancelUserReservation(id, reservationId int, adminId *int) error
 }
 
@@ -57,12 +57,12 @@ func (uu *userUseCase) GetUserById(id int) (*user.Account, error) {
 	return uu.userRepo.GetUserById(id)
 }
 
-func (uu *userUseCase) GetUserLoans(userID int) ([]model.Loan, error) {
-	return uu.userRepo.GetUserLoans(userID)
+func (uu *userUseCase) GetUserLoans(id int) (*[]model.Loan, error) {
+	return uu.userRepo.GetUserLoans(id)
 }
 
-func (uu *userUseCase) GetUserReservations(userID int) ([]*model.Reservation, error) {
-	return uu.userRepo.GetUserReservation(userID)
+func (uu *userUseCase) GetUserReservations(id int) (*[]model.Reservation, error) {
+	return uu.userRepo.GetUserReservations(id)
 }
 
 func (uu *userUseCase) ActivateUser(id int) error {

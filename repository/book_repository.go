@@ -330,6 +330,7 @@ func (br *bookRepository) GetStock(code *int, bookId int) (*[]model.BookStock, e
 		if err != nil {
 			return nil, err
 		}
+		bookStock.BookId = bookId
 		bookStocks = append(bookStocks, bookStock)
 	}
 
@@ -346,6 +347,7 @@ func (br *bookRepository) GetStockById(id int) (*model.BookStock, error) {
 		}
 		return nil, err
 	}
+	bookStock.Id = id
 	return &bookStock, nil
 }
 
