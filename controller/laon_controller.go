@@ -26,6 +26,11 @@ func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUsec
 }
 
 func (lc *LoanController) CreateLoan(c *gin.Context) {
+	adminIdStr, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
+		return
+	}
 	var loanRequest model.LoanRequest
 
 	// Bind JSON e validação do corpo da requisição
@@ -49,6 +54,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 		ReturnBy:      returnBy,
 		BookStockID:   loanRequest.BookStockID,
 		ReservationID: loanRequest.ReservationID,
+		AdminID:       adminIdStr,
 	}
 
 	// Criação do empréstimo e atualização da reserva
