@@ -37,7 +37,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 	// Obtenção da reserva usando o 'reservationUsecase'
 	reservation, err := lc.reservationUsecase.GetReservationByID(loanRequest.ReservationID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": error})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

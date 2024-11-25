@@ -28,7 +28,6 @@ func NewReservationUseCase(reservationRepo repository.ReservationRepositoryInter
 	}
 }
 
-
 func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
 	return ru.ReservationRepo.GetReservationsByFilters(userName, status, reservedAt)
 }
@@ -98,5 +97,8 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 
 func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
 	reservation, err := ru.ReservationRepo.GetReservationByID(reservationID)
+	if err != nil {
+		return nil, fmt.Errorf("error when getting reservation by ID: %w", err) // Retorna o erro para a camada superior
+	}
 	return reservation, nil
 }

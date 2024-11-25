@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-api/repository"
 	"go-api/model"
+	"time"
 )
 
 type LoanUseCaseInterface interface {
@@ -65,7 +66,7 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 		return nil, fmt.Errorf("failed to update book stock status: %w", err)
 	}
 	
-	createdLoan, err := lu.loanRepo.CreateLoan(&loanRequest)
+	createdLoan, err := lu.loanRepo.CreateLoan(request)
 	if err != nil {
 			return nil, fmt.Errorf("error creating loan: %w", err)
 	}
