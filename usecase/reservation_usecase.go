@@ -96,9 +96,5 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 }
 
 func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
-	reservation, err := ru.ReservationRepo.GetReservationByID(reservationID)
-	if err != nil {
-		return nil, fmt.Errorf("error when getting reservation by ID: %w", err) // Retorna o erro para a camada superior
-	}
-	return reservation, nil
+	return ru.ReservationRepo.GetReservationByID(reservationID)
 }
