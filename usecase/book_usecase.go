@@ -13,7 +13,7 @@ type BookUseCase interface {
 	DeleteBook(id int) error
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
-	UpdateStockStatus(id int, status string) error
+	UpdateStockStatus(id int, status model.BookStockStatus, bookId *int) error
 	RemoveStock(id int, bookId *int) error
 }
 
@@ -78,9 +78,8 @@ func (uc *bookUseCase) GetStock(code *int, bookId int) (*[]model.BookStock, erro
 	return uc.repository.GetStock(code, bookId)
 }
 
-func (uc *bookUseCase) UpdateStockStatus(id int, status string) error {
-	//TODO implement me
-	panic("implement me")
+func (uc *bookUseCase) UpdateStockStatus(id int, status model.BookStockStatus, bookId *int) error {
+	return uc.repository.UpdateStockStatus(id, string(status))
 }
 
 func (uc *bookUseCase) RemoveStock(id int, bookId *int) error {
@@ -88,7 +87,7 @@ func (uc *bookUseCase) RemoveStock(id int, bookId *int) error {
 }
 
 func (uc *bookUseCase) CountAvailableBookStockById(bookId int) (int, error) {
-	availableBookStockCount, err := uc.CountBookStock(bookId, "available")
+	availableBookStockCount, err := uc.CountBookStock(bookId, model.BookStockAvailable)
 	if err != nil {
 		return 0, err
 	}
@@ -101,7 +100,7 @@ func (uc *bookUseCase) CountAvailableBookStockById(bookId int) (int, error) {
 	return availableBookStockCount - pendingReservationsCount, nil
 }
 
-func (uc *bookUseCase) CountBookStock(bookId int, status string) (int, error) {
+func (uc *bookUseCase) CountBookStock(bookId int, status model.BookStockStatus) (int, error) {
 	bookStockList, err := uc.GetStock(nil, bookId)
 	if err != nil {
 		return 0, err
