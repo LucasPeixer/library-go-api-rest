@@ -922,19 +922,27 @@
   },
   "tags": [
     {
-      "name": "User",
-      "description": "Operações relacionadas a usuário"
+      "name": "Usuário",
+      "description": "Operações relacionadas a usuário logado"
+    },
+    {
+      "name": "Usuários",
+      "description": "Gerenciamento de usuários por um administrador"
     },
     {
       "name": "Livros",
-      "description": "Gerenciamento de livros (CRUD)"
+      "description": "Gerenciamento de livros"
     },
     {
       "name": "Estoque de livros",
       "description": "Gerenciamento do estoque dos livros"
     },
     {
-      "name": "Emprestimo",
+      "name": "Reservas",
+      "description": "Gerenciamento de reservas"
+    },
+    {
+      "name": "Empréstimos",
       "description": "Gerenciamento de emprestimos"
     }
   ]
