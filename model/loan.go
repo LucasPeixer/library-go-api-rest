@@ -31,4 +31,5 @@ type LoanUpdateRequest struct {
 	ID       int  `json:"id" binding:"required"`
 	AdminID  int  `json:"admin_id"`
 	Status   LoanStatus `json:"status" db:"status"`
+	ReturnedAt *time.Time `json:"returned_at"`
 }
