@@ -9,7 +9,7 @@ import (
 
 type LoanUseCaseInterface interface {
 	CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error)
-	UpdateLoan(request model.LoanUpdateRequest, adminID int) error
+	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
 }
 
 type LoanUseCase struct {
@@ -75,9 +75,9 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 	return createdLoan, nil
 }
 
-func (lu *LoanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int) error {
+func (lu *LoanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
 
-	loan, err := lu.loanRepo.GetLoanByID(request.ID)
+	loan, err := lu.loanRepo.GetLoanByID(loanId)
 	if err != nil {
 		return fmt.Errorf("loan not found: %w", err)
 	}

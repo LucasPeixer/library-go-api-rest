@@ -78,6 +78,13 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 }
 
 func (lc *LoanController) UpdateLoan(c *gin.Context) {
+	loanIDStr := c.Param("ID")
+	loanId, err := strconv.Atoi(loanIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid loan ID"})
+		return
+	}
+
 	var request model.LoanUpdateRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
@@ -97,7 +104,7 @@ func (lc *LoanController) UpdateLoan(c *gin.Context) {
 		return
 	}
 
-	err = lc.loanUsecase.UpdateLoan(request, adminId)
+	err = lc.loanUsecase.UpdateLoan(request, adminId, loanId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
