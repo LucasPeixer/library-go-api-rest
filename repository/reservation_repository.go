@@ -61,7 +61,7 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 	defer rows.Close()
 
 	// Processando os resultados
-	var reservations []model.Reservation
+	reservations := make([]model.Reservation, 0)
 	for rows.Next() {
 		var res model.Reservation
 		if err := rows.Scan(&res.ID, &res.ReservedAt, &res.ExpiresAt, &res.BorrowedDays, &res.Status, &res.UserID, &res.AdminID, &res.BookID); err != nil {

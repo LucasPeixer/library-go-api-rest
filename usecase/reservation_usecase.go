@@ -52,7 +52,7 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 	}
 
 	borrowedLoansCount := 0
-	for _, loan := range activeLoans {
+	for _, loan := range *activeLoans {
 		if loan.Status == "borrowed" {
 			borrowedLoansCount++
 			// Verificar se o empréstimo está em atraso
@@ -62,13 +62,13 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		}
 	}
 
-	userReservations, err := ru.userRepo.GetUserReservation(reservation.UserID)
+	userReservations, err := ru.userRepo.GetUserReservations(reservation.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user reservations: %w", err)
 	}
 
 	pendingReservationsCount := 0
-	for _, res := range userReservations {
+	for _, res := range *userReservations {
 		if res.Status == "pending" {
 			pendingReservationsCount++
 		}
