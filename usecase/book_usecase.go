@@ -15,6 +15,7 @@ type BookUseCase interface {
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
 	RemoveStock(id int, bookId *int) error
+	CountAvailableBookStockById(bookId int) (int, error)
 }
 
 type bookUseCase struct {
