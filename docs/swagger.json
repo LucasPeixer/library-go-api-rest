@@ -710,7 +710,7 @@
         }
       }
     },
-    "/books/{id}/stock/update-status": {
+    "/books/{id}/stock/update-status/{stock-id}": {
       "put": {
         "summary": "Atualiza o status de um estoque de um livro",
         "description": "Atualiza o status de um estoque de um livro utilizando o Id do livro e do estoque.",
@@ -720,6 +720,26 @@
         "security": [
           {
             "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "stock-id",
+            "in": "path",
+            "description": "Id do estoque do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
           }
         ],
         "requestBody": {
