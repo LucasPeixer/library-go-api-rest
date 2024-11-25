@@ -11,7 +11,7 @@ type ReservationRepositoryInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
 	GetReservationByID(reservationID int) (*model.Reservation, error)
 	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error)
-	UpdateReservationStatus(reservationID int, status string) error
+	UpdateReservationStatus(reservationID int, status string, adminID int) error
 	GetReservationsByBookId(id int, status string) (*[]model.Reservation, error)
 }
 
@@ -126,9 +126,9 @@ func (rr *ReservationRepository) CreateReservation(reservationRequest *model.Res
 	return &reservation, nil
 }
 
-func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, status string) error {
-	query := `UPDATE reservation SET status = $1 WHERE id = $2`
-	_, err := rr.db.Exec(query, status, reservationID)
+func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, status string, adminID int) error {
+	query := `UPDATE reservation SET status = $1, fk_admin_id = $2 WHERE id = $3`
+	_, err := rr.db.Exec(query, status, adminID, reservationID)
 	if err != nil {
 		return fmt.Errorf("failed to update reservation status: %w", err)
 	}
