@@ -9,7 +9,7 @@ import (
 )
 
 type BookRepository interface {
-	CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error)
+	CreateBook(title, synopsis string, authorId int, genreIds []int) (*model.Book, error)
 	GetBooks(title, author string, genres []string) (*[]model.Book, error)
 	GetBookById(id int) (*model.Book, error)
 	UpdateBook(bookId int, title, synopsis string, authorId int) error
@@ -30,22 +30,13 @@ func NewBookRepository(db *sql.DB) BookRepository {
 }
 
 // CreateBook cria um novo livro no banco de dados e o retorna.
-func (br *bookRepository) CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error) {
+func (br *bookRepository) CreateBook(title, synopsis string, authorId int, genreIds []int) (*model.Book, error) {
 	query := `INSERT INTO book (title, synopsis, fk_author_id) VALUES ($1, $2, $3) RETURNING id;`
 
 	var bookId int
 	err := br.db.QueryRow(query, title, synopsis, authorId).Scan(&bookId)
 	if err != nil {
 		return nil, fmt.Errorf("error creating book: %v", err)
-	}
-
-	var bookStockList []model.BookStock
-	for _, bookCode := range bookCodes {
-		bookStock, err := br.AddStock(bookCode, bookId)
-		if err != nil {
-			return nil, err
-		}
-		bookStockList = append(bookStockList, *bookStock)
 	}
 
 	// Se houver gêneros, associa o livro criado com o Id do gênero
@@ -68,14 +59,12 @@ func (br *bookRepository) CreateBook(title, synopsis string, bookCodes []int, au
 		return nil, fmt.Errorf("error fetching author name: %v", err)
 	}
 
-	book := model.NewBook(
-		bookId,
-		title,
-		synopsis,
-		&bookStockList,
-		&model.Author{Id: authorId, Name: authorName},
-		[]model.Genre{},
-	)
+	book := &model.Book{
+		Id:       bookId,
+		Title:    title,
+		Synopsis: synopsis,
+		Author:   &model.Author{Id: authorId, Name: authorName},
+	}
 
 	// Busca os gêneros associados ao livro e os adiciona ao objeto.
 	genreRepo := NewGenreRepository(br.db)

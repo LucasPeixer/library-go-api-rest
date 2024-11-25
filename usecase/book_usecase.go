@@ -6,7 +6,7 @@ import (
 )
 
 type BookUseCase interface {
-	CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error)
+	CreateBook(title, synopsis string, authorId int, genreIds []int) (*model.Book, error)
 	GetBooks(title, author string, genres []string) (*[]model.Book, error)
 	GetBookById(id int) (*model.Book, error)
 	UpdateBook(id int, title, synopsis string, authorId int) error
@@ -25,8 +25,8 @@ func NewBookUseCase(repository repository.BookRepository) BookUseCase {
 	return &bookUseCase{repository: repository}
 }
 
-func (uc *bookUseCase) CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error) {
-	return uc.repository.CreateBook(title, synopsis, bookCodes, authorId, genreIds)
+func (uc *bookUseCase) CreateBook(title, synopsis string, authorId int, genreIds []int) (*model.Book, error) {
+	return uc.repository.CreateBook(title, synopsis, authorId, genreIds)
 }
 
 func (uc *bookUseCase) GetBooks(title, author string, genres []string) (*[]model.Book, error) {
