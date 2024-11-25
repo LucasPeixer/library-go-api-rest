@@ -30,6 +30,12 @@ func UserRoutes(rg *gin.RouterGroup) {
 		users.PUT("/activate/:id", userController.ToggleUser("activate"))
 		users.PUT("/deactivate/:id", userController.ToggleUser("deactivate"))
 		users.DELETE("/delete/:id", userController.DeleteUser)
+
+		reservations := users.Group("/:id/reservations")
+		{
+			reservations.GET("/", userController.GetUserReservations)
+			reservations.PUT("/cancel/:reservation-id", userController.CancelUserReservation)
+		}
 	}
 
 	user := rg.Group("/user")
@@ -40,6 +46,13 @@ func UserRoutes(rg *gin.RouterGroup) {
 			middleware.RoleRequired("admin"),
 			userController.Register,
 		)
-		user.GET("/loans",middleware.JWTAuthMiddleware, userController.GetUserLoans)
+
+		reservations := user.Group("/reservations", middleware.JWTAuthMiddleware)
+		{
+			reservations.GET("/", userController.GetLoggedUserReservations)
+			reservations.PUT("/:id/cancel", userController.CancelLoggedUserReservation)
+		}
+
+		user.GET("/loans", middleware.JWTAuthMiddleware, userController.GetUserLoans)
 	}
 }
