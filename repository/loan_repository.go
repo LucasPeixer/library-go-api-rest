@@ -8,6 +8,7 @@ import (
 
 type LoanRepositoryInterface interface {
 	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
+	GetLoanByID(id int) (*model.Loan, error)
 }
 
 type loanRepository struct {
