@@ -87,8 +87,6 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	SELECT b.id         AS book_id,
 	       b.title      AS book_title,
 	       b.synopsis   AS book_synopsis,
-           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) - 
-           COALESCE(SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END), 0) AS amount,
 	       g.id         AS genre_id,
 	       g.name       AS genre_name,
 	       a.id         AS author_id,
@@ -101,10 +99,6 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	       genre g ON bg.fk_genre_id = g.id
 	LEFT JOIN
 	       author a ON b.fk_author_id = a.id
-	LEFT JOIN 
-	        book_stock bs ON b.id = bs.fk_book_id
-	LEFT JOIN
-	   reservation r ON b.id = r.fk_book_id
 	WHERE 
 		    1=1 -- Permite adicionar condições "AND"
     `
@@ -151,11 +145,10 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 		var bookId int
 		var bookTitle string
 		var bookSynopsis string
-		var bookAmount int
 		var genreId, authorId *int
 		var genreName, authorName *string
 
-		err := rows.Scan(&bookId, &bookTitle, &bookSynopsis, &bookAmount, &genreId, &genreName, &authorId, &authorName)
+		err := rows.Scan(&bookId, &bookTitle, &bookSynopsis, &genreId, &genreName, &authorId, &authorName)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +160,6 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 				author = &model.Author{Id: *authorId, Name: *authorName}
 			}
 			bookMap[bookId] = model.NewBook(bookId, bookTitle, bookSynopsis, nil, author, []model.Genre{})
-			bookMap[bookId].Amount = bookAmount
 		}
 
 		// Adiciona o gênero ao livro correspondente
@@ -191,8 +183,6 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
     SELECT b.id         AS book_id,
            b.title      AS book_title,
            b.synopsis   AS book_synopsis,
-           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) - 
-           COALESCE(SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END), 0) AS amount,
            g.id         AS genre_id,
            g.name       AS genre_name,
            a.id         AS author_id,
@@ -205,10 +195,6 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
            genre g ON bg.fk_genre_id = g.id
     LEFT JOIN
            author a ON b.fk_author_id = a.id
-    LEFT JOIN 
-           book_stock bs ON b.id = bs.fk_book_id
-    LEFT JOIN
-           reservation r ON b.id = r.fk_book_id
     WHERE 
            b.id = $1
     GROUP BY 
@@ -227,12 +213,11 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
 	for rows.Next() {
 		var bookId int
 		var title, synopsis string
-		var amount int
 		var genreId, authorId *int
 		var genreName, authorName *string
 
 		// Scan the row into variables
-		err := rows.Scan(&bookId, &title, &synopsis, &amount, &genreId, &genreName, &authorId, &authorName)
+		err := rows.Scan(&bookId, &title, &synopsis, &genreId, &genreName, &authorId, &authorName)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %v", err)
 		}
@@ -243,7 +228,6 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
 				Id:       bookId,
 				Title:    title,
 				Synopsis: synopsis,
-				Amount:   amount,
 				Author: &model.Author{
 					Id:   *authorId,
 					Name: *authorName,

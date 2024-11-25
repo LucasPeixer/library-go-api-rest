@@ -12,6 +12,7 @@ type ReservationRepositoryInterface interface {
 	GetReservationByID(reservationID int) (*model.Reservation, error)
 	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error)
 	UpdateReservationStatus(reservationID int, status string) error
+	GetReservationsByBookId(id int, status string) (*[]model.Reservation, error)
 }
 
 type ReservationRepository struct {
@@ -134,3 +135,46 @@ func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, stat
 	return nil
 }
 
+func (rr *ReservationRepository) GetReservationsByBookId(id int, status string) (*[]model.Reservation, error) {
+	query := `
+		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
+		FROM reservation
+		WHERE fk_book_id = $1
+	`
+
+	var args []interface{}
+	args = append(args, id)
+
+	if status != "" {
+		query += "AND status = $2"
+		args = append(args, status)
+	}
+
+	rows, err := rr.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reservations []model.Reservation
+	for rows.Next() {
+		var res model.Reservation
+		err := rows.Scan(
+			&res.ID,
+			&res.ReservedAt,
+			&res.ExpiresAt,
+			&res.BorrowedDays,
+			&res.Status,
+			&res.UserID,
+			&res.AdminID,
+			&res.BookID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		reservations = append(reservations, res)
+	}
+
+	return &reservations, nil
+}
