@@ -28,7 +28,6 @@ func NewReservationUseCase(reservationRepo repository.ReservationRepositoryInter
 	}
 }
 
-
 func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
 	return ru.ReservationRepo.GetReservationsByFilters(userName, status, reservedAt)
 }
@@ -97,6 +96,5 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 }
 
 func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
-	reservation, err := ru.ReservationRepo.GetReservationByID(reservationID)
-	return reservation, nil
+	return ru.ReservationRepo.GetReservationByID(reservationID)
 }

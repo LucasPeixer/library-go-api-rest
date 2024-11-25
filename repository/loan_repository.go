@@ -7,7 +7,7 @@ import (
 )
 
 type LoanRepositoryInterface interface {
-	CreateLoan(loan *model.Loan) (*model.Loan, error)
+	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
 }
 
 type loanRepository struct {
@@ -18,7 +18,7 @@ func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
 	return &loanRepository{db: db}
 }
 
-func (lr *loanRepository) CreateLoan(loan *model.Loan) (*model.Loan, error) {
+func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, error) {
 	query := `
 			INSERT INTO loan (return_by, fk_book_stock_id, fk_reservation_id)
 			VALUES ($1, $2, $3)

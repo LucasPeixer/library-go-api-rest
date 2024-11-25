@@ -32,11 +32,10 @@ func NewBookController(useCase usecase.BookUseCase) BookController {
 // CreateBook recebe um input JSON através do gin.Context e tenta criar um livro.
 func (bc *bookController) CreateBook(c *gin.Context) {
 	var i struct {
-		Title     string `json:"title" binding:"required"`
-		Synopsis  string `json:"synopsis" binding:"required"`
-		BookCodes []int  `json:"book_codes"`
-		AuthorId  int    `json:"author_id" binding:"required"`
-		GenreIds  []int  `json:"genre_ids" binding:"required"`
+		Title    string `json:"title" binding:"required"`
+		Synopsis string `json:"synopsis" binding:"required"`
+		AuthorId int    `json:"author_id" binding:"required"`
+		GenreIds []int  `json:"genre_ids" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&i); err != nil {
@@ -44,11 +43,7 @@ func (bc *bookController) CreateBook(c *gin.Context) {
 		return
 	}
 
-	if i.BookCodes == nil {
-		i.BookCodes = []int{}
-	}
-
-	book, err := bc.useCase.CreateBook(i.Title, i.Synopsis, i.BookCodes, i.AuthorId, i.GenreIds)
+	book, err := bc.useCase.CreateBook(i.Title, i.Synopsis, i.AuthorId, i.GenreIds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

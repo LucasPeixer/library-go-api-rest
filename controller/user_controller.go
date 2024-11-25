@@ -17,6 +17,10 @@ type UserController interface {
 	GetUserLoans(c *gin.Context)
 	ToggleUser(action string) gin.HandlerFunc
 	DeleteUser(c *gin.Context)
+	GetUserReservations(c *gin.Context)
+	GetLoggedUserReservations(c *gin.Context)
+	CancelUserReservation(c *gin.Context)
+	CancelLoggedUserReservation(c *gin.Context)
 }
 
 type userController struct {
@@ -178,4 +182,98 @@ func (uc *userController) DeleteUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User has been successfully deleted"})
+}
+
+func (uc *userController) GetUserReservations(c *gin.Context) {
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user Id"})
+		return
+	}
+
+	reservations, err := uc.useCase.GetUserReservations(userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, reservations)
+}
+
+func (uc *userController) GetLoggedUserReservations(c *gin.Context) {
+	userIdStr, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
+		return
+	}
+
+	userId, err := strconv.Atoi(userIdStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user Id"})
+		return
+	}
+
+	reservations, err := uc.useCase.GetUserReservations(userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, reservations)
+}
+
+func (uc *userController) CancelUserReservation(c *gin.Context) {
+	adminIdStr, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
+		return
+	}
+
+	adminId, err := strconv.Atoi(adminIdStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid admin user Id"})
+		return
+	}
+
+	userId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user Id"})
+		return
+	}
+
+	reservationId, err := strconv.Atoi(c.Param("reservation-id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid reservation Id"})
+		return
+	}
+
+	if err := uc.useCase.CancelUserReservation(userId, reservationId, &adminId); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "User reservation has been successfully canceled"})
+}
+
+func (uc *userController) CancelLoggedUserReservation(c *gin.Context) {
+	userIdStr, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
+		return
+	}
+
+	userId, err := strconv.Atoi(userIdStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user Id"})
+		return
+	}
+
+	reservationId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid reservation Id"})
+		return
+	}
+
+	if err := uc.useCase.CancelUserReservation(userId, reservationId, nil); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "User reservation has been successfully canceled"})
 }

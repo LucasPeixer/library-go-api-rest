@@ -195,12 +195,6 @@
                                     "value": {
                                         "title": "Navio",
                                         "synopsis": "Navio voador",
-                                        "book_codes": [
-                                            1,
-                                            2,
-                                            3,
-                                            4
-                                        ],
                                         "author_id": 3,
                                         "genre_ids": [
                                             1,
@@ -550,7 +544,7 @@
                         "type": "string"
                     },
                     "phone":{
-                        "type": "string" 
+                        "type": "string"
                     },
                     "email":{
                         "type": "string"
@@ -582,12 +576,6 @@
                     },
                     "synopsis": {
                         "type": "string"
-                    },
-                    "book_codes": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
                     },
                     "author_id": {
                         "type": "integer"

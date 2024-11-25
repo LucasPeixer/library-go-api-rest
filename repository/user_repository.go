@@ -19,6 +19,8 @@ type UserRepository interface {
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
+	GetUserReservationById(id, reservationId int) (*model.Reservation, error)
+	CancelUserReservation(id, reservationId int, adminId *int) error
 }
 
 type userRepository struct {
@@ -298,6 +300,71 @@ func (ur *userRepository) DeleteUser(id int) error {
 	err := ur.db.QueryRow(query, id).Scan(&userId)
 	if err != nil {
 		return fmt.Errorf("error deleting user: %v", err)
+	}
+	return nil
+}
+
+func (ur *userRepository) GetUserReservationById(id, reservationId int) (*model.Reservation, error) {
+	query := `
+		SELECT 
+			id, 
+			fk_user_id, 
+			fk_book_id, 
+			borrowed_days, 
+			status, 
+			reserved_at, 
+			expires_at
+		FROM reservation 
+		WHERE fk_user_id = $1 and id = $2
+	`
+	var reservation model.Reservation
+
+	err := ur.db.QueryRow(query, id, reservationId).Scan(
+		&reservation.ID,
+		&reservation.UserID,
+		&reservation.BookID,
+		&reservation.BorrowedDays,
+		&reservation.Status,
+		&reservation.ReservedAt,
+		&reservation.ExpiresAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("reservation with id %d for user with id %d not found", reservationId, id)
+		}
+		return nil, err
+	}
+	return &reservation, nil
+}
+
+func (ur *userRepository) CancelUserReservation(id, reservationId int, adminId *int) error {
+	var query string
+	var args []interface{}
+
+	if adminId != nil {
+		// If adminId is not nil, set the admin ID in the query
+		query = `
+		UPDATE reservation 
+		SET status = 'cancelled', fk_admin_id = $3
+		WHERE fk_user_id = $1 AND id = $2
+		`
+		args = append(args, id, reservationId, *adminId)
+	} else {
+		// If adminId is nil, do not include it in the query
+		query = `
+		UPDATE reservation 
+		SET status = 'cancelled'
+		WHERE fk_user_id = $1 AND id = $2
+		`
+		args = append(args, id, reservationId)
+	}
+
+	_, err := ur.db.Exec(query, args...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("reservation with id %d for user with id %d not found", reservationId, id)
+		}
+		return err
 	}
 	return nil
 }
