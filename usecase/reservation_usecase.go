@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"fmt"
-	"go-api/repository"
 	"go-api/model"
+	"go-api/repository"
 	"time"
 )
 
@@ -15,8 +15,8 @@ type ReservationUseCaseInterface interface {
 
 type ReservationUseCase struct {
 	ReservationRepo repository.ReservationRepositoryInterface
-	userRepo repository.UserRepository
-	bookRepo repository.BookRepository
+	userRepo        repository.UserRepository
+	bookRepo        repository.BookRepository
 }
 
 // NewReservationUseCase cria e retorna uma nova instância de ReservationUseCase
@@ -45,7 +45,7 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 	if reservation.BorrowedDays != 30 && reservation.BorrowedDays != 60 && reservation.BorrowedDays != 90 {
 		return nil, fmt.Errorf("borrowed days must be 30, 60, or 90")
 	}
-	
+
 	activeLoans, err := ru.userRepo.GetUserLoans(reservation.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user loans: %w", err)
@@ -79,11 +79,12 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		return nil, fmt.Errorf("user already has 5 or more active reservations/loans")
 	}
 
-	book, err := ru.bookRepo.GetBookById(reservation.BookID)
+	bUseCase := NewBookUseCase(ru.bookRepo, ru.ReservationRepo)
+	amount, err := bUseCase.CountAvailableBookStockById(reservation.BookID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for book: %w", err)
 	}
-	if book.Amount <= 0 {
+	if amount <= 0 {
 		return nil, fmt.Errorf("book out of stock")
 	}
 
