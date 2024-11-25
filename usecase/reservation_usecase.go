@@ -10,6 +10,7 @@ import (
 type ReservationUseCaseInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
 	CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error)
+	GetReservationByID(reservationID int) (*model.Reservation, error)
 }
 
 type ReservationUseCase struct {
@@ -26,7 +27,6 @@ func NewReservationUseCase(reservationRepo repository.ReservationRepositoryInter
 		bookRepo:        bookRepo,
 	}
 }
-
 
 func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
 	return ru.ReservationRepo.GetReservationsByFilters(userName, status, reservedAt)
@@ -52,7 +52,7 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 	}
 
 	borrowedLoansCount := 0
-	for _, loan := range activeLoans {
+	for _, loan := range *activeLoans {
 		if loan.Status == "borrowed" {
 			borrowedLoansCount++
 			// Verificar se o empréstimo está em atraso
@@ -62,13 +62,13 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		}
 	}
 
-	userReservations, err := ru.userRepo.GetUserReservation(reservation.UserID)
+	userReservations, err := ru.userRepo.GetUserReservations(reservation.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user reservations: %w", err)
 	}
 
 	pendingReservationsCount := 0
-	for _, res := range userReservations {
+	for _, res := range *userReservations {
 		if res.Status == "pending" {
 			pendingReservationsCount++
 		}
@@ -93,4 +93,8 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 	}
 
 	return newReservation, nil
+}
+
+func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
+	return ru.ReservationRepo.GetReservationByID(reservationID)
 }

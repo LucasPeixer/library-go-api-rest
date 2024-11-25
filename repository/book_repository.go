@@ -9,13 +9,14 @@ import (
 )
 
 type BookRepository interface {
-	CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error)
+	CreateBook(title, synopsis string, authorId int, genreIds []int) (*model.Book, error)
 	GetBooks(title, author string, genres []string) (*[]model.Book, error)
 	GetBookById(id int) (*model.Book, error)
 	UpdateBook(bookId int, title, synopsis string, authorId int) error
 	DeleteBook(bookId int) error
 	AddStock(code, bookId int) (*model.BookStock, error)
 	GetStock(code *int, bookId int) (*[]model.BookStock, error)
+	GetStockById(id int) (*model.BookStock, error)
 	UpdateStockStatus(id int, status string) error
 	RemoveStock(id int, bookId *int) error
 }
@@ -29,22 +30,13 @@ func NewBookRepository(db *sql.DB) BookRepository {
 }
 
 // CreateBook cria um novo livro no banco de dados e o retorna.
-func (br *bookRepository) CreateBook(title, synopsis string, bookCodes []int, authorId int, genreIds []int) (*model.Book, error) {
+func (br *bookRepository) CreateBook(title, synopsis string, authorId int, genreIds []int) (*model.Book, error) {
 	query := `INSERT INTO book (title, synopsis, fk_author_id) VALUES ($1, $2, $3) RETURNING id;`
 
 	var bookId int
 	err := br.db.QueryRow(query, title, synopsis, authorId).Scan(&bookId)
 	if err != nil {
 		return nil, fmt.Errorf("error creating book: %v", err)
-	}
-
-	var bookStockList []model.BookStock
-	for _, bookCode := range bookCodes {
-		bookStock, err := br.AddStock(bookCode, bookId)
-		if err != nil {
-			return nil, err
-		}
-		bookStockList = append(bookStockList, *bookStock)
 	}
 
 	// Se houver gêneros, associa o livro criado com o Id do gênero
@@ -67,14 +59,12 @@ func (br *bookRepository) CreateBook(title, synopsis string, bookCodes []int, au
 		return nil, fmt.Errorf("error fetching author name: %v", err)
 	}
 
-	book := model.NewBook(
-		bookId,
-		title,
-		synopsis,
-		&bookStockList,
-		&model.Author{Id: authorId, Name: authorName},
-		[]model.Genre{},
-	)
+	book := &model.Book{
+		Id:       bookId,
+		Title:    title,
+		Synopsis: synopsis,
+		Author:   &model.Author{Id: authorId, Name: authorName},
+	}
 
 	// Busca os gêneros associados ao livro e os adiciona ao objeto.
 	genreRepo := NewGenreRepository(br.db)
@@ -97,8 +87,6 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	SELECT b.id         AS book_id,
 	       b.title      AS book_title,
 	       b.synopsis   AS book_synopsis,
-           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) - 
-           COALESCE(SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END), 0) AS amount,
 	       g.id         AS genre_id,
 	       g.name       AS genre_name,
 	       a.id         AS author_id,
@@ -111,10 +99,6 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 	       genre g ON bg.fk_genre_id = g.id
 	LEFT JOIN
 	       author a ON b.fk_author_id = a.id
-	LEFT JOIN 
-	        book_stock bs ON b.id = bs.fk_book_id
-	LEFT JOIN
-	   reservation r ON b.id = r.fk_book_id
 	WHERE 
 		    1=1 -- Permite adicionar condições "AND"
     `
@@ -161,11 +145,10 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 		var bookId int
 		var bookTitle string
 		var bookSynopsis string
-		var bookAmount int
 		var genreId, authorId *int
 		var genreName, authorName *string
 
-		err := rows.Scan(&bookId, &bookTitle, &bookSynopsis, &bookAmount, &genreId, &genreName, &authorId, &authorName)
+		err := rows.Scan(&bookId, &bookTitle, &bookSynopsis, &genreId, &genreName, &authorId, &authorName)
 		if err != nil {
 			return nil, err
 		}
@@ -177,7 +160,6 @@ func (br *bookRepository) GetBooks(title, author string, genres []string) (*[]mo
 				author = &model.Author{Id: *authorId, Name: *authorName}
 			}
 			bookMap[bookId] = model.NewBook(bookId, bookTitle, bookSynopsis, nil, author, []model.Genre{})
-			bookMap[bookId].Amount = bookAmount
 		}
 
 		// Adiciona o gênero ao livro correspondente
@@ -201,8 +183,6 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
     SELECT b.id         AS book_id,
            b.title      AS book_title,
            b.synopsis   AS book_synopsis,
-           COALESCE(SUM(CASE WHEN bs.status = 'available' THEN 1 ELSE 0 END), 0) - 
-           COALESCE(SUM(CASE WHEN r.status = 'pending' THEN 1 ELSE 0 END), 0) AS amount,
            g.id         AS genre_id,
            g.name       AS genre_name,
            a.id         AS author_id,
@@ -215,10 +195,6 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
            genre g ON bg.fk_genre_id = g.id
     LEFT JOIN
            author a ON b.fk_author_id = a.id
-    LEFT JOIN 
-           book_stock bs ON b.id = bs.fk_book_id
-    LEFT JOIN
-           reservation r ON b.id = r.fk_book_id
     WHERE 
            b.id = $1
     GROUP BY 
@@ -237,12 +213,11 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
 	for rows.Next() {
 		var bookId int
 		var title, synopsis string
-		var amount int
 		var genreId, authorId *int
 		var genreName, authorName *string
 
 		// Scan the row into variables
-		err := rows.Scan(&bookId, &title, &synopsis, &amount, &genreId, &genreName, &authorId, &authorName)
+		err := rows.Scan(&bookId, &title, &synopsis, &genreId, &genreName, &authorId, &authorName)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning row: %v", err)
 		}
@@ -253,7 +228,6 @@ func (br *bookRepository) GetBookById(id int) (*model.Book, error) {
 				Id:       bookId,
 				Title:    title,
 				Synopsis: synopsis,
-				Amount:   amount,
 				Author: &model.Author{
 					Id:   *authorId,
 					Name: *authorName,
@@ -356,15 +330,41 @@ func (br *bookRepository) GetStock(code *int, bookId int) (*[]model.BookStock, e
 		if err != nil {
 			return nil, err
 		}
+		bookStock.BookId = bookId
 		bookStocks = append(bookStocks, bookStock)
 	}
 
 	return &bookStocks, nil
 }
 
+func (br *bookRepository) GetStockById(id int) (*model.BookStock, error) {
+	query := `SELECT id, status, code FROM book_stock WHERE id = $1`
+	var bookStock model.BookStock
+	err := br.db.QueryRow(query, id).Scan(&bookStock.Id, &bookStock.Status, &bookStock.Code)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("book stock with id %d not found", id)
+		}
+		return nil, err
+	}
+	bookStock.Id = id
+	return &bookStock, nil
+}
+
 func (br *bookRepository) UpdateStockStatus(id int, status string) error {
-	//TODO implement me
-	panic("implement me")
+	query := `
+		UPDATE book_stock 
+		SET status = $1 
+		WHERE id = $2
+		RETURNING id;
+	`
+
+	err := br.db.QueryRow(query, status, id).Scan(&id)
+	if err != nil {
+		return fmt.Errorf("error updating stock status: %v", err)
+	}
+
+	return nil
 }
 
 func (br *bookRepository) RemoveStock(id int, bookId *int) error {

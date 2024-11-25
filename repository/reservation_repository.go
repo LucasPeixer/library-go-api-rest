@@ -9,7 +9,10 @@ import (
 
 type ReservationRepositoryInterface interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
-	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) 
+	GetReservationByID(reservationID int) (*model.Reservation, error)
+	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error)
+	UpdateReservationStatus(reservationID int, status string, adminID int) error
+	GetReservationsByBookId(id int, status string) (*[]model.Reservation, error)
 }
 
 type ReservationRepository struct {
@@ -58,7 +61,7 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 	defer rows.Close()
 
 	// Processando os resultados
-	var reservations []model.Reservation
+	reservations := make([]model.Reservation, 0)
 	for rows.Next() {
 		var res model.Reservation
 		if err := rows.Scan(&res.ID, &res.ReservedAt, &res.ExpiresAt, &res.BorrowedDays, &res.Status, &res.UserID, &res.AdminID, &res.BookID); err != nil {
@@ -74,6 +77,37 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 	return reservations, nil
 }
 
+func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.Reservation, error) {
+
+	query := `
+		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
+		FROM reservation
+		WHERE id = $1
+	`
+
+	reservation := &model.Reservation{}
+
+	row := rr.db.QueryRow(query, reservationID)
+	err := row.Scan(
+		&reservation.ID,
+		&reservation.ReservedAt,
+		&reservation.ExpiresAt,
+		&reservation.BorrowedDays,
+		&reservation.Status,
+		&reservation.UserID,
+		&reservation.AdminID,
+		&reservation.BookID,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("reservation with ID %d not found", reservationID)
+		}
+		return nil, fmt.Errorf("error fetching reservation: %w", err)
+	}
+
+	return reservation, nil
+}
 
 func (rr *ReservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
 	
@@ -92,3 +126,55 @@ func (rr *ReservationRepository) CreateReservation(reservationRequest *model.Res
 	return &reservation, nil
 }
 
+func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, status string, adminID int) error {
+	query := `UPDATE reservation SET status = $1, fk_admin_id = $2 WHERE id = $3`
+	_, err := rr.db.Exec(query, status, adminID, reservationID)
+	if err != nil {
+		return fmt.Errorf("failed to update reservation status: %w", err)
+	}
+	return nil
+}
+
+func (rr *ReservationRepository) GetReservationsByBookId(id int, status string) (*[]model.Reservation, error) {
+	query := `
+		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
+		FROM reservation
+		WHERE fk_book_id = $1
+	`
+
+	var args []interface{}
+	args = append(args, id)
+
+	if status != "" {
+		query += "AND status = $2"
+		args = append(args, status)
+	}
+
+	rows, err := rr.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reservations []model.Reservation
+	for rows.Next() {
+		var res model.Reservation
+		err := rows.Scan(
+			&res.ID,
+			&res.ReservedAt,
+			&res.ExpiresAt,
+			&res.BorrowedDays,
+			&res.Status,
+			&res.UserID,
+			&res.AdminID,
+			&res.BookID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		reservations = append(reservations, res)
+	}
+
+	return &reservations, nil
+}

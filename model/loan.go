@@ -19,3 +19,10 @@ type Loan struct {
 	BookStockID     int        `json:"book_stock_id" db:"fk_book_stock_id"`
 	ReservationID   int        `json:"reservation_id" db:"fk_reservation_id"`
 }
+
+type LoanRequest struct {
+	ReturnBy      time.Time `json:"return_by"`
+	BookStockID   int       `json:"book_stock_id" binding:"required"`
+	ReservationID int       `json:"reservation_id" binding:"required"`
+	AdminID       *int       `json:"admin_id"`
+}

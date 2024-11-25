@@ -14,11 +14,13 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*user.Account, error)
 	GetUsersByFilters(name, email string) (*[]user.Account, error)
 	GetUserById(id int) (*user.Account, error)
-	GetUserLoans(userID int) ([]model.Loan, error)
-	GetUserReservation(userID int) ([]*model.Reservation, error)
+	GetUserLoans(id int) (*[]model.Loan, error)
+	GetUserReservations(id int) (*[]model.Reservation, error)
 	ActivateUser(id int) error
 	DeactivateUser(id int) error
 	DeleteUser(id int) error
+	GetUserReservationById(id, reservationId int) (*model.Reservation, error)
+	CancelUserReservation(id, reservationId int, adminId *int) error
 }
 
 type userRepository struct {
@@ -181,7 +183,7 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 	return &userAccount, nil
 }
 
-func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error) {
+func (ur *userRepository) GetUserLoans(id int) (*[]model.Loan, error) {
 	query := `
 			SELECT l.id, l.loaned_at, l.return_by, l.returned_at, l.status, 
        l.fk_admin_id, l.fk_book_stock_id, l.fk_reservation_id
@@ -189,13 +191,12 @@ func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error) {
 			JOIN reservation r ON l.fk_reservation_id = r.id 
 			WHERE r.fk_user_id = $1;`
 
-	rows, err := ur.db.Query(query, userID)
+	rows, err := ur.db.Query(query, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var loans []model.Loan
+	loans := make([]model.Loan, 0)
 	for rows.Next() {
 		var loan model.Loan
 		err := rows.Scan(
@@ -214,10 +215,10 @@ func (ur *userRepository) GetUserLoans(userID int) ([]model.Loan, error) {
 		loans = append(loans, loan)
 	}
 
-	return loans, nil
+	return &loans, nil
 }
 
-func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, error) {
+func (ur *userRepository) GetUserReservations(id int) (*[]model.Reservation, error) {
 	query := `
 		SELECT 
 			r.id, 
@@ -230,13 +231,13 @@ func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, 
 		FROM reservation r
 		WHERE r.fk_user_id = $1
 	`
-	rows, err := ur.db.Query(query, userID)
+	rows, err := ur.db.Query(query, id)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching reservations: %w", err)
 	}
 	defer rows.Close()
 
-	var reservations []*model.Reservation
+	reservations := make([]model.Reservation, 0)
 
 	for rows.Next() {
 		var reservation model.Reservation
@@ -244,14 +245,14 @@ func (ur *userRepository) GetUserReservation(userID int) ([]*model.Reservation, 
 			return nil, fmt.Errorf("error reading reservation data: %w", err)
 		}
 
-		reservations = append(reservations, &reservation)
+		reservations = append(reservations, reservation)
 	}
 
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("error iterating over reservations: %w", err)
 	}
 
-	return reservations, nil
+	return &reservations, nil
 }
 
 func (ur *userRepository) ActivateUser(id int) error {
@@ -298,6 +299,71 @@ func (ur *userRepository) DeleteUser(id int) error {
 	err := ur.db.QueryRow(query, id).Scan(&userId)
 	if err != nil {
 		return fmt.Errorf("error deleting user: %v", err)
+	}
+	return nil
+}
+
+func (ur *userRepository) GetUserReservationById(id, reservationId int) (*model.Reservation, error) {
+	query := `
+		SELECT 
+			id, 
+			fk_user_id, 
+			fk_book_id, 
+			borrowed_days, 
+			status, 
+			reserved_at, 
+			expires_at
+		FROM reservation 
+		WHERE fk_user_id = $1 and id = $2
+	`
+	var reservation model.Reservation
+
+	err := ur.db.QueryRow(query, id, reservationId).Scan(
+		&reservation.ID,
+		&reservation.UserID,
+		&reservation.BookID,
+		&reservation.BorrowedDays,
+		&reservation.Status,
+		&reservation.ReservedAt,
+		&reservation.ExpiresAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("reservation with id %d for user with id %d not found", reservationId, id)
+		}
+		return nil, err
+	}
+	return &reservation, nil
+}
+
+func (ur *userRepository) CancelUserReservation(id, reservationId int, adminId *int) error {
+	var query string
+	var args []interface{}
+
+	if adminId != nil {
+		// If adminId is not nil, set the admin ID in the query
+		query = `
+		UPDATE reservation 
+		SET status = 'cancelled', fk_admin_id = $3
+		WHERE fk_user_id = $1 AND id = $2
+		`
+		args = append(args, id, reservationId, *adminId)
+	} else {
+		// If adminId is nil, do not include it in the query
+		query = `
+		UPDATE reservation 
+		SET status = 'cancelled'
+		WHERE fk_user_id = $1 AND id = $2
+		`
+		args = append(args, id, reservationId)
+	}
+
+	_, err := ur.db.Exec(query, args...)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("reservation with id %d for user with id %d not found", reservationId, id)
+		}
+		return err
 	}
 	return nil
 }
