@@ -46,3 +46,22 @@ func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, erro
 
 	return &createdLoan, nil
 }
+
+func (lr *loanRepository) GetLoanByID(id int) (*model.Loan, error) {
+	var loan model.Loan
+	query := `SELECT * FROM loans WHERE id = $1`
+	err := lr.db.QueryRow(query, id).Scan(
+		&loan.ID,
+		&loan.LoanedAt,
+		&loan.ReturnBy,
+		&loan.ReturnedAt,
+		&loan.Status,
+		&loan.AdminID,
+		&loan.BookStockID,
+		&loan.ReservationID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &loan, nil
+}
