@@ -33,7 +33,7 @@ func NewLoanUseCase(
 }
 
 func (lu *LoanUseCase) GetLoansByFilters(filters map[string]interface{}) ([]model.Loan, error) {
-	return lu.loanRepo.GetLoansByFilter(filters)
+	return lu.loanRepo.GetLoansByFilters(filters)
 }
 
 func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {

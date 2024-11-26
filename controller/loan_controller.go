@@ -58,7 +58,7 @@ func (lc *LoanController) GetLoansByFilters(c *gin.Context) {
 			}
 	}
 
-	loans, err := lc.loanUsecase.GetLoansByFilter(filters)
+	loans, err := lc.loanUsecase.GetLoansByFilters(filters)
 	if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

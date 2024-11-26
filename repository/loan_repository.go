@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"go-api/model"
-	"strings"
 )
 
 type LoanRepositoryInterface interface {
@@ -23,36 +22,54 @@ func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
 }
 
 func (lr *loanRepository) GetLoansByFilters(filters map[string]interface{}) ([]model.Loan, error) {
-	query := "SELECT id, loaned_at, return_by, returned_at, status, fk_book_stock_id, fk_admin_id, fk_reservation_id FROM loan"
-	var conditions []string
-	var params []interface{}
+    query := "SELECT * FROM loans WHERE 1=1"
+    args := []interface{}{}
 
-	if len(filters) > 0 {
-		for key, value := range filters {
-			conditions = append(conditions, fmt.Sprintf("%s = ?", key))
-			params = append(params, value)
-		}
-		query += " WHERE " + strings.Join(conditions, " AND ")
-	}
+    if loanedAt, ok := filters["loaned_at"].(string); ok && loanedAt != "" {
+        query += " AND loaned_at = ?"
+        args = append(args, loanedAt)
+    }
+    if returnBy, ok := filters["return_by"].(string); ok && returnBy != "" {
+        query += " AND return_by = ?"
+        args = append(args, returnBy)
+    }
+    if returnedAt, ok := filters["returned_at"].(string); ok && returnedAt != "" {
+        query += " AND returned_at = ?"
+        args = append(args, returnedAt)
+    }
+    if status, ok := filters["status"].(string); ok && status != "" {
+        query += " AND status = ?"
+        args = append(args, status)
+    }
+    if bookStockID, ok := filters["book_stock_id"].(int); ok && bookStockID > 0 {
+        query += " AND fk_book_stock_id = ?"
+        args = append(args, bookStockID)
+    }
+    if reservationID, ok := filters["reservation_id"].(int); ok && reservationID > 0 {
+        query += " AND fk_reservation_id = ?"
+        args = append(args, reservationID)
+    }
 
-	rows, err := lr.db.Query(query, params...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+    rows, err := lr.db.Query(query, args...)
+    if err != nil {
+        return nil, fmt.Errorf("error executing query: %w", err)
+    }
+    defer rows.Close()
 
-	var loans []model.Loan
-	for rows.Next() {
-		var loan model.Loan
-		if err := rows.Scan(&loan.ID, &loan.LoanedAt, &loan.ReturnBy, &loan.ReturnedAt, &loan.Status, &loan.BookStockID, &loan.ReservationID); err != nil {
-			return nil, err
-		}
-		loans = append(loans, loan)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return loans, nil
+    var loans []model.Loan
+    for rows.Next() {
+        var loan model.Loan
+        if err := rows.Scan(&loan.ID, &loan.LoanedAt, &loan.ReturnBy, &loan.ReturnedAt, &loan.Status, &loan.BookStockID, &loan.ReservationID); err != nil {
+            return nil, fmt.Errorf("error scanning row: %w", err)
+        }
+        loans = append(loans, loan)
+    }
+
+    if err := rows.Err(); err != nil {
+        return nil, fmt.Errorf("error iterating rows: %w", err)
+    }
+
+    return loans, nil
 }
 
 func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, error) {
