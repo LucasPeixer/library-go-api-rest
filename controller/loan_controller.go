@@ -13,7 +13,7 @@ import (
 type LoanControllerInterface interface {
 	CreateLoan(c *gin.Context)
 	UpdateLoan(c *gin.Context)
-	GetLoansByFilter(c *gin.Context)
+	GetLoansByFilters(c *gin.Context)
 }
 
 type LoanController struct {
@@ -29,7 +29,7 @@ func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUsec
 	}
 }
 
-func (lc *LoanController) GetLoansByFilter(c *gin.Context) {
+func (lc *LoanController) GetLoansByFilters(c *gin.Context) {
 	loanedAtStr := c.DefaultQuery("loaned_at", "")
 	returnByStr := c.DefaultQuery("return_by", "")
 	returnedAtStr := c.DefaultQuery("returned_at", "")

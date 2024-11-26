@@ -10,7 +10,7 @@ import (
 type LoanUseCaseInterface interface {
 	CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error)
 	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
-	GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error)
+	GetLoansByFilters(filters map[string]interface{}) ([]model.Loan, error)
 }
 
 type LoanUseCase struct {
@@ -32,7 +32,7 @@ func NewLoanUseCase(
 	}
 }
 
-func (lu *LoanUseCase) GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error) {
+func (lu *LoanUseCase) GetLoansByFilters(filters map[string]interface{}) ([]model.Loan, error) {
 	return lu.loanRepo.GetLoansByFilter(filters)
 }
 

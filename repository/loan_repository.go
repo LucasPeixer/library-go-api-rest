@@ -11,7 +11,7 @@ type LoanRepositoryInterface interface {
 	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
 	GetLoanByID(id int) (*model.Loan, error)
 	UpdateLoan(loan *model.Loan) error
-	GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error)
+	GetLoansByFilters(filters map[string]interface{}) ([]model.Loan, error)
 }
 
 type loanRepository struct {
@@ -22,7 +22,7 @@ func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
 	return &loanRepository{db: db}
 }
 
-func (lr *loanRepository) GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error) {
+func (lr *loanRepository) GetLoansByFilters(filters map[string]interface{}) ([]model.Loan, error) {
 	query := "SELECT id, loaned_at, return_by, returned_at, status, fk_book_stock_id, fk_admin_id, fk_reservation_id FROM loan"
 	var conditions []string
 	var params []interface{}
