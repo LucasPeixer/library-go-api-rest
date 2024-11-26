@@ -47,6 +47,25 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Requisição incorreta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {"error": "Invalid login input"}
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/login500Error"
           }
         }
       }
@@ -1308,6 +1327,14 @@
       },
       "loanInfo": {
         "type": "object"
+      },
+      "http500Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
       }
     },
     "securitySchemes": {
@@ -1315,6 +1342,32 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "login500Error": {
+        "description": "Erro interno do servidor",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/http500Error"
+            },
+            "examples": {
+              "emailNotFound": {
+                "summary": "E-mail não encontrado",
+                "value": {
+                  "error": "user with email %s not found"
+                }
+              },
+              "invalidCredentials": {
+                "summary": "Senha incorreta",
+                "value": {
+                  "error": "invalid credentials"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
