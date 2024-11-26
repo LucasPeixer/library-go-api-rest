@@ -253,7 +253,7 @@ CREATE OR REPLACE FUNCTION prevent_loan_delete_if_active()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    IF OLD.status = 'returned' THEN
+    IF OLD.status != 'returned' THEN
         RAISE EXCEPTION 'Cannot delete loan unless the status is ''returned''.';
 
     END IF;
