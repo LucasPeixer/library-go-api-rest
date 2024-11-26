@@ -24,6 +24,6 @@ func LoanRoutes(rg *gin.RouterGroup) {
 	loan := rg.Group("/loans", middleware.JWTAuthMiddleware)
 	{
 		loan.POST("/create",middleware.RoleRequired("admin"),loanController.CreateLoan)
-		loan.PUT("/:id",middleware.RoleRequired("admin"),loanController.UpdateLoan)
+		loan.PUT("/finish-loan/:id",middleware.RoleRequired("admin"),loanController.UpdateLoan)
 	}
 }
