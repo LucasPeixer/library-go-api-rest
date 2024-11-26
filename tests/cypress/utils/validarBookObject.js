@@ -42,12 +42,12 @@ export function validarObjetoNaListaStock(lista, objetoEsperado) {
 export function validarObjetoNaListaReservas(lista, objetoEsperado) {
     return lista.some((objeto) =>
         objeto.id === objetoEsperado.id &&
-        objeto.reserved_at === objetoEsperado.reserved_at &&
-        objeto.expires_at === objetoEsperado.expires_at &&
+        new Date(objeto.reserved_at).getTime() === new Date(objetoEsperado.reserved_at).getTime() &&
+        new Date(objeto.expires_at).getTime() === new Date(objetoEsperado.expires_at).getTime() &&
         objeto.borrowed_days === objetoEsperado.borrowed_days &&
         objeto.status === objetoEsperado.status &&
         objeto.fk_user_id === objetoEsperado.fk_user_id &&
-        objeto.fk_admin_id === objetoEsperado.fk_admin_id &&
+        (objeto.fk_admin_id || null) === (objetoEsperado.fk_admin_id || null) &&
         objeto.fk_book_id === objetoEsperado.fk_book_id
     );
 }
