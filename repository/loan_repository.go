@@ -23,50 +23,35 @@ func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
 }
 
 func (lr *loanRepository) GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error) {
-	// Base da query
-	query := `SELECT id, loaned_at, return_by, returned_at, status, fk_book_stock_id, fk_reservation_id FROM loans`
+	query := "SELECT id, loaned_at, return_by, returned_at, status, fk_book_stock_id, fk_admin_id, fk_reservation_id FROM loan"
 	var conditions []string
-	var args []interface{}
-	argIndex := 1
+	var params []interface{}
 
-	// Constrói as condições com base nos filtros
-	for key, value := range filters {
-		conditions = append(conditions, fmt.Sprintf("%s = $%d", key, argIndex))
-		args = append(args, value)
-		argIndex++
-	}
-
-	// Adiciona condições à query se existirem filtros
-	if len(conditions) > 0 {
+	if len(filters) > 0 {
+		for key, value := range filters {
+			conditions = append(conditions, fmt.Sprintf("%s = ?", key))
+			params = append(params, value)
+		}
 		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	// Executa a query
-	rows, err := lr.db.Query(query, args...)
+	rows, err := lr.db.Query(query, params...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute query: %w", err)
+		return nil, err
 	}
 	defer rows.Close()
 
-	// Mapeia os resultados
 	var loans []model.Loan
 	for rows.Next() {
 		var loan model.Loan
-		err := rows.Scan(
-			&loan.ID,
-			&loan.LoanedAt,
-			&loan.ReturnBy,
-			&loan.ReturnedAt,
-			&loan.Status,
-			&loan.BookStockID,
-			&loan.ReservationID,
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to scan row: %w", err)
+		if err := rows.Scan(&loan.ID, &loan.LoanedAt, &loan.ReturnBy, &loan.ReturnedAt, &loan.Status, &loan.BookStockID, &loan.ReservationID); err != nil {
+			return nil, err
 		}
 		loans = append(loans, loan)
 	}
-
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return loans, nil
 }
 
