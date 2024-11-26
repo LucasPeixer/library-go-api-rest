@@ -13,6 +13,7 @@ import (
 type LoanControllerInterface interface {
 	CreateLoan(c *gin.Context)
 	UpdateLoan(c *gin.Context)
+	GetLoansByFilter(c *gin.Context)
 }
 
 type LoanController struct {
@@ -26,6 +27,44 @@ func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUsec
 		loanUsecase:        loanUsecase,
 		reservationUsecase: reservationUsecase,
 	}
+}
+
+func (lc *LoanController) GetLoansByFilter(c *gin.Context) {
+	loanedAtStr := c.DefaultQuery("loaned_at", "")
+	returnByStr := c.DefaultQuery("return_by", "")
+	returnedAtStr := c.DefaultQuery("returned_at", "")
+	status := c.DefaultQuery("status", "")
+	bookStockIDStr := c.DefaultQuery("book_stock_id", "")
+	reservationIDStr := c.DefaultQuery("reservation_id", "")
+
+	filters := map[string]interface{}{
+			"loaned_at":   loanedAtStr,
+			"return_by":   returnByStr,
+			"returned_at": returnedAtStr,
+			"status":      status,
+	}
+
+	if bookStockIDStr != "" {
+			bookStockID, err := strconv.Atoi(bookStockIDStr)
+			if err == nil {
+					filters["book_stock_id"] = bookStockID
+			}
+	}
+
+	if reservationIDStr != "" {
+			reservationID, err := strconv.Atoi(reservationIDStr)
+			if err == nil {
+					filters["reservation_id"] = reservationID
+			}
+	}
+
+	loans, err := lc.loanUsecase.GetLoansByFilter(filters)
+	if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+	}
+
+	c.JSON(http.StatusOK, loans)
 }
 
 func (lc *LoanController) CreateLoan(c *gin.Context) {
