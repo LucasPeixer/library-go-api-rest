@@ -26,3 +26,10 @@ type LoanRequest struct {
 	ReservationID int       `json:"reservation_id" binding:"required"`
 	AdminID       *int       `json:"admin_id"`
 }
+
+type LoanUpdateRequest struct {
+	ID       int  `json:"id"`
+	AdminID  int  `json:"admin_id"`
+	Status   LoanStatus `json:"status" binding:"required" db:"status"`
+	ReturnedAt *time.Time `json:"returned_at"`
+}
