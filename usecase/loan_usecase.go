@@ -88,7 +88,7 @@ func (lu *LoanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, 
 	}
 
 	// Atualiza os dados
-	now := time.Now().UTC() 
+	now := time.Now()
 	loan.ReturnedAt = &now
 	loan.AdminID = &adminID
 	loan.Status = "returned"

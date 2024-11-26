@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"go-api/model"
 	"go-api/usecase"
 	"net/http"
 	"strconv"
@@ -183,8 +184,44 @@ func (bc *bookController) GetStock(c *gin.Context) {
 }
 
 func (bc *bookController) UpdateStockStatus(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	var err error
+	var bookId int
+
+	bookId, err = strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book Id"})
+		return
+	}
+
+	var stockId int
+
+	stockId, err = strconv.Atoi(c.Param("stock-id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stock Id"})
+		return
+	}
+
+	var i struct {
+		Status model.BookStockStatus `json:"status" binding:"required"`
+	}
+
+	if err = c.ShouldBindJSON(&i); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stock status input"})
+		return
+	}
+
+	if i.Status == model.BookStockBorrowed {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot manually change a book status to 'borrowed'"})
+		return
+	}
+
+	err = bc.useCase.UpdateStockStatus(stockId, i.Status, &bookId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Book stock status updated successfully"})
 }
 
 func (bc *bookController) RemoveStock(c *gin.Context) {
