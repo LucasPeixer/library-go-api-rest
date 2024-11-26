@@ -59,13 +59,15 @@
                       "type": "string"
                     }
                   },
-                  "example": {"error": "Invalid login input"}
+                  "example": {
+                    "error": "Invalid login input"
+                  }
                 }
               }
             }
           },
           "500": {
-            "$ref": "#/components/responses/login500Error"
+            "$ref": "#/components/responses/login500Errors"
           }
         }
       }
@@ -1345,7 +1347,7 @@
       }
     },
     "responses": {
-      "login500Error": {
+      "login500Errors": {
         "description": "Erro interno do servidor",
         "content": {
           "application/json": {
