@@ -133,6 +133,7 @@ describe('API tests', () => {
             Cypress.env('loanId', loanId);
         });
     });
+
     it('Update finished loan', () => {
         const loanId = Cypress.env('loanId');
 
@@ -151,6 +152,7 @@ describe('API tests', () => {
             expect(response.body).to.have.property('message', "loan updated successfully")
         });
     });
+    
     it('Delete book', () => {
         const bookId = Cypress.env('bookId');
         cy.api({

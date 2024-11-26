@@ -8,7 +8,7 @@ describe('API tests', () => {
             method: 'POST',
             url: 'http://localhost:8080/api/v1/login',
             body: {
-                "email": "locodoparanaue46@gmail.com",
+                "email": "lucas@admin.com",
                 "password": "123"
             }
         }).then((response) => {
