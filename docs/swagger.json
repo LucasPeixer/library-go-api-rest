@@ -953,9 +953,7 @@
           }
         }
       }
-    },
-    "/loans/finish-loan/{id}",
-    "/loans",
+    }
   },
   "components": {
     "schemas": {
