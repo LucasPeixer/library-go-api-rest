@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type LoanStatus string
 
@@ -15,7 +17,7 @@ type Loan struct {
 	ReturnBy        time.Time  `json:"return_by" db:"return_by"`
 	ReturnedAt      *time.Time `json:"returned_at,omitempty" db:"returned_at"`
 	Status          LoanStatus `json:"status" db:"status"`
-	AdminID         *int       `json:"admin_id,omitempty" db:"fk_admin_id"`
+	AdminID         *int       `json:"admin_id" db:"fk_admin_id"`
 	BookStockID     int        `json:"book_stock_id" db:"fk_book_stock_id"`
 	ReservationID   int        `json:"reservation_id" db:"fk_reservation_id"`
 }

@@ -30,38 +30,36 @@ func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUsec
 }
 
 func (lc *LoanController) GetLoansByFilters(c *gin.Context) {
-	loanedAtStr := c.DefaultQuery("loaned_at", "")
-	returnByStr := c.DefaultQuery("return_by", "")
-	returnedAtStr := c.DefaultQuery("returned_at", "")
+	loanedAt := c.DefaultQuery("loaned_at", "")
+	returnBy := c.DefaultQuery("return_by", "")
+	returnedAt := c.DefaultQuery("returned_at", "")
 	status := c.DefaultQuery("status", "")
+
 	bookStockIDStr := c.DefaultQuery("book_stock_id", "")
 	reservationIDStr := c.DefaultQuery("reservation_id", "")
 
-	filters := map[string]interface{}{
-			"loaned_at":   loanedAtStr,
-			"return_by":   returnByStr,
-			"returned_at": returnedAtStr,
-			"status":      status,
-	}
+	var bookStockID, reservationID int
+	var err error
 
 	if bookStockIDStr != "" {
-			bookStockID, err := strconv.Atoi(bookStockIDStr)
-			if err == nil {
-					filters["book_stock_id"] = bookStockID
-			}
+		bookStockID, err = strconv.Atoi(bookStockIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book_stock_id"})
+			return
+		}
 	}
 
 	if reservationIDStr != "" {
-			reservationID, err := strconv.Atoi(reservationIDStr)
-			if err == nil {
-					filters["reservation_id"] = reservationID
-			}
-	}
-
-	loans, err := lc.loanUsecase.GetLoansByFilters(filters)
-	if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		reservationID, err = strconv.Atoi(reservationIDStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reservation_id"})
 			return
+		}
+	}
+	loans, err := lc.loanUsecase.GetLoansByFilters(loanedAt, returnBy, returnedAt, status, bookStockID, reservationID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, loans)
