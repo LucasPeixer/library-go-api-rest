@@ -1,944 +1,1402 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "Sistema de APIs",
-        "description": "APIs utilizadas para gerenciar bibliotecas",
-        "termsOfService": "http://linkseguro.com.br",
-        "contact": {
-            "email": "poweredtable@gmail.com"
-        },
-        "version": "1.0.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sistema de APIs",
+    "description": "APIs utilizadas para gerenciar bibliotecas",
+    "termsOfService": "http://linkseguro.com.br",
+    "contact": {
+      "email": "poweredtable@gmail.com"
     },
-    "servers": [
-        {
-            "url": "http://localhost:8080/api/v1",
-            "description": "Sistema de APIs"
-        },
-        {
-          "url": "https://a3-97eg.onrender.com/api/v1",
-          "description": "Sistema de APIs Render"
-        }
-    ],
-    "paths": {
-        "/login": {
-            "post": {
-                "summary": "Faz login no sistema",
-                "description": "Para utilizar as demais rotas é necessário utilizar o token gerado no login",
-                "tags": [
-                    "User"
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/loginUser"
-                            },
-                            "examples": {
-                                "Credenciais": {
-                                    "value": {
-                                        "email": "locodoparanaue46@gmail.com",
-                                        "password": "123"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Deve retornar um token"
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "summary": "Registra novos usuários",
-                "description": "Faz o registro de novos usuários no sistema",
-                "tags": [
-                    "User"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/registerUser"
-                            },
-                            "examples": {
-                                "Credenciais": {
-                                    "value": {
-                                        "name": "Julio",
-                                        "cpf": "60939530090",
-                                        "phone": "(48)99999-1111",
-                                        "email": "empresa66@gmail.com",
-                                        "password": "123",
-                                        "role_id": 2
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User registered successfully"
-                    }
-                }
-            }
-        },
-        "/users": {
-            "get": {
-                "summary": "Lista e filtra usuários",
-                "description": "Lista e filtra os usuários registrados",
-                "tags": [
-                    "User"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "description": "Nome do usuário",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "email",
-                        "in": "query",
-                        "description": "Email do usuário",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retorna uma lista de usuários",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "$ref": "#/components/schemas/userInfo"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}": {
-            "get": {
-                "summary": "Filtra usuários por ID",
-                "description": "Filtra os usuários registrados por ID",
-                "tags": [
-                    "User"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID de um usuário",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retorna usuário filtrado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "$ref": "#/components/schemas/userInfo"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/activate/{id}": {
-            "put": {
-                "summary": "Ativa um usuário",
-                "description": "Ativa um usuário utilizando o ID do mesmo",
-                "tags": [
-                    "User"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do usuário",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Sucesso na ativação"
-                    }
-                }
-            }
-        },
-        "/users/deactivate/{id}": {
-            "put": {
-                "summary": "Desativa um usuário",
-                "description": "Desativa um usuário utilizando o ID do mesmo",
-                "tags": [
-                    "User"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do usuário",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Sucesso na desativação"
-                    }
-                }
-            }
-        },
-        "/users/delete/{id}": {
-            "delete": {
-                "summary": "Remove um usuário",
-                "description": "Realiza a remoção de um usuário utilizando o ID do mesmo",
-                "tags": [
-                    "User"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Id do livro a ser removido",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Usuário removido com sucesso"
-                    },
-                    "400": {
-                        "description": "Usuário não encontrado"
-                    }
-                }
-            }
-        },
-        "/user/loans": {
-            "get": {
-                "summary": "Lista emprestimos do usuário logado",
-                "description": "Lista os emprestimos do usuario",
-                "tags": [
-                    "Emprestimo"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retorna lista de emprestimos"
-                    }
-                }
-            }
-        },
-        
-        "/reservation/create": {
-            "post": {
-                "summary": "Cria a reserva de um livro",
-                "description": "Cria a reserva de um livro desejado",
-                "tags": [
-                    "Emprestimo"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "Tempo do emprestimo",
-                        "in": "query",
-                        "required": true,
-                        "description": "Número de dias para o empréstimo (30, 60 ou 90)",
-                        "schema": {
-                            "type": "integer",
-                            "enum": [
-                                30,
-                                60,
-                                90
-                            ],
-                            "default": 30
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/reservationCreated"
-                            },
-                            "examples": {
-                                "Credenciais": {
-                                    "value": {
-                                        "book_id": 119,
-                                        "borrowed_days": 30
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Retorna lista de emprestimos",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "$ref": "#/components/schemas/reservationCreated"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/reservations": {
-            "get": {
-                "summary": "Lista as reservas dos usuários",
-                "description": "Lista e filtra as reservas dos usuários, podendo filtrar por nome de usuário, status da reserver e sua data final",
-                "tags": [
-                    "Emprestimo"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "user_name",
-                        "in": "query",
-                        "description": "Nome do usuário",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "status",
-                        "in": "query",
-                        "description": "Status",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "reserved_at",
-                        "in": "query",
-                        "description": "Data em que a reserva expira",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retorna lista de reservas",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "$ref": "#/components/schemas/reservationInfo"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/books/create": {
-            "post": {
-                "summary": "Cria um livro",
-                "description": "Rota para adição de livros",
-                "tags": [
-                    "Livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/booksCreate"
-                            },
-                            "examples": {
-                                "book": {
-                                    "value": {
-                                        "title": "Navio",
-                                        "synopsis": "Navio voador",
-                                        "author_id": 3,
-                                        "genre_ids": [
-                                            1,
-                                            2,
-                                            3,
-                                            4,
-                                            5
-                                        ]
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/booksCreate"
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/books": {
-            "get": {
-                "summary": "Lista e filtra os livros",
-                "description": "Lista e filtra os livros registrados",
-                "tags": [
-                    "Livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "title",
-                        "in": "query",
-                        "description": "Título do livro",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "author",
-                        "in": "query",
-                        "description": "Autor do livro",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "genres",
-                        "in": "query",
-                        "description": "Gênero do livro",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retorna uma lista de livros",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/booksCreate"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/books/update/{id}": {
-            "put": {
-                "summary": "Edita um livro",
-                "description": "Realiza a edição de um livro utilizando o ID do mesmo",
-                "tags": [
-                    "Livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Id do livro a ser editado",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/booksUpdate"
-                            },
-                            "examples": {
-                                "book": {
-                                    "value": {
-                                        "title": "Navio",
-                                        "synopsis": "Navio voador",
-                                        "author_id": 3
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Livro editado com sucesso."
-                    }
-                }
-            }
-        },
-        "/books/delete/{id}": {
-            "delete": {
-                "summary": "Remove um livro",
-                "description": "Realiza a remoção de um livro utilizando o ID do mesmo",
-                "tags": [
-                    "Livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Id do livro a ser removido",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Livro removido com sucesso"
-                    },
-                    "400": {
-                        "description": "Livro não encontrado"
-                    }
-                }
-            }
-        },
-        "/books/{id}/stock": {
-            "get": {
-                "summary": "Lista o estoque de um determinado livro",
-                "description": "Lista o estoque de um livro pelo seu Id",
-                "tags": [
-                    "Estoque de livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "id do livro",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Retorna uma lista do estoque de um livro",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/booksCreate"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/books/{id}/stock/add": {
-            "post": {
-                "summary": "Adiciona estoque a um livro",
-                "description": "Adiciona estoque a um livro utilizando seu Id",
-                "tags": [
-                    "Estoque de livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "id do livro",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/stockAdd"
-                            },
-                            "examples": {
-                                "book": {
-                                    "value": {
-                                        "code": 9
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/bookStock"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/books/{bookId}/stock/remove/{stockId}": {
-            "delete": {
-                "summary": "Remove um estoque de um livro",
-                "description": "Realiza a remoção de um estoque de um livro utilizando o Id do livro e do estoque",
-                "tags": [
-                    "Estoque de livros"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "bookId",
-                        "in": "path",
-                        "description": "Id do livro",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "stockId",
-                        "in": "path",
-                        "description": "Id do livro do estoque",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Livro removido com sucesso"
-                    },
-                    "400": {
-                        "description": "Livro não encontrado"
-                    }
-                }
-            }
-        }
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/api/v1",
+      "description": "Sistema de APIs"
     },
-    "components": {
-        "schemas": {
-            "loginUser": {
-                "type": "object",
-                "properties": {
-                    "email": {
-                        "type": "string"
-                    },
-                    "password": {
-                        "type": "string"
-                    }
-                }
-            },
-            "registerUser": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "cpf": {
-                        "type": "string"
-                    },
-                    "phone": {
-                        "type": "string"
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "password": {
-                        "type": "string"
-                    },
-                    "role_id": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "userInfo": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "cpf": {
-                        "type": "string"
-                    },
-
-                    "phone":{
-
-                        "type": "string"
-                    },
-                    "email": {
-                        "type": "string"
-                    },
-                    "password_hash": {
-                        "type": "string"
-                    },
-                    "account_role": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "integer"
-                            },
-                            "name": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "is_active": {
-                        "type": "boolean"
-                    }
-                }
-            },
-            "booksCreate": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "synopsis": {
-                        "type": "string"
-                    },
-                    "author_id": {
-                        "type": "integer"
-                    },
-                    "genre_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    }
-                }
-            },
-            "booksUpdate": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "string"
-                    },
-                    "synopsis": {
-                        "type": "string"
-                    },
-                    "author_id": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "stockAdd": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "bookStock": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "status": {
-                        "type": "string"
-                    },
-                    "code": {
-                        "type": "integer"
-                    },
-                    "book_id": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "reservationInfo": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer"
-                    },
-                    "reserved_at": {
-                        "type": "string"
-                    },
-                    "expires_at": {
-                        "type": "string"
-                    },
-                    "borrowed_days": {
-                        "type": "integer"
-                    },
-                    "status": {
-                        "type": "string"
-                    },
-                    "fk_user_id": {
-                        "type": "integer"
-                    },
-                    "fk_admin_id": {
-                        "type": "integer"
-                    },
-                    "fk_book_id": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "reservationCreated": {
-                "type": "object",
-                "properties": {
-                    "book_id": {
-                        "type": "integer",
-                        "description": "ID do livro"
-                    },
-                    "borrowed_days": {
-                        "type": "integer",
-                        "description": "Número de dias para o empréstimo (30, 60 ou 90)",
-                        "enum": [
-                            30,
-                            60,
-                            90
-                        ]
-                    }
-                },
-                "required": [
-                    "book_id",
-                    "borrowed_days"
-                ]
+    {
+      "url": "https://a3-97eg.onrender.com/api/v1",
+      "description": "Sistema de APIs Render"
+    }
+  ],
+  "paths": {
+    "/user/login": {
+      "post": {
+        "summary": "Faz login no sistema",
+        "description": "Autentica o usuário no sistema retornando um token JWT para ser utilizado nas demais rotas.",
+        "tags": [
+          "Usuário"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/userLogin"
+              }
             }
+          }
         },
-        "securitySchemes": {
-            "bearerAuth": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEwMSwiaWF0IjoxNjg3NzU2ODAwLCJleHAiOjE2ODc3NjA0MDB9.QzMxLKbNhFAsTtQsdKYMCmnfL1Oi9AI4bUtci6oaG_0"
+                }
+              }
             }
+          },
+          "400": {
+            "description": "Requisição incorreta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "example": {
+                    "error": "Invalid login input"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/login500Errors"
+          }
         }
+      }
     },
-    "tags": [
-        {
-            "name": "User",
-            "description": "Operações relacionadas a usuário"
-        },
-        {
-            "name": "Livros",
-            "description": "Gerenciamento de livros (CRUD)"
-        },
-        {
-            "name": "Estoque de livros",
-            "description": "Gerenciamento do estoque dos livros"
-        },
-        {
-            "name": "Emprestimo",
-            "description": "Gerenciamento de emprestimos"
+    "/user/reservations": {
+      "get": {
+        "summary": "Lista as reservas do usuário",
+        "description": "Retorna todas as reservas atreladas ao usuário.",
+        "tags": [
+          "Usuário"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reservationInfo"
+                  }
+                }
+              }
+            }
+          }
         }
-    ]
+      }
+    },
+    "/user/reservations/cancel/{id}": {
+      "put": {
+        "summary": "Cancela uma reserva de livro do usuário",
+        "description": "Cancela uma reserva de livro pendente do usuário.",
+        "tags": [
+          "Usuário"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id da reserva",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/user/loans": {
+      "get": {
+        "summary": "Lista os empréstimos de livro do usuário",
+        "description": "Retorna todos os empréstimos de livro atrelados ao usuário.",
+        "tags": [
+          "Usuário"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/loanInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "summary": "Registra um novo usuário (admin)",
+        "description": "Faz o registro de um novo usuário no sistema.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/userRegister"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Lista e filtra usuários (admin)",
+        "description": "Lista e filtra os usuários registrados.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Nome do usuário",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email do usuário",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/userInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Retorna um usuário por Id (admin)",
+        "description": "Retorna um usuário registrado por Id.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id de um usuário",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/userInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/activate/{id}": {
+      "put": {
+        "summary": "Ativa um usuário (admin)",
+        "description": "Ativa um usuário utilizando o Id do mesmo.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do usuário",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/users/deactivate/{id}": {
+      "put": {
+        "summary": "Desativa um usuário (admin)",
+        "description": "Desativa um usuário utilizando o Id do mesmo.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do usuário",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/users/delete/{id}": {
+      "delete": {
+        "summary": "Remove um usuário (admin)",
+        "description": "Realiza a remoção de um usuário utilizando o Id do mesmo.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do usuário a ser removido",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/users/{id}/reservations": {
+      "get": {
+        "summary": "Lista as reservas de um usuário (admin)",
+        "description": "Retorna todas as reservas de um usuário registrado.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id de um usuário",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reservationInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/reservations/cancel/{reservation-id}": {
+      "put": {
+        "summary": "Cancela uma reserva de livro de um usuário (admin)",
+        "description": "Cancela uma reserva de livro pendente de um usuário.",
+        "tags": [
+          "Usuários"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do usuário",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "reservation-id",
+            "in": "path",
+            "description": "Id da reserva",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/books/create": {
+      "post": {
+        "summary": "Cria um livro (admin)",
+        "description": "Cria um novo livro no sistema.",
+        "tags": [
+          "Livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/bookCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/bookInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books": {
+      "get": {
+        "summary": "Lista e filtra livros",
+        "description": "Lista e filtra os livros registrados.",
+        "tags": [
+          "Livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "description": "Título do livro",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "author",
+            "in": "query",
+            "description": "Autor do livro",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "genres",
+            "in": "query",
+            "description": "Gêneros do livro, separados por vírgula",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/bookInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "summary": "Retorna um livro por Id",
+        "description": "Retorna um livro registrado por Id.",
+        "tags": [
+          "Livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bookInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/update/{id}": {
+      "put": {
+        "summary": "Edita um livro (admin)",
+        "description": "Realiza a edição de um livro utilizando o Id do mesmo.",
+        "tags": [
+          "Livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/bookUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/books/delete/{id}": {
+      "delete": {
+        "summary": "Remove um livro (admin)",
+        "description": "Realiza a remoção de um livro utilizando o Id do mesmo.",
+        "tags": [
+          "Livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/books/{id}/stock/add": {
+      "post": {
+        "summary": "Adiciona estoque a um livro (admin)",
+        "description": "Adiciona estoque a um livro utilizando seu Id.",
+        "tags": [
+          "Estoque de livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/stockAdd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/bookStockInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}/stock": {
+      "get": {
+        "summary": "Lista o estoque de um determinado livro (admin)",
+        "description": "Lista o estoque de um livro pelo seu Id.",
+        "tags": [
+          "Estoque de livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/bookStockInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}/stock/update-status/{stock-id}": {
+      "put": {
+        "summary": "Atualiza o status de um estoque de um livro",
+        "description": "Atualiza o status de um estoque de um livro utilizando o Id do livro e do estoque.",
+        "tags": [
+          "Estoque de livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "stock-id",
+            "in": "path",
+            "description": "Id do estoque do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/bookStockStatusUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/books/{id}/stock/remove/{stock-id}": {
+      "delete": {
+        "summary": "Remove um estoque de um livro (admin)",
+        "description": "Realiza a remoção de um estoque de um livro utilizando o Id do livro e do estoque.",
+        "tags": [
+          "Estoque de livros"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "stock-id",
+            "in": "path",
+            "description": "Id do estoque do livro",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
+    },
+    "/reservations/create": {
+      "post": {
+        "summary": "Cria a reserva de um livro",
+        "description": "Cria a reserva de um livro desejado.",
+        "tags": [
+          "Reservas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/reservationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/reservationInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations": {
+      "get": {
+        "summary": "Lista e filtra reservas (admin)",
+        "description": "Lista e filtra as reservas existentes.",
+        "tags": [
+          "Reservas"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_name",
+            "in": "query",
+            "description": "Nome do usuário",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status da reserva",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cancelled",
+                "collected",
+                "expired",
+                "pending",
+                "finished"
+              ]
+            }
+          },
+          {
+            "name": "reserved_at",
+            "in": "query",
+            "description": "Data da reserva",
+            "required": false,
+            "schema": {
+              "format": "date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/reservationInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/create": {
+      "post": {
+        "summary": "Cria o empréstimo de um livro (admin)",
+        "description": "Cria o empréstimo de um livro a partir dos dados de uma reserva e do estoque de um livro.",
+        "tags": [
+          "Empréstimos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/loanCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/loanInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "userLogin": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "usuario@hotmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "123"
+          }
+        }
+      },
+      "userRegister": {
+        "type": "object",
+        "required": [
+          "name",
+          "cpf",
+          "phone",
+          "email",
+          "password",
+          "role_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Marcelo Pedro da Silva"
+          },
+          "cpf": {
+            "type": "string",
+            "example": "38836046070"
+          },
+          "phone": {
+            "type": "string",
+            "example": "(48) 98444-9891"
+          },
+          "email": {
+            "type": "string",
+            "example": "marcelo@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "senha123"
+          },
+          "role_id": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "example": 2
+          }
+        }
+      },
+      "userInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Reginaldo Barconcelos"
+          },
+          "cpf": {
+            "type": "string",
+            "example": "92768657050"
+          },
+          "phone": {
+            "type": "string",
+            "example": "(48) 98181-2111"
+          },
+          "email": {
+            "type": "string",
+            "example": "regigi@gmail.com"
+          },
+          "password_hash": {
+            "type": "string",
+            "example": ""
+          },
+          "account_role": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "example": "user"
+              }
+            }
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "bookCreate": {
+        "type": "object",
+        "required": [
+          "title",
+          "synopsis",
+          "author_id",
+          "genre_ids"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "O Grande Livro"
+          },
+          "synopsis": {
+            "type": "string",
+            "example": "Um livro tão grande que não cabia em uma biblioteca"
+          },
+          "author_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "genre_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              2
+            ]
+          }
+        }
+      },
+      "bookInfo": {
+        "type": "object",
+        "required": [
+          "title",
+          "synopsis",
+          "amount",
+          "author",
+          "genres"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "O Grande Livro"
+          },
+          "synopsis": {
+            "type": "string",
+            "example": "Um livro tão grande que não cabia em uma biblioteca"
+          },
+          "amount": {
+            "type": "integer",
+            "example": 0
+          },
+          "author": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "id": 1,
+              "name": "Marcelo Pedro"
+            }
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "id": 1,
+                "name": "ação"
+              }
+            ]
+          }
+        }
+      },
+      "bookUpdate": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "O Pequeno Livro"
+          },
+          "synopsis": {
+            "type": "string",
+            "example": "Um livro tão pequeno que não era encontrado facilmente."
+          },
+          "author_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "stockAdd": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 2092232
+          }
+        }
+      },
+      "bookStockInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "code",
+          "book_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "missing",
+              "available",
+              "borrowed"
+            ],
+            "example": "available"
+          },
+          "code": {
+            "type": "integer",
+            "example": 2092232
+          },
+          "book_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "bookStockStatusUpdate": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "missing"
+            ],
+            "example": "missing"
+          }
+        }
+      },
+      "reservationCreate": {
+        "type": "object",
+        "required": [
+          "book_id",
+          "borrowed_days"
+        ],
+        "properties": {
+          "book_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "borrowed_days": {
+            "type": "integer",
+            "enum": [
+              30,
+              60,
+              90
+            ],
+            "example": 30
+          }
+        }
+      },
+      "reservationInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "reserved_at": {
+            "type": "string",
+            "example": "2024-11-24 22:48:31.336403"
+          },
+          "expires_at": {
+            "type": "string",
+            "example": "2024-11-25 22:48:31.336403"
+          },
+          "borrowed_days": {
+            "type": "integer",
+            "enum": [
+              30,
+              60,
+              90
+            ],
+            "example": 30
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "cancelled",
+              "expired",
+              "collected",
+              "finished"
+            ]
+          },
+          "fk_user_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "fk_admin_id": {
+            "type": "integer",
+            "additionalProperties": {
+              "type": "null"
+            },
+            "example": null
+          },
+          "fk_book_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "loanCreate": {
+        "type": "object",
+        "required": [
+          "book_stock_id",
+          "reservation_id"
+        ],
+        "properties": {
+          "book_stock_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "reservation_id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "loanInfo": {
+        "type": "object"
+      },
+      "http500Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "login500Errors": {
+        "description": "Erro interno do servidor",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/http500Error"
+            },
+            "examples": {
+              "emailNotFound": {
+                "summary": "E-mail não encontrado",
+                "value": {
+                  "error": "user with email %s not found"
+                }
+              },
+              "invalidCredentials": {
+                "summary": "Senha incorreta",
+                "value": {
+                  "error": "invalid credentials"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Usuário",
+      "description": "Operações relacionadas a usuário logado"
+    },
+    {
+      "name": "Usuários",
+      "description": "Gerenciamento de usuários por um administrador"
+    },
+    {
+      "name": "Livros",
+      "description": "Gerenciamento de livros"
+    },
+    {
+      "name": "Estoque de livros",
+      "description": "Gerenciamento do estoque dos livros"
+    },
+    {
+      "name": "Reservas",
+      "description": "Gerenciamento de reservas"
+    },
+    {
+      "name": "Empréstimos",
+      "description": "Gerenciamento de emprestimos"
+    }
+  ]
 }
