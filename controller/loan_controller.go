@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"fmt"
 )
 
 type LoanControllerInterface interface {
@@ -78,8 +79,10 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 }
 
 func (lc *LoanController) UpdateLoan(c *gin.Context) {
-	loanIDStr := c.Param("ID")
+	loanIDStr := c.Param("id")
 	loanId, err := strconv.Atoi(loanIDStr)
+	fmt.Printf("Loan ID: %d\n", loanId)
+	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid loan ID"})
 		return
@@ -92,7 +95,7 @@ func (lc *LoanController) UpdateLoan(c *gin.Context) {
 	}
 
 	// Obtém o ID do administrador do JWT
-	adminIdStr, exists := c.Get("adminId")
+	adminIdStr, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return

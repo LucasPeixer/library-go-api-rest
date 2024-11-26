@@ -28,8 +28,8 @@ type LoanRequest struct {
 }
 
 type LoanUpdateRequest struct {
-	ID       int  `json:"id" binding:"required"`
+	ID       int  `json:"id"`
 	AdminID  int  `json:"admin_id"`
-	Status   LoanStatus `json:"status" db:"status"`
+	Status   LoanStatus `json:"status" binding:"required" db:"status"`
 	ReturnedAt *time.Time `json:"returned_at"`
 }
