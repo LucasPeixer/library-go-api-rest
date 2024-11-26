@@ -8,6 +8,8 @@ import (
 
 type LoanRepositoryInterface interface {
 	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
+	GetLoanByID(id int) (*model.Loan, error)
+	UpdateLoan(loan *model.Loan) error
 }
 
 type loanRepository struct {
@@ -45,4 +47,34 @@ func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, erro
 	}
 
 	return &createdLoan, nil
+}
+
+func (lr *loanRepository) GetLoanByID(id int) (*model.Loan, error) {
+	var loan model.Loan
+	query := `SELECT * FROM loan WHERE id = $1`
+	err := lr.db.QueryRow(query, id).Scan(
+		&loan.ID,
+		&loan.LoanedAt,
+		&loan.ReturnBy,
+		&loan.ReturnedAt,
+		&loan.Status,
+		&loan.AdminID,
+		&loan.BookStockID,
+		&loan.ReservationID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &loan, nil
+}
+
+func (lr *loanRepository) UpdateLoan(loan *model.Loan) error {
+	query := `UPDATE loan 
+              SET returned_at = $1, fk_admin_id = $2, status = $3 
+              WHERE id = $4`
+	_, err := lr.db.Exec(query, loan.ReturnedAt, loan.AdminID, loan.Status, loan.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update loan: %w", err)
+	}
+	return nil
 }

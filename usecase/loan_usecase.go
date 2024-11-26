@@ -9,6 +9,7 @@ import (
 
 type LoanUseCaseInterface interface {
 	CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error)
+	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
 }
 
 type LoanUseCase struct {
@@ -72,4 +73,31 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 	}
 
 	return createdLoan, nil
+}
+
+func (lu *LoanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
+
+	loan, err := lu.loanRepo.GetLoanByID(loanId)
+	if err != nil {
+		return fmt.Errorf("loan not found: %w", err)
+	}
+
+	// Verifica o status
+	if loan.Status != "borrowed" {
+		return fmt.Errorf("loan is not in borrowed status")
+	}
+
+	// Atualiza os dados
+	now := time.Now().UTC() 
+	loan.ReturnedAt = &now
+	loan.AdminID = &adminID
+	loan.Status = "returned"
+
+	// Atualiza no repositório
+	err = lu.loanRepo.UpdateLoan(loan)
+	if err != nil {
+		return fmt.Errorf("failed to update loan: %w", err)
+	}
+
+	return nil
 }
