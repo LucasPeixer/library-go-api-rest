@@ -10,6 +10,7 @@ type LoanRepositoryInterface interface {
 	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
 	GetLoanByID(id int) (*model.Loan, error)
 	UpdateLoan(loan *model.Loan) error
+	GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error)
 }
 
 type loanRepository struct {
@@ -18,6 +19,54 @@ type loanRepository struct {
 
 func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
 	return &loanRepository{db: db}
+}
+
+func (lr *loanRepository) GetLoansByFilter(filters map[string]interface{}) ([]model.Loan, error) {
+	// Base da query
+	query := `SELECT id, loaned_at, return_by, returned_at, status, fk_book_stock_id, fk_reservation_id FROM loans`
+	var conditions []string
+	var args []interface{}
+	argIndex := 1
+
+	// Constrói as condições com base nos filtros
+	for key, value := range filters {
+		conditions = append(conditions, fmt.Sprintf("%s = $%d", key, argIndex))
+		args = append(args, value)
+		argIndex++
+	}
+
+	// Adiciona condições à query se existirem filtros
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// Executa a query
+	rows, err := lr.db.Query(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer rows.Close()
+
+	// Mapeia os resultados
+	var loans []model.Loan
+	for rows.Next() {
+		var loan model.Loan
+		err := rows.Scan(
+			&loan.ID,
+			&loan.LoanedAt,
+			&loan.ReturnBy,
+			&loan.ReturnedAt,
+			&loan.Status,
+			&loan.BookStockID,
+			&loan.ReservationID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		loans = append(loans, loan)
+	}
+
+	return loans, nil
 }
 
 func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, error) {
