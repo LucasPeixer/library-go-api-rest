@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"go-api/model"
+	"strings"
 )
 
 type LoanRepositoryInterface interface {
