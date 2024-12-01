@@ -2,9 +2,9 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"go-api/model"
 	"strings"
-	"fmt"
 )
 
 type ReservationRepositoryInterface interface {
@@ -110,12 +110,12 @@ func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.R
 }
 
 func (rr *ReservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
-	
+
 	query := `
 		INSERT INTO reservation (borrowed_days, fk_user_id, fk_book_id)
 		VALUES ($1, $2, $3)
 		RETURNING id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_book_id`
-	
+
 	var reservation model.Reservation
 	err := rr.db.QueryRow(query, reservationRequest.BorrowedDays, reservationRequest.UserID, reservationRequest.BookID).
 		Scan(&reservation.ID, &reservation.ReservedAt, &reservation.ExpiresAt, &reservation.BorrowedDays, &reservation.Status, &reservation.UserID, &reservation.BookID)

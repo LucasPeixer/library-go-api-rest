@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"strconv" 
-	"net/http"
-	"go-api/usecase"
-	"go-api/model"
-	"github.com/gin-gonic/gin"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"go-api/model"
+	"go-api/usecase"
+	"net/http"
+	"strconv"
 )
 
 type ReservationController struct {
@@ -34,7 +34,7 @@ func (rc *ReservationController) GetReservationsByFilters(c *gin.Context) {
 
 func (rc *ReservationController) CreateReservation(c *gin.Context) {
 
-	userIDStr, exists := c.Get("userId") 
+	userIDStr, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
 		return
@@ -49,7 +49,7 @@ func (rc *ReservationController) CreateReservation(c *gin.Context) {
 	// Pegando os dados da reserva do corpo da requisição
 	var request model.ReservationRequest
 	request.UserID = userID
-	
+
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
 		return
@@ -64,13 +64,12 @@ func (rc *ReservationController) CreateReservation(c *gin.Context) {
 
 	// Retornando o sucesso com a reserva criada
 	c.JSON(http.StatusCreated, gin.H{
-		"id":          reservation.ID,
-		"reserved_at": reservation.ReservedAt,
-		"expires_at":  reservation.ExpiresAt,
-		"status":      reservation.Status,
+		"id":            reservation.ID,
+		"reserved_at":   reservation.ReservedAt,
+		"expires_at":    reservation.ExpiresAt,
+		"status":        reservation.Status,
 		"borrowed_days": reservation.BorrowedDays,
-		"fk_user_id":   reservation.UserID,
-		"fk_book_id":   reservation.BookID,
+		"fk_user_id":    reservation.UserID,
+		"fk_book_id":    reservation.BookID,
 	})
 }
-
