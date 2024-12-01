@@ -23,9 +23,9 @@ func NewReservationController(useCase usecase.ReservationUseCase) ReservationCon
 
 func (rc *reservationController) GetReservationsByFilters(c *gin.Context) {
 	// Pegando os parâmetros da query string
-	userName := c.DefaultQuery("user_name", "")
-	status := c.DefaultQuery("status", "")
-	reservedAt := c.DefaultQuery("reserved_at", "")
+	userName := c.Query("user_name")
+	status := c.Query("status")
+	reservedAt := c.Query("reserved_at")
 
 	reservations, err := rc.useCase.GetReservationsByFilters(userName, model.ReservationStatus(status), reservedAt)
 	if err != nil {
