@@ -10,6 +10,7 @@ import (
 type LoanUseCase interface {
 	CreateLoanAndUpdateReservation(reservationId, bookStockId, adminId int) (*model.Loan, error)
 	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
+	FinishLoan(loanId, adminId int) error
 }
 
 type loanUseCase struct {
@@ -92,6 +93,24 @@ func (lu *loanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, 
 	err = lu.loanRepo.UpdateLoan(loan)
 	if err != nil {
 		return fmt.Errorf("failed to update loan: %w", err)
+	}
+
+	return nil
+}
+
+func (lu *loanUseCase) FinishLoan(loanId, adminId int) error {
+	loan, err := lu.loanRepo.GetLoanById(loanId)
+	if err != nil {
+		return err
+	}
+
+	if loan.Status != model.LoanBorrowed {
+		return fmt.Errorf("loan is not borrowed")
+	}
+
+	err = lu.loanRepo.FinishLoan(loanId, adminId)
+	if err != nil {
+		return err
 	}
 
 	return nil

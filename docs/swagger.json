@@ -953,6 +953,36 @@
           }
         }
       }
+    },
+    "/loans/finish-loan/{id}": {
+      "put": {
+        "summary": "Finaliza um empréstimo (admin)",
+        "description": "Finaliza um empréstimo ativo, fazendo que o livro emprestado retorne ao estoque.",
+        "tags": [
+          "Empréstimos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id do empréstimo",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso"
+          }
+        }
+      }
     }
   },
   "components": {

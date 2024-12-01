@@ -1,9 +1,7 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-api/model"
 	"go-api/usecase"
 	"net/http"
 	"strconv"
@@ -11,7 +9,7 @@ import (
 
 type LoanController interface {
 	CreateLoan(c *gin.Context)
-	UpdateLoan(c *gin.Context)
+	FinishLoan(c *gin.Context)
 }
 
 type loanController struct {
@@ -58,19 +56,10 @@ func (lc *loanController) CreateLoan(c *gin.Context) {
 	c.JSON(http.StatusCreated, loan)
 }
 
-func (lc *loanController) UpdateLoan(c *gin.Context) {
-	loanIDStr := c.Param("id")
-	loanId, err := strconv.Atoi(loanIDStr)
-	fmt.Printf("Loan ID: %d\n", loanId)
-
+func (lc *loanController) FinishLoan(c *gin.Context) {
+	loanId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid loan ID"})
-		return
-	}
-
-	var request model.LoanUpdateRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
 
@@ -87,11 +76,11 @@ func (lc *loanController) UpdateLoan(c *gin.Context) {
 		return
 	}
 
-	err = lc.loanUseCase.UpdateLoan(request, adminId, loanId)
+	err = lc.loanUseCase.FinishLoan(loanId, adminId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "loan updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "loan finished successfully"})
 }
