@@ -13,13 +13,13 @@ type LoanUseCase interface {
 }
 
 type loanUseCase struct {
-	loanRepo        repository.LoanRepositoryInterface
+	loanRepo        repository.LoanRepository
 	bookStockRepo   repository.BookRepository
 	reservationRepo repository.ReservationRepository
 }
 
 func NewLoanUseCase(
-	loanRepo repository.LoanRepositoryInterface,
+	loanRepo repository.LoanRepository,
 	reservationRepo repository.ReservationRepository,
 	bookStockRepo repository.BookRepository) LoanUseCase {
 	return &loanUseCase{
@@ -73,7 +73,7 @@ func (lu *loanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 
 func (lu *loanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
 
-	loan, err := lu.loanRepo.GetLoanByID(loanId)
+	loan, err := lu.loanRepo.GetLoanById(loanId)
 	if err != nil {
 		return fmt.Errorf("loan not found: %w", err)
 	}
