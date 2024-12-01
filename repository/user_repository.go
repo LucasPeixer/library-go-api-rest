@@ -200,14 +200,14 @@ func (ur *userRepository) GetUserLoans(id int) (*[]model.Loan, error) {
 	for rows.Next() {
 		var loan model.Loan
 		err := rows.Scan(
-			&loan.ID,
+			&loan.Id,
 			&loan.LoanedAt,
 			&loan.ReturnBy,
 			&loan.ReturnedAt,
 			&loan.Status,
-			&loan.AdminID,
-			&loan.BookStockID,
-			&loan.ReservationID,
+			&loan.AdminId,
+			&loan.BookStockId,
+			&loan.ReservationId,
 		)
 		if err != nil {
 			return nil, err
