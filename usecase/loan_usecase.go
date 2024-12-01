@@ -30,7 +30,6 @@ func NewLoanUseCase(
 	}
 }
 
-
 func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {
 
 	reservation, err := lu.reservationRepo.GetReservationByID(request.ReservationID)
