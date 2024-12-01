@@ -16,14 +16,14 @@ func LoanRoutes(rg *gin.RouterGroup) {
 	bookStockRepository := repository.NewBookRepository(initializers.DB)
 	userRepository := repository.NewUserRepository(initializers.DB)
 	bookRepository := repository.NewBookRepository(initializers.DB)
-	reservationUseCase := usecase.NewReservationUseCase(reservationRepository,userRepository,bookRepository)
+	reservationUseCase := usecase.NewReservationUseCase(reservationRepository, userRepository, bookRepository)
 
 	loanUseCase := usecase.NewLoanUseCase(loanRepository, reservationRepository, bookStockRepository)
 	loanController := controller.NewLoanController(loanUseCase, reservationUseCase)
 
 	loan := rg.Group("/loans", middleware.JWTAuthMiddleware)
 	{
-		loan.POST("/create",middleware.RoleRequired("admin"),loanController.CreateLoan)
-		loan.PUT("/finish-loan/:id",middleware.RoleRequired("admin"),loanController.UpdateLoan)
+		loan.POST("/create", middleware.RoleRequired("admin"), loanController.CreateLoan)
+		loan.PUT("/finish-loan/:id", middleware.RoleRequired("admin"), loanController.UpdateLoan)
 	}
 }
