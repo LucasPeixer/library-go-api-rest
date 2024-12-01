@@ -9,21 +9,26 @@ import (
 	"strconv"
 )
 
-type ReservationController struct {
-	UseCase usecase.ReservationUseCaseInterface
+type ReservationController interface {
+	GetReservationsByFilters(c *gin.Context)
+	CreateReservation(c *gin.Context)
 }
 
-func NewReservationController(useCase usecase.ReservationUseCaseInterface) *ReservationController {
-	return &ReservationController{UseCase: useCase}
+type reservationController struct {
+	useCase usecase.ReservationUseCase
 }
 
-func (rc *ReservationController) GetReservationsByFilters(c *gin.Context) {
+func NewReservationController(useCase usecase.ReservationUseCase) ReservationController {
+	return &reservationController{useCase: useCase}
+}
+
+func (rc *reservationController) GetReservationsByFilters(c *gin.Context) {
 	// Pegando os parâmetros da query string
 	userName := c.DefaultQuery("user_name", "")
 	status := c.DefaultQuery("status", "")
 	reservedAt := c.DefaultQuery("reserved_at", "")
 
-	reservations, err := rc.UseCase.GetReservationsByFilters(userName, status, reservedAt)
+	reservations, err := rc.useCase.GetReservationsByFilters(userName, status, reservedAt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -32,7 +37,7 @@ func (rc *ReservationController) GetReservationsByFilters(c *gin.Context) {
 	c.JSON(http.StatusOK, reservations)
 }
 
-func (rc *ReservationController) CreateReservation(c *gin.Context) {
+func (rc *reservationController) CreateReservation(c *gin.Context) {
 
 	userIDStr, exists := c.Get("userId")
 	if !exists {
@@ -56,7 +61,7 @@ func (rc *ReservationController) CreateReservation(c *gin.Context) {
 	}
 
 	// Criando a reserva
-	reservation, err := rc.UseCase.CreateReservation(&request)
+	reservation, err := rc.useCase.CreateReservation(&request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error when creating reservation: %v", err)})
 		return

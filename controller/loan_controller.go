@@ -17,14 +17,14 @@ type LoanControllerInterface interface {
 
 type LoanController struct {
 	loanUsecase        usecase.LoanUseCaseInterface
-	reservationUsecase usecase.ReservationUseCaseInterface
+	reservationUseCase usecase.ReservationUseCase
 }
 
 // Corrigindo o nome do campo para 'loanUsecase'
-func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUsecase usecase.ReservationUseCaseInterface) *LoanController {
+func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUseCase usecase.ReservationUseCase) *LoanController {
 	return &LoanController{
 		loanUsecase:        loanUsecase,
-		reservationUsecase: reservationUsecase,
+		reservationUseCase: reservationUseCase,
 	}
 }
 
@@ -50,7 +50,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 	}
 
 	// Obtenção da reserva usando o 'reservationUsecase'
-	reservation, err := lc.reservationUsecase.GetReservationByID(loanRequest.ReservationID)
+	reservation, err := lc.reservationUseCase.GetReservationByID(loanRequest.ReservationID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -82,7 +82,7 @@ func (lc *LoanController) UpdateLoan(c *gin.Context) {
 	loanIDStr := c.Param("id")
 	loanId, err := strconv.Atoi(loanIDStr)
 	fmt.Printf("Loan ID: %d\n", loanId)
-	
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid loan ID"})
 		return

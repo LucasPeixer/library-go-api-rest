@@ -15,13 +15,13 @@ type LoanUseCaseInterface interface {
 type LoanUseCase struct {
 	loanRepo        repository.LoanRepositoryInterface
 	bookStockRepo   repository.BookRepository
-	reservationRepo repository.ReservationRepositoryInterface
+	reservationRepo repository.ReservationRepository
 }
 
 
 func NewLoanUseCase(
 	loanRepo repository.LoanRepositoryInterface,
-	reservationRepo repository.ReservationRepositoryInterface,
+	reservationRepo repository.ReservationRepository,
 	bookStockRepo repository.BookRepository,
 ) *LoanUseCase {
 	return &LoanUseCase{

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type ReservationRepositoryInterface interface {
+type ReservationRepository interface {
 	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
 	GetReservationByID(reservationID int) (*model.Reservation, error)
 	CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error)
@@ -15,16 +15,16 @@ type ReservationRepositoryInterface interface {
 	GetReservationsByBookId(id int, status string) (*[]model.Reservation, error)
 }
 
-type ReservationRepository struct {
+type reservationRepository struct {
 	db *sql.DB
 }
 
-func NewReservationRepository(db *sql.DB) ReservationRepositoryInterface {
-	return &ReservationRepository{db}
+func NewReservationRepository(db *sql.DB) ReservationRepository {
+	return &reservationRepository{db}
 }
 
 // Modificando o método para aceitar filtros opcionais.
-func (rr *ReservationRepository) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
+func (rr *reservationRepository) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
 	// Usando strings.Builder para construir a query
 	var sb strings.Builder
 	sb.WriteString("SELECT * FROM reservation WHERE 1=1")
@@ -77,7 +77,7 @@ func (rr *ReservationRepository) GetReservationsByFilters(userName, status, rese
 	return reservations, nil
 }
 
-func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.Reservation, error) {
+func (rr *reservationRepository) GetReservationByID(reservationID int) (*model.Reservation, error) {
 
 	query := `
 		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
@@ -109,7 +109,7 @@ func (rr *ReservationRepository) GetReservationByID(reservationID int) (*model.R
 	return reservation, nil
 }
 
-func (rr *ReservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
+func (rr *reservationRepository) CreateReservation(reservationRequest *model.ReservationRequest) (*model.Reservation, error) {
 
 	query := `
 		INSERT INTO reservation (borrowed_days, fk_user_id, fk_book_id)
@@ -126,7 +126,7 @@ func (rr *ReservationRepository) CreateReservation(reservationRequest *model.Res
 	return &reservation, nil
 }
 
-func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, status string, adminID int) error {
+func (rr *reservationRepository) UpdateReservationStatus(reservationID int, status string, adminID int) error {
 	query := `UPDATE reservation SET status = $1, fk_admin_id = $2 WHERE id = $3`
 	_, err := rr.db.Exec(query, status, adminID, reservationID)
 	if err != nil {
@@ -135,7 +135,7 @@ func (rr *ReservationRepository) UpdateReservationStatus(reservationID int, stat
 	return nil
 }
 
-func (rr *ReservationRepository) GetReservationsByBookId(id int, status string) (*[]model.Reservation, error) {
+func (rr *reservationRepository) GetReservationsByBookId(id int, status string) (*[]model.Reservation, error) {
 	query := `
 		SELECT id, reserved_at, expires_at, borrowed_days, status, fk_user_id, fk_admin_id, fk_book_id
 		FROM reservation
