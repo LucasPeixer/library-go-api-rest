@@ -6,9 +6,9 @@ import (
 	"go-api/model"
 )
 
-type LoanRepositoryInterface interface {
+type LoanRepository interface {
 	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
-	GetLoanByID(id int) (*model.Loan, error)
+	GetLoanById(id int) (*model.Loan, error)
 	UpdateLoan(loan *model.Loan) error
 }
 
@@ -16,7 +16,7 @@ type loanRepository struct {
 	db *sql.DB
 }
 
-func NewLoanRepository(db *sql.DB) LoanRepositoryInterface {
+func NewLoanRepository(db *sql.DB) LoanRepository {
 	return &loanRepository{db: db}
 }
 
@@ -28,28 +28,28 @@ func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, erro
 
 	var createdLoan model.Loan
 	err := lr.db.QueryRow(
-			query,
-			loan.ReturnBy,
-			loan.BookStockID,
-			loan.ReservationID,
+		query,
+		loan.ReturnBy,
+		loan.BookStockID,
+		loan.ReservationID,
 	).Scan(
-			&createdLoan.ID,
-			&createdLoan.LoanedAt,
-			&createdLoan.ReturnBy,
-			&createdLoan.ReturnedAt,
-			&createdLoan.Status,
-			&createdLoan.AdminID,
-			&createdLoan.BookStockID,
-			&createdLoan.ReservationID,
+		&createdLoan.ID,
+		&createdLoan.LoanedAt,
+		&createdLoan.ReturnBy,
+		&createdLoan.ReturnedAt,
+		&createdLoan.Status,
+		&createdLoan.AdminID,
+		&createdLoan.BookStockID,
+		&createdLoan.ReservationID,
 	)
 	if err != nil {
-			return nil, fmt.Errorf("error inserting loan: %w", err)
+		return nil, fmt.Errorf("error inserting loan: %w", err)
 	}
 
 	return &createdLoan, nil
 }
 
-func (lr *loanRepository) GetLoanByID(id int) (*model.Loan, error) {
+func (lr *loanRepository) GetLoanById(id int) (*model.Loan, error) {
 	var loan model.Loan
 	query := `SELECT * FROM loan WHERE id = $1`
 	err := lr.db.QueryRow(query, id).Scan(
