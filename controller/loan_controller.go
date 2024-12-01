@@ -9,6 +9,9 @@ import (
 
 type LoanController interface {
 	CreateLoan(c *gin.Context)
+	GetLoansByFilters(c *gin.Context)
+	GetLoanById(c *gin.Context)
+	GetLoanByReservationId(c *gin.Context)
 	FinishLoan(c *gin.Context)
 }
 
@@ -22,6 +25,21 @@ func NewLoanController(loanUseCase usecase.LoanUseCase, reservationUseCase useca
 		loanUseCase:        loanUseCase,
 		reservationUseCase: reservationUseCase,
 	}
+}
+
+func (lc *loanController) GetLoansByFilters(c *gin.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (lc *loanController) GetLoanById(c *gin.Context) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (lc *loanController) GetLoanByReservationId(c *gin.Context) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (lc *loanController) CreateLoan(c *gin.Context) {

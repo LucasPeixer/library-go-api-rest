@@ -8,7 +8,9 @@ import (
 
 type LoanRepository interface {
 	CreateLoan(reservationId, bookStockId, borrowedDays int) (*model.Loan, error)
+	GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error)
 	GetLoanById(id int) (*model.Loan, error)
+	GetLoanByReservationId(reservationId int) (*model.Loan, error)
 	UpdateLoan(loan *model.Loan) error
 	FinishLoan(id, adminId int) error
 }
@@ -40,6 +42,11 @@ func (lr *loanRepository) CreateLoan(reservationId, bookStockId, borrowedDays in
 	return &loan, nil
 }
 
+func (lr *loanRepository) GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (lr *loanRepository) GetLoanById(id int) (*model.Loan, error) {
 	var loan model.Loan
 	query := `SELECT * FROM loan WHERE id = $1`
@@ -57,6 +64,11 @@ func (lr *loanRepository) GetLoanById(id int) (*model.Loan, error) {
 		return nil, err
 	}
 	return &loan, nil
+}
+
+func (lr *loanRepository) GetLoanByReservationId(reservationId int) (*model.Loan, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (lr *loanRepository) UpdateLoan(loan *model.Loan) error {

@@ -9,6 +9,9 @@ import (
 
 type LoanUseCase interface {
 	CreateLoanAndUpdateReservation(reservationId, bookStockId, adminId int) (*model.Loan, error)
+	GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error)
+	GetLoanById(id int) (*model.Loan, error)
+	GetLoanByReservationId(reservationId int) (*model.Loan, error)
 	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
 	FinishLoan(loanId, adminId int) error
 }
@@ -69,6 +72,21 @@ func (lu *loanUseCase) CreateLoanAndUpdateReservation(reservationId, bookStockId
 	}
 
 	return createdLoan, nil
+}
+
+func (lu *loanUseCase) GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (lu *loanUseCase) GetLoanById(id int) (*model.Loan, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (lu *loanUseCase) GetLoanByReservationId(reservationId int) (*model.Loan, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (lu *loanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
