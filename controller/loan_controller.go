@@ -16,14 +16,14 @@ type LoanControllerInterface interface {
 }
 
 type LoanController struct {
-	loanUsecase        usecase.LoanUseCaseInterface
+	loanUseCase        usecase.LoanUseCaseInterface
 	reservationUseCase usecase.ReservationUseCase
 }
 
 // Corrigindo o nome do campo para 'loanUsecase'
-func NewLoanController(loanUsecase usecase.LoanUseCaseInterface, reservationUseCase usecase.ReservationUseCase) *LoanController {
+func NewLoanController(loanUseCase usecase.LoanUseCaseInterface, reservationUseCase usecase.ReservationUseCase) *LoanController {
 	return &LoanController{
-		loanUsecase:        loanUsecase,
+		loanUseCase:        loanUseCase,
 		reservationUseCase: reservationUseCase,
 	}
 }
@@ -68,7 +68,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 	}
 
 	// Criação do empréstimo e atualização da reserva
-	createdLoan, err := lc.loanUsecase.CreateLoanAndUpdateReservation(loan)
+	createdLoan, err := lc.loanUseCase.CreateLoanAndUpdateReservation(loan)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -107,7 +107,7 @@ func (lc *LoanController) UpdateLoan(c *gin.Context) {
 		return
 	}
 
-	err = lc.loanUsecase.UpdateLoan(request, adminId, loanId)
+	err = lc.loanUseCase.UpdateLoan(request, adminId, loanId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
