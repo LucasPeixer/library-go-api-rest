@@ -36,9 +36,9 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 	if err != nil {
 		return nil, fmt.Errorf("error fetching reservation: %w", err)
 	}
-	
-	if reservation.Status != "pending" {
-			return nil, fmt.Errorf("reservation is not pending")
+
+	if reservation.Status != model.ReservationPending {
+		return nil, fmt.Errorf("reservation is not pending")
 	}
 
 	expiryBuffer := time.Now().Add(-30 * time.Minute)

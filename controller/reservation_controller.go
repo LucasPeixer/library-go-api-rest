@@ -27,7 +27,7 @@ func (rc *reservationController) GetReservationsByFilters(c *gin.Context) {
 	status := c.DefaultQuery("status", "")
 	reservedAt := c.DefaultQuery("reserved_at", "")
 
-	reservations, err := rc.useCase.GetReservationsByFilters(userName, status, reservedAt)
+	reservations, err := rc.useCase.GetReservationsByFilters(userName, model.ReservationStatus(status), reservedAt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

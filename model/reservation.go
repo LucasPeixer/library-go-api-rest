@@ -5,11 +5,11 @@ import "time"
 type ReservationStatus string
 
 const (
-	Pending   ReservationStatus = "pending"
-	Cancelled ReservationStatus = "cancelled"
-	Expired   ReservationStatus = "expired"
-	Collected ReservationStatus = "collected"
-	Finished  ReservationStatus = "finished"
+	ReservationPending   ReservationStatus = "pending"
+	ReservationCancelled ReservationStatus = "cancelled"
+	ReservationExpired   ReservationStatus = "expired"
+	ReservationCollected ReservationStatus = "collected"
+	ReservationFinished  ReservationStatus = "finished"
 )
 
 type Reservation struct {
