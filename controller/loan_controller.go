@@ -1,13 +1,13 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-api/model"
 	"go-api/usecase"
 	"net/http"
 	"strconv"
 	"time"
-	"fmt"
 )
 
 type LoanControllerInterface interface {

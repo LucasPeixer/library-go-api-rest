@@ -2,8 +2,8 @@ package usecase
 
 import (
 	"fmt"
-	"go-api/repository"
 	"go-api/model"
+	"go-api/repository"
 	"time"
 )
 
