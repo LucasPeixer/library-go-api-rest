@@ -10,25 +10,24 @@ import (
 	"time"
 )
 
-type LoanControllerInterface interface {
+type LoanController interface {
 	CreateLoan(c *gin.Context)
 	UpdateLoan(c *gin.Context)
 }
 
-type LoanController struct {
+type loanController struct {
 	loanUseCase        usecase.LoanUseCaseInterface
 	reservationUseCase usecase.ReservationUseCase
 }
 
-// Corrigindo o nome do campo para 'loanUsecase'
-func NewLoanController(loanUseCase usecase.LoanUseCaseInterface, reservationUseCase usecase.ReservationUseCase) *LoanController {
-	return &LoanController{
+func NewLoanController(loanUseCase usecase.LoanUseCaseInterface, reservationUseCase usecase.ReservationUseCase) LoanController {
+	return &loanController{
 		loanUseCase:        loanUseCase,
 		reservationUseCase: reservationUseCase,
 	}
 }
 
-func (lc *LoanController) CreateLoan(c *gin.Context) {
+func (lc *loanController) CreateLoan(c *gin.Context) {
 	adminIdStr, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})
@@ -78,7 +77,7 @@ func (lc *LoanController) CreateLoan(c *gin.Context) {
 	c.JSON(http.StatusCreated, createdLoan)
 }
 
-func (lc *LoanController) UpdateLoan(c *gin.Context) {
+func (lc *loanController) UpdateLoan(c *gin.Context) {
 	loanIDStr := c.Param("id")
 	loanId, err := strconv.Atoi(loanIDStr)
 	fmt.Printf("Loan ID: %d\n", loanId)
