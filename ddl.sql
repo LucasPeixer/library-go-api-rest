@@ -83,11 +83,10 @@ BEGIN
         IF stock_and_reservations_count.active_reservations_count >= stock_and_reservations_count.total_stock_count THEN
             RAISE EXCEPTION 'Cannot remove book_stock. Active reservations (%) exceed available stock (%).',
                 stock_and_reservations_count.active_reservations_count, stock_and_reservations_count.total_stock_count;
-
         END IF;
-
-        RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
     END IF;
+
+    RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
 END;
 $$ LANGUAGE plpgsql;
 
