@@ -16,11 +16,11 @@ type LoanController interface {
 }
 
 type loanController struct {
-	loanUseCase        usecase.LoanUseCaseInterface
+	loanUseCase        usecase.LoanUseCase
 	reservationUseCase usecase.ReservationUseCase
 }
 
-func NewLoanController(loanUseCase usecase.LoanUseCaseInterface, reservationUseCase usecase.ReservationUseCase) LoanController {
+func NewLoanController(loanUseCase usecase.LoanUseCase, reservationUseCase usecase.ReservationUseCase) LoanController {
 	return &loanController{
 		loanUseCase:        loanUseCase,
 		reservationUseCase: reservationUseCase,

@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-type LoanUseCaseInterface interface {
+type LoanUseCase interface {
 	CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error)
 	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
 }
 
-type LoanUseCase struct {
+type loanUseCase struct {
 	loanRepo        repository.LoanRepositoryInterface
 	bookStockRepo   repository.BookRepository
 	reservationRepo repository.ReservationRepository
@@ -21,16 +21,15 @@ type LoanUseCase struct {
 func NewLoanUseCase(
 	loanRepo repository.LoanRepositoryInterface,
 	reservationRepo repository.ReservationRepository,
-	bookStockRepo repository.BookRepository,
-) *LoanUseCase {
-	return &LoanUseCase{
+	bookStockRepo repository.BookRepository) LoanUseCase {
+	return &loanUseCase{
 		loanRepo:        loanRepo,
 		bookStockRepo:   bookStockRepo,
 		reservationRepo: reservationRepo,
 	}
 }
 
-func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {
+func (lu *loanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {
 	reservation, err := lu.reservationRepo.GetReservationById(request.ReservationID)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching reservation: %w", err)
@@ -72,7 +71,7 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 	return createdLoan, nil
 }
 
-func (lu *LoanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
+func (lu *loanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
 
 	loan, err := lu.loanRepo.GetLoanByID(loanId)
 	if err != nil {
