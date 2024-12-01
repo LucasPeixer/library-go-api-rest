@@ -2,9 +2,9 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-    "github.com/swaggo/files"
-    _ "go-api/docs"
+	_ "go-api/docs"
 )
 
 // Routes registra todas as rotas http.
@@ -17,4 +17,3 @@ func Routes(r *gin.Engine) {
 	ReservationRoutes(api)
 	LoanRoutes(api)
 }
-	

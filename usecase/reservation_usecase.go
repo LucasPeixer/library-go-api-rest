@@ -7,34 +7,34 @@ import (
 	"time"
 )
 
-type ReservationUseCaseInterface interface {
-	GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error)
-	CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error)
-	GetReservationByID(reservationID int) (*model.Reservation, error)
+type ReservationUseCase interface {
+	CreateReservation(borrowedDays, userId, bookId int) (*model.Reservation, error)
+	GetReservationsByFilters(userName string, status model.ReservationStatus, reservedAt string) (*[]model.Reservation, error)
+	GetReservationById(id int) (*model.Reservation, error)
 }
 
-type ReservationUseCase struct {
-	ReservationRepo repository.ReservationRepositoryInterface
+type reservationUseCase struct {
+	reservationRepo repository.ReservationRepository
 	userRepo        repository.UserRepository
 	bookRepo        repository.BookRepository
 }
 
 // NewReservationUseCase cria e retorna uma nova instância de ReservationUseCase
-func NewReservationUseCase(reservationRepo repository.ReservationRepositoryInterface, userRepo repository.UserRepository, bookRepo repository.BookRepository) ReservationUseCaseInterface {
-	return &ReservationUseCase{
-		ReservationRepo: reservationRepo,
+func NewReservationUseCase(reservationRepo repository.ReservationRepository,
+	userRepo repository.UserRepository,
+	bookRepo repository.BookRepository) ReservationUseCase {
+	return &reservationUseCase{
+		reservationRepo: reservationRepo,
 		userRepo:        userRepo,
-		bookRepo:        bookRepo,
-	}
+		bookRepo:        bookRepo}
 }
 
-func (ru *ReservationUseCase) GetReservationsByFilters(userName, status, reservedAt string) ([]model.Reservation, error) {
-	return ru.ReservationRepo.GetReservationsByFilters(userName, status, reservedAt)
+func (ru *reservationUseCase) GetReservationsByFilters(userName string, status model.ReservationStatus, reservedAt string) (*[]model.Reservation, error) {
+	return ru.reservationRepo.GetReservationsByFilters(userName, status, reservedAt)
 }
 
-func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRequest) (*model.Reservation, error) {
-
-	user, err := ru.userRepo.GetUserById(reservation.UserID)
+func (ru *reservationUseCase) CreateReservation(borrowedDays, userId, bookId int) (*model.Reservation, error) {
+	user, err := ru.userRepo.GetUserById(userId)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user: %w", err)
 	}
@@ -42,11 +42,11 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		return nil, fmt.Errorf("user is not active")
 	}
 
-	if reservation.BorrowedDays != 30 && reservation.BorrowedDays != 60 && reservation.BorrowedDays != 90 {
+	if borrowedDays != 30 && borrowedDays != 60 && borrowedDays != 90 {
 		return nil, fmt.Errorf("borrowed days must be 30, 60, or 90")
 	}
 
-	activeLoans, err := ru.userRepo.GetUserLoans(reservation.UserID)
+	activeLoans, err := ru.userRepo.GetUserLoans(userId)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user loans: %w", err)
 	}
@@ -62,14 +62,14 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		}
 	}
 
-	userReservations, err := ru.userRepo.GetUserReservations(reservation.UserID)
+	activeReservations, err := ru.userRepo.GetUserReservations(userId)
 	if err != nil {
 		return nil, fmt.Errorf("error when searching for user reservations: %w", err)
 	}
 
 	pendingReservationsCount := 0
-	for _, res := range *userReservations {
-		if res.Status == "pending" {
+	for _, res := range *activeReservations {
+		if res.Status == model.ReservationPending {
 			pendingReservationsCount++
 		}
 	}
@@ -79,23 +79,18 @@ func (ru *ReservationUseCase) CreateReservation(reservation *model.ReservationRe
 		return nil, fmt.Errorf("user already has 5 or more active reservations/loans")
 	}
 
-	bUseCase := NewBookUseCase(ru.bookRepo, ru.ReservationRepo)
-	amount, err := bUseCase.CountAvailableBookStockById(reservation.BookID)
+	bUseCase := NewBookUseCase(ru.bookRepo, ru.reservationRepo)
+	amount, err := bUseCase.CountAvailableBookStockById(bookId)
 	if err != nil {
-		return nil, fmt.Errorf("error when searching for book: %w", err)
+		return nil, fmt.Errorf("error when getting book stock amount: %w", err)
 	}
 	if amount <= 0 {
 		return nil, fmt.Errorf("book out of stock")
 	}
 
-	newReservation, err := ru.ReservationRepo.CreateReservation(reservation)
-	if err != nil {
-		return nil, fmt.Errorf("error when creating reservation: %w", err)
-	}
-
-	return newReservation, nil
+	return ru.reservationRepo.CreateReservation(borrowedDays, userId, bookId)
 }
 
-func (ru *ReservationUseCase) GetReservationByID(reservationID int) (*model.Reservation, error) {
-	return ru.ReservationRepo.GetReservationByID(reservationID)
+func (ru *reservationUseCase) GetReservationById(id int) (*model.Reservation, error) {
+	return ru.reservationRepo.GetReservationById(id)
 }

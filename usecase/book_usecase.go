@@ -20,10 +20,10 @@ type BookUseCase interface {
 
 type bookUseCase struct {
 	repository            repository.BookRepository
-	reservationRepository repository.ReservationRepositoryInterface
+	reservationRepository repository.ReservationRepository
 }
 
-func NewBookUseCase(repository repository.BookRepository, reservationRepo repository.ReservationRepositoryInterface) BookUseCase {
+func NewBookUseCase(repository repository.BookRepository, reservationRepo repository.ReservationRepository) BookUseCase {
 	return &bookUseCase{repository: repository, reservationRepository: reservationRepo}
 }
 

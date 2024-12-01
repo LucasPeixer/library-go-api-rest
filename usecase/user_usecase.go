@@ -83,7 +83,7 @@ func (uu *userUseCase) CancelUserReservation(id, reservationId int, adminId *int
 		return err
 	}
 
-	if res.Status != model.Pending {
+	if res.Status != model.ReservationPending {
 		return fmt.Errorf("cannot cancel user reservation unless its status is 'pending'. Current status: '%s'", res.Status)
 	}
 
