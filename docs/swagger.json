@@ -1293,20 +1293,52 @@
               "finished"
             ]
           },
-          "fk_user_id": {
-            "type": "integer",
-            "example": 1
+          "user_account": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "example": "Roberto San"
+              },
+              "is_active": {
+                "type": "boolean",
+                "example": true
+              }
+            }
           },
-          "fk_admin_id": {
-            "type": "integer",
-            "additionalProperties": {
-              "type": "null"
-            },
-            "example": null
+          "admin_account": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "example": "Marcelo San"
+              },
+              "is_active": {
+                "type": "boolean",
+                "example": true
+              }
+            }
           },
-          "fk_book_id": {
-            "type": "integer",
-            "example": 1
+          "book": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "title": {
+                "type": "string",
+                "example": "O Livro"
+              }
+            }
           }
         }
       },

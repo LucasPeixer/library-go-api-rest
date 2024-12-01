@@ -220,36 +220,52 @@ func (ur *userRepository) GetUserLoans(id int) (*[]model.Loan, error) {
 
 func (ur *userRepository) GetUserReservations(id int) (*[]model.Reservation, error) {
 	query := `
-		SELECT 
-			r.id, 
-			r.fk_user_id, 
-			r.fk_book_id, 
-			r.borrowed_days, 
-			r.status, 
-			r.reserved_at, 
-			r.expires_at
-		FROM reservation r
-		WHERE r.fk_user_id = $1
-	`
+	SELECT r.id            AS reservation_id  ,
+	       r.reserved_at,
+	       r.expires_at,
+	       r.borrowed_days,
+	       r.status        AS reservation_status,
+	       r.fk_book_id    AS book_id,
+	       b.title         AS book_title,
+		   (CURRENT_TIMESTAMP > r.expires_at) as is_expired
+	FROM 
+	       reservation r
+	JOIN 
+	       user_account usr ON r.fk_user_id = usr.id
+	JOIN 
+	       book b ON r.fk_book_id = b.id
+	WHERE 
+		    r.fk_user_id = $1
+    `
 	rows, err := ur.db.Query(query, id)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching reservations: %w", err)
+		return nil, fmt.Errorf("error fetching user reservations: %w", err)
 	}
 	defer rows.Close()
 
 	reservations := make([]model.Reservation, 0)
 
 	for rows.Next() {
-		var reservation model.Reservation
-		if err := rows.Scan(&reservation.ID, &reservation.UserID, &reservation.BookID, &reservation.BorrowedDays, &reservation.Status, &reservation.ReservedAt, &reservation.ExpiresAt); err != nil {
-			return nil, fmt.Errorf("error reading reservation data: %w", err)
+		var res model.Reservation
+		var isExpired bool
+
+		if err := rows.Scan(
+			&res.Id,
+			&res.ReservedAt,
+			&res.ExpiresAt,
+			&res.BorrowedDays,
+			&res.Status,
+			&res.Book.Id,
+			&res.Book.Title,
+			&isExpired,
+		); err != nil {
+			return nil, err
 		}
 
-		reservations = append(reservations, reservation)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error iterating over reservations: %w", err)
+		if isExpired {
+			res.Status = model.ReservationExpired
+		}
+		reservations = append(reservations, res)
 	}
 
 	return &reservations, nil
@@ -305,27 +321,34 @@ func (ur *userRepository) DeleteUser(id int) error {
 
 func (ur *userRepository) GetUserReservationById(id, reservationId int) (*model.Reservation, error) {
 	query := `
-		SELECT 
-			id, 
-			fk_user_id, 
-			fk_book_id, 
-			borrowed_days, 
-			status, 
-			reserved_at, 
-			expires_at
-		FROM reservation 
-		WHERE fk_user_id = $1 and id = $2
-	`
-	var reservation model.Reservation
-
+	SELECT r.id            AS reservation_id,
+	       r.reserved_at,
+	       r.expires_at,
+	       r.borrowed_days,
+	       r.status        AS reservation_status,
+	       r.fk_book_id    AS book_id,
+	       b.title         AS book_title,
+		   (CURRENT_TIMESTAMP > r.expires_at) as is_expired
+	FROM 
+	       reservation r
+	JOIN 
+	       user_account usr ON r.fk_user_id = usr.id
+	JOIN 
+	       book b ON r.fk_book_id = b.id
+	WHERE 
+		    r.fk_user_id = $1 AND r.id = $2
+    `
+	var res model.Reservation
+	var isExpired bool
 	err := ur.db.QueryRow(query, id, reservationId).Scan(
-		&reservation.ID,
-		&reservation.UserID,
-		&reservation.BookID,
-		&reservation.BorrowedDays,
-		&reservation.Status,
-		&reservation.ReservedAt,
-		&reservation.ExpiresAt,
+		&res.Id,
+		&res.ReservedAt,
+		&res.ExpiresAt,
+		&res.BorrowedDays,
+		&res.Status,
+		&res.Book.Id,
+		&res.Book.Title,
+		&isExpired,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -333,7 +356,11 @@ func (ur *userRepository) GetUserReservationById(id, reservationId int) (*model.
 		}
 		return nil, err
 	}
-	return &reservation, nil
+
+	if isExpired {
+		res.Status = model.ReservationExpired
+	}
+	return &res, nil
 }
 
 func (ur *userRepository) CancelUserReservation(id, reservationId int, adminId *int) error {

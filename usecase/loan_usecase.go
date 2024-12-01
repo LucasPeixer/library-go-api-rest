@@ -31,8 +31,7 @@ func NewLoanUseCase(
 }
 
 func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest) (*model.Loan, error) {
-
-	reservation, err := lu.reservationRepo.GetReservationByID(request.ReservationID)
+	reservation, err := lu.reservationRepo.GetReservationById(request.ReservationID)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching reservation: %w", err)
 	}
