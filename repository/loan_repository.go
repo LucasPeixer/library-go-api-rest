@@ -7,7 +7,7 @@ import (
 )
 
 type LoanRepository interface {
-	CreateLoan(loan *model.LoanRequest) (*model.Loan, error)
+	CreateLoan(reservationId, bookStockId, borrowedDays int) (*model.Loan, error)
 	GetLoanById(id int) (*model.Loan, error)
 	UpdateLoan(loan *model.Loan) error
 }
@@ -20,33 +20,23 @@ func NewLoanRepository(db *sql.DB) LoanRepository {
 	return &loanRepository{db: db}
 }
 
-func (lr *loanRepository) CreateLoan(loan *model.LoanRequest) (*model.Loan, error) {
+func (lr *loanRepository) CreateLoan(reservationId, bookStockId, borrowedDays int) (*model.Loan, error) {
 	query := `
-			INSERT INTO loan (return_by, fk_book_stock_id, fk_reservation_id)
-			VALUES ($1, $2, $3)
-			RETURNING id, loaned_at, return_by, returned_at, status, fk_admin_id, fk_book_stock_id, fk_reservation_id`
+	INSERT INTO loan (fk_reservation_id, fk_book_stock_id, return_by) 
+	VALUES ($1, $2, CURRENT_TIMESTAMP + ($3 || ' days')::INTERVAL)
+	RETURNING id, loaned_at, return_by
+	`
 
-	var createdLoan model.Loan
-	err := lr.db.QueryRow(
-		query,
-		loan.ReturnBy,
-		loan.BookStockID,
-		loan.ReservationID,
-	).Scan(
-		&createdLoan.ID,
-		&createdLoan.LoanedAt,
-		&createdLoan.ReturnBy,
-		&createdLoan.ReturnedAt,
-		&createdLoan.Status,
-		&createdLoan.AdminID,
-		&createdLoan.BookStockID,
-		&createdLoan.ReservationID,
-	)
+	var loan model.Loan
+	err := lr.db.QueryRow(query, reservationId, bookStockId, borrowedDays).Scan(&loan.Id, &loan.LoanedAt, &loan.ReturnBy)
 	if err != nil {
-		return nil, fmt.Errorf("error inserting loan: %w", err)
+		return nil, err
 	}
 
-	return &createdLoan, nil
+	loan.BookStockId = bookStockId
+	loan.Status = model.LoanBorrowed
+
+	return &loan, nil
 }
 
 func (lr *loanRepository) GetLoanById(id int) (*model.Loan, error) {

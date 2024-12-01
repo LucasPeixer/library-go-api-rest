@@ -7,7 +7,6 @@ import (
 	"go-api/usecase"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type LoanController interface {
@@ -40,41 +39,23 @@ func (lc *loanController) CreateLoan(c *gin.Context) {
 		return
 	}
 
-	var loanRequest model.LoanRequest
+	var i struct {
+		ReservationId int `json:"reservation_id" binding:"required"`
+		BookStockId   int `json:"book_stock_id" binding:"required"`
+	}
 
-	// Bind JSON e validação do corpo da requisição
-	if err := c.ShouldBindJSON(&loanRequest); err != nil {
+	if err := c.ShouldBindJSON(&i); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	// Obtenção da reserva usando o 'reservationUsecase'
-	reservation, err := lc.reservationUseCase.GetReservationById(loanRequest.ReservationID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Cálculo da data de devolução
-	returnBy := time.Now().AddDate(0, 0, reservation.BorrowedDays)
-
-	// Criação do empréstimo
-	loan := &model.LoanRequest{
-		ReturnBy:      returnBy,
-		BookStockID:   loanRequest.BookStockID,
-		ReservationID: loanRequest.ReservationID,
-		AdminID:       &adminId,
-	}
-
-	// Criação do empréstimo e atualização da reserva
-	createdLoan, err := lc.loanUseCase.CreateLoanAndUpdateReservation(loan)
+	loan, err := lc.loanUseCase.CreateLoanAndUpdateReservation(i.ReservationId, i.BookStockId, adminId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Retorno do empréstimo criado
-	c.JSON(http.StatusCreated, createdLoan)
+	c.JSON(http.StatusCreated, loan)
 }
 
 func (lc *loanController) UpdateLoan(c *gin.Context) {
