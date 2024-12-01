@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-api/model"
 	"go-api/usecase"
@@ -38,7 +37,6 @@ func (rc *reservationController) GetReservationsByFilters(c *gin.Context) {
 }
 
 func (rc *reservationController) CreateReservation(c *gin.Context) {
-
 	userIDStr, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized user"})

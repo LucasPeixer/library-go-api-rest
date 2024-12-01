@@ -18,16 +18,15 @@ type LoanUseCase struct {
 	reservationRepo repository.ReservationRepository
 }
 
-
 func NewLoanUseCase(
 	loanRepo repository.LoanRepositoryInterface,
 	reservationRepo repository.ReservationRepository,
 	bookStockRepo repository.BookRepository,
 ) *LoanUseCase {
 	return &LoanUseCase{
-			loanRepo:        loanRepo,
-			bookStockRepo:   bookStockRepo,
-			reservationRepo: reservationRepo,
+		loanRepo:        loanRepo,
+		bookStockRepo:   bookStockRepo,
+		reservationRepo: reservationRepo,
 	}
 }
 
@@ -36,7 +35,7 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 
 	reservation, err := lu.reservationRepo.GetReservationByID(request.ReservationID)
 	if err != nil {
-			return nil, fmt.Errorf("error fetching reservation: %w", err)
+		return nil, fmt.Errorf("error fetching reservation: %w", err)
 	}
 	
 	if reservation.Status != "pending" {
@@ -45,19 +44,19 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 
 	expiryBuffer := time.Now().Add(-30 * time.Minute)
 	if reservation.ExpiresAt.Before(expiryBuffer) {
-    	return nil, fmt.Errorf("reservation has expired")
+		return nil, fmt.Errorf("reservation has expired")
 	}
-	
+
 	bookStock, err := lu.bookStockRepo.GetStockById(request.BookStockID)
 	if err != nil {
-			return nil, fmt.Errorf("error fetching book stock: %w", err)
+		return nil, fmt.Errorf("error fetching book stock: %w", err)
 	}
 
 	if bookStock.Status != "available" {
-			return nil, fmt.Errorf("book stock is not available")
+		return nil, fmt.Errorf("book stock is not available")
 	}
 
-	err = lu.reservationRepo.UpdateReservationStatus(request.ReservationID, "collected",*request.AdminID)
+	err = lu.reservationRepo.UpdateReservationStatus(request.ReservationID, "collected", *request.AdminID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update reservation status: %w", err)
 	}
@@ -66,10 +65,10 @@ func (lu *LoanUseCase) CreateLoanAndUpdateReservation(request *model.LoanRequest
 	if err != nil {
 		return nil, fmt.Errorf("failed to update book stock status: %w", err)
 	}
-	
+
 	createdLoan, err := lu.loanRepo.CreateLoan(request)
 	if err != nil {
-			return nil, fmt.Errorf("error creating loan: %w", err)
+		return nil, fmt.Errorf("error creating loan: %w", err)
 	}
 
 	return createdLoan, nil
