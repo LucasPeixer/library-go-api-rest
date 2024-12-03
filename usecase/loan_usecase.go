@@ -10,7 +10,6 @@ type LoanUseCase interface {
 	CreateLoanAndUpdateReservation(reservationId, bookStockId, adminId int) (*model.Loan, error)
 	GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error)
 	GetLoanById(id int) (*model.Loan, error)
-	GetLoanByReservationId(reservationId int) (*model.Loan, error)
 	FinishLoan(loanId, adminId int) error
 }
 
@@ -78,11 +77,6 @@ func (lu *loanUseCase) GetLoansByFilters(userName, status model.LoanStatus, loan
 }
 
 func (lu *loanUseCase) GetLoanById(id int) (*model.Loan, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (lu *loanUseCase) GetLoanByReservationId(reservationId int) (*model.Loan, error) {
 	//TODO implement me
 	panic("implement me")
 }
