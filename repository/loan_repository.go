@@ -12,7 +12,6 @@ type LoanRepository interface {
 	CreateLoan(reservationId, bookStockId, borrowedDays int) (*model.Loan, error)
 	GetLoansByFilters(userName string, status model.LoanStatus, loanedAt string) (*[]model.Loan, error)
 	GetLoanById(id int) (*model.Loan, error)
-	GetLoanByReservationId(reservationId int) (*model.Loan, error)
 	FinishLoan(id, adminId int) error
 }
 
