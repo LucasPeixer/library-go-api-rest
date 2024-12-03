@@ -11,7 +11,6 @@ type LoanRepository interface {
 	GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error)
 	GetLoanById(id int) (*model.Loan, error)
 	GetLoanByReservationId(reservationId int) (*model.Loan, error)
-	UpdateLoan(loan *model.Loan) error
 	FinishLoan(id, adminId int) error
 }
 
@@ -71,16 +70,6 @@ func (lr *loanRepository) GetLoanByReservationId(reservationId int) (*model.Loan
 	panic("implement me")
 }
 
-func (lr *loanRepository) UpdateLoan(loan *model.Loan) error {
-	query := `UPDATE loan 
-              SET returned_at = $1, fk_admin_id = $2, status = $3 
-              WHERE id = $4`
-	_, err := lr.db.Exec(query, loan.ReturnedAt, loan.AdminId, loan.Status, loan.Id)
-	if err != nil {
-		return fmt.Errorf("failed to update loan: %w", err)
-	}
-	return nil
-}
 func (lr *loanRepository) FinishLoan(id, adminId int) error {
 	query := `UPDATE loan SET returned_at = CURRENT_TIMESTAMP, status = 'returned', fk_admin_id = $1 WHERE id = $2`
 	_, err := lr.db.Exec(query, adminId, id)

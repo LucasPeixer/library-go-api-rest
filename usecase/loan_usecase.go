@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go-api/model"
 	"go-api/repository"
-	"time"
 )
 
 type LoanUseCase interface {
@@ -12,7 +11,6 @@ type LoanUseCase interface {
 	GetLoansByFilters(userName, status model.LoanStatus, loanedAt string) (*[]model.Loan, error)
 	GetLoanById(id int) (*model.Loan, error)
 	GetLoanByReservationId(reservationId int) (*model.Loan, error)
-	UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error
 	FinishLoan(loanId, adminId int) error
 }
 
@@ -87,33 +85,6 @@ func (lu *loanUseCase) GetLoanById(id int) (*model.Loan, error) {
 func (lu *loanUseCase) GetLoanByReservationId(reservationId int) (*model.Loan, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-func (lu *loanUseCase) UpdateLoan(request model.LoanUpdateRequest, adminID int, loanId int) error {
-
-	loan, err := lu.loanRepo.GetLoanById(loanId)
-	if err != nil {
-		return fmt.Errorf("loan not found: %w", err)
-	}
-
-	// Verifica o status
-	if loan.Status != "borrowed" {
-		return fmt.Errorf("loan is not in borrowed status")
-	}
-
-	// Atualiza os dados
-	now := time.Now()
-	loan.ReturnedAt = &now
-	loan.AdminId = &adminID
-	loan.Status = "returned"
-
-	// Atualiza no repositório
-	err = lu.loanRepo.UpdateLoan(loan)
-	if err != nil {
-		return fmt.Errorf("failed to update loan: %w", err)
-	}
-
-	return nil
 }
 
 func (lu *loanUseCase) FinishLoan(loanId, adminId int) error {
