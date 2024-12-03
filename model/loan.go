@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"go-api/model/user"
+	"time"
+)
 
 type LoanStatus string
 
@@ -10,14 +13,15 @@ const (
 )
 
 type Loan struct {
-	Id            int        `json:"id" db:"id"`
-	LoanedAt      time.Time  `json:"loaned_at" db:"loaned_at"`
-	ReturnBy      time.Time  `json:"return_by" db:"return_by"`
-	ReturnedAt    *time.Time `json:"returned_at,omitempty" db:"returned_at"`
-	Status        LoanStatus `json:"status" db:"status"`
-	AdminId       *int       `json:"admin_id,omitempty" db:"fk_admin_id"`
-	BookStockId   int        `json:"book_stock_id" db:"fk_book_stock_id"`
-	ReservationId int        `json:"reservation_id" db:"fk_reservation_id"`
+	Id            int           `json:"id"`
+	LoanedAt      time.Time     `json:"loaned_at" db:"loaned_at"`
+	ReturnBy      time.Time     `json:"return_by" db:"return_by"`
+	ReturnedAt    *time.Time    `json:"returned_at" db:"returned_at"`
+	Status        LoanStatus    `json:"status" db:"status"`
+	UserAccount   *user.Account `json:"user_account,omitempty" db:"user_account"`
+	AdminAccount  *user.Account `json:"admin_account,omitempty" db:"admin_account"`
+	BookStock     *BookStock    `json:"book_stock,omitempty"`
+	ReservationId int           `json:"reservation_id"`
 }
 
 type LoanRequest struct {
