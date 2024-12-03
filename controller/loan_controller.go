@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-api/model"
 	"go-api/usecase"
 	"net/http"
 	"strconv"
@@ -27,13 +28,31 @@ func NewLoanController(loanUseCase usecase.LoanUseCase, reservationUseCase useca
 }
 
 func (lc *loanController) GetLoansByFilters(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	userName := c.Query("user_name")
+	status := c.Query("status")
+	loanedAt := c.Query("loaned_at")
+
+	loans, err := lc.loanUseCase.GetLoansByFilters(userName, model.LoanStatus(status), loanedAt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, loans)
 }
 
 func (lc *loanController) GetLoanById(c *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid loan Id"})
+		return
+	}
+
+	loan, err := lc.loanUseCase.GetLoanById(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, loan)
 }
 
 func (lc *loanController) CreateLoan(c *gin.Context) {

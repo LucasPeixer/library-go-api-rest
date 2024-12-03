@@ -185,11 +185,24 @@ func (ur *userRepository) GetUserById(id int) (*user.Account, error) {
 
 func (ur *userRepository) GetUserLoans(id int) (*[]model.Loan, error) {
 	query := `
-			SELECT l.id, l.loaned_at, l.return_by, l.returned_at, l.status, 
-       l.fk_admin_id, l.fk_book_stock_id, l.fk_reservation_id
-			FROM loan l
-			JOIN reservation r ON l.fk_reservation_id = r.id 
-			WHERE r.fk_user_id = $1;`
+	SELECT 
+	    l.id                AS loan_id,
+	    l.loaned_at,
+	    l.return_by,
+	    l.returned_at,
+	    l.status            AS loan_status,
+	    bs.id               AS book_stock_id,
+	    bs.code             AS book_stock_code,
+	    bs.fk_book_id       AS book_id,
+	    l.fk_reservation_id AS reservation_id
+	FROM 
+	    loan l
+	LEFT JOIN
+	    reservation r ON l.fk_reservation_id = r.id
+	JOIN
+		 book_stock bs ON l.fk_book_stock_id = bs.id
+	WHERE 
+		 r.fk_user_id = $1;`
 
 	rows, err := ur.db.Query(query, id)
 	if err != nil {
@@ -199,14 +212,16 @@ func (ur *userRepository) GetUserLoans(id int) (*[]model.Loan, error) {
 	loans := make([]model.Loan, 0)
 	for rows.Next() {
 		var loan model.Loan
+		loan.BookStock = &model.BookStock{}
 		err := rows.Scan(
 			&loan.Id,
 			&loan.LoanedAt,
 			&loan.ReturnBy,
 			&loan.ReturnedAt,
 			&loan.Status,
-			&loan.AdminId,
-			&loan.BookStockId,
+			&loan.BookStock.Id,
+			&loan.BookStock.Code,
+			&loan.BookStock.BookId,
 			&loan.ReservationId,
 		)
 		if err != nil {
