@@ -10,7 +10,7 @@ const (
 
 type BookStock struct {
 	Id     int             `json:"id"`
-	Status BookStockStatus `json:"status"`
+	Status BookStockStatus `json:"status,omitempty"`
 	Code   int             `json:"code"`
 	BookId int             `json:"book_id"`
 }
